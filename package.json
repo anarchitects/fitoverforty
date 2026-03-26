@@ -53,6 +53,10 @@
   },
   "packageManager": "yarn@4.13.0",
   "dependencies": {
+    "@anarchitects/common-angular-design": "^0.0.1",
+    "@anarchitects/common-angular-ui-composition": "^0.0.1",
+    "@anarchitects/common-angular-ui-layouts": "^0.0.1",
+    "@anarchitects/common-angular-ui-primitives": "^0.0.1",
     "@angular/common": "~21.2.0",
     "@angular/compiler": "~21.2.0",
     "@angular/core": "~21.2.0",

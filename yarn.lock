@@ -176,6 +176,56 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@anarchitects/common-angular-design@npm:^0.0.1":
+  version: 0.0.1
+  resolution: "@anarchitects/common-angular-design@npm:0.0.1"
+  dependencies:
+    tslib: "npm:^2.3.0"
+  peerDependencies:
+    "@angular/core": ^21.0.0
+  checksum: 10c0/c7a69d832667c29760192934ec7a95781e43bf65ed653faaf66ef68ff39a557436c716ff144df0399247d9f78d6229c3c46cc276bd4d761fe411e3407db900ed
+  languageName: node
+  linkType: hard
+
+"@anarchitects/common-angular-ui-composition@npm:^0.0.1":
+  version: 0.0.1
+  resolution: "@anarchitects/common-angular-ui-composition@npm:0.0.1"
+  dependencies:
+    tslib: "npm:^2.3.0"
+  peerDependencies:
+    "@angular/core": ^21.0.0
+  checksum: 10c0/2c3476f8d844acfcda14021bd1c35fe0095f535555c29bb34671abeea713759ba82232eb6952c66570711badac7e6c0673d9b80052a365a5ca96c0daf0474f02
+  languageName: node
+  linkType: hard
+
+"@anarchitects/common-angular-ui-layouts@npm:^0.0.1":
+  version: 0.0.1
+  resolution: "@anarchitects/common-angular-ui-layouts@npm:0.0.1"
+  dependencies:
+    tslib: "npm:^2.3.0"
+  peerDependencies:
+    "@anarchitects/common-angular-ui-composition": ^0.0.1
+    "@anarchitects/common-angular-ui-primitives": ^0.0.1
+    "@angular/common": ^21.0.0
+    "@angular/core": ^21.0.0
+    rxjs: ~7.8.0
+  checksum: 10c0/99a011880e21650920ff8e73f82a9503ba665870e71c422845048a52af38d81ae7b82d5b54c488d0f04bdafc8713d1f22a427ced32728976aab5b32677bf9736
+  languageName: node
+  linkType: hard
+
+"@anarchitects/common-angular-ui-primitives@npm:^0.0.1":
+  version: 0.0.1
+  resolution: "@anarchitects/common-angular-ui-primitives@npm:0.0.1"
+  dependencies:
+    tslib: "npm:^2.3.0"
+  peerDependencies:
+    "@anarchitects/common-angular-design": ^0.0.1
+    "@anarchitects/common-angular-ui-composition": ^0.0.1
+    "@angular/core": ^21.0.0
+  checksum: 10c0/00ae05e0bfa508d07274292344f284eec49c45010ca4d8995b10eb7301a7445d3fe510dd5585d1c31783dafe41e8d90f5b66772d389412e4f679231b575a7868
+  languageName: node
+  linkType: hard
+
 "@anarchitects/nx-typeorm@npm:^0.4.2":
   version: 0.4.2
   resolution: "@anarchitects/nx-typeorm@npm:0.4.2"
@@ -2572,6 +2622,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@fitoverforty/source@workspace:."
   dependencies:
+    "@anarchitects/common-angular-design": "npm:^0.0.1"
+    "@anarchitects/common-angular-ui-composition": "npm:^0.0.1"
+    "@anarchitects/common-angular-ui-layouts": "npm:^0.0.1"
+    "@anarchitects/common-angular-ui-primitives": "npm:^0.0.1"
     "@anarchitects/nx-typeorm": "npm:^0.4.2"
     "@angular-devkit/core": "npm:~21.2.0"
     "@angular-devkit/schematics": "npm:~21.2.0"
