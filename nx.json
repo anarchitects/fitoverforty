@@ -31,18 +31,8 @@
     }
   },
   "plugins": [
-    {
-      "plugin": "@nx/playwright/plugin",
-      "options": {
-        "targetName": "e2e"
-      }
-    },
-    {
-      "plugin": "@nx/eslint/plugin",
-      "options": {
-        "targetName": "lint"
-      }
-    }
+    { "plugin": "@nx/playwright/plugin", "options": { "targetName": "e2e" } },
+    { "plugin": "@nx/eslint/plugin", "options": { "targetName": "lint" } }
   ],
   "generators": {
     "@nx/angular:application": {
@@ -51,5 +41,6 @@
       "style": "css",
       "unitTestRunner": "vitest-angular"
     }
-  }
+  },
+  "nxCloudId": "69c55480ee9de4adf5c7a1d0"
 }
