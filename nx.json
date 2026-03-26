@@ -65,6 +65,9 @@
         "watchDepsTargetName": "watch-deps",
         "serveStaticTargetName": "serve-static"
       }
+    },
+    {
+      "plugin": "@anarchitects/nx-typeorm"
     }
   ],
   "generators": {

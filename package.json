@@ -4,6 +4,7 @@
   "license": "MIT",
   "private": true,
   "devDependencies": {
+    "@anarchitects/nx-typeorm": "^0.4.2",
     "@angular-devkit/core": "~21.2.0",
     "@angular-devkit/schematics": "~21.2.0",
     "@angular/build": "~21.2.0",
@@ -40,7 +41,11 @@
     "jsdom": "^27.1.0",
     "nx": "22.6.1",
     "prettier": "~3.6.2",
+    "ts-morph": "^27.0.2",
+    "ts-node": "^10.9.2",
     "tslib": "^2.3.0",
+    "typeorm-ts-node-commonjs": "^0.3.20",
+    "typeorm-ts-node-esm": "^0.3.20",
     "typescript": "~5.9.2",
     "typescript-eslint": "^8.40.0",
     "vitest": "^4.0.8",
@@ -57,8 +62,11 @@
     "@nestjs/common": "^11.0.0",
     "@nestjs/core": "^11.0.0",
     "@nestjs/platform-express": "^11.0.0",
+    "@nestjs/typeorm": "^11.0.0",
     "axios": "^1.6.0",
-    "reflect-metadata": "^0.1.13",
-    "rxjs": "~7.8.0"
+    "pg": "^8.20.0",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "~7.8.0",
+    "typeorm": "^0.3.28"
   }
 }
