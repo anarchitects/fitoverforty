@@ -1,3 +1,10 @@
+import {
+  AddValidationRulesToFormConfigs1720310000000,
+  CreateFormsTables1720300000000,
+  FormConfigEntity,
+  SubmissionEntity,
+} from '@anarchitects/forms-nest/infrastructure-persistence';
+import { ContactForm1774554775527 } from '../tools/typeorm/migrations/1774554775527-ContactForm';
 import { DataSource } from 'typeorm';
 
 export const AppDataSource = new DataSource({
@@ -15,7 +22,13 @@ export const AppDataSource = new DataSource({
     Number.parseInt(process.env.TYPEORM_CONNECT_TIMEOUT_MS ?? '5000', 10) ||
     5000,
   synchronize: false,
-  logging: false,
+  logging: true,
+  entities: [FormConfigEntity, SubmissionEntity],
+  migrations: [
+    CreateFormsTables1720300000000,
+    AddValidationRulesToFormConfigs1720310000000,
+    ContactForm1774554775527,
+  ],
 });
 
 export function makeRuntimeDataSource(): DataSource {

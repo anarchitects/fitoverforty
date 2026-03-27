@@ -9,5 +9,5 @@ import { RouterOutlet } from '@angular/router';
   styleUrl: './app.css',
 })
 export class App {
-  protected title = 'fitoverforty-frontend';
+  protected title = 'Fit Over Forty';
 }
