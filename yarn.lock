@@ -239,6 +239,26 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@anarchitects/forms-angular@npm:^0.5.1":
+  version: 0.5.1
+  resolution: "@anarchitects/forms-angular@npm:0.5.1"
+  dependencies:
+    "@anarchitects/common-angular-ui-composition": "npm:^0.0.2"
+    "@anarchitects/common-angular-ui-layouts": "npm:^0.0.2"
+    "@anarchitects/common-angular-ui-primitives": "npm:^0.0.2"
+    "@anarchitects/forms-ts": "npm:^0.5.1"
+    tslib: "npm:^2.3.0"
+  peerDependencies:
+    "@angular/common": ^21.0.0
+    "@angular/core": ^21.0.0
+    "@angular/forms": ^21.0.0
+    "@ngrx/operators": ^21.1.0
+    "@ngrx/signals": ^21.1.0
+    rxjs: ~7.8.0
+  checksum: 10c0/a8256790c5bbf3eb43ac51b75ce46ef85af0ad92cd0b3f6431853e7bf74b7c93644999d3c1dbd41d1d42bbe9f56ff9259e6b46ff691bf0c775cb429b329a9cfe
+  languageName: node
+  linkType: hard
+
 "@anarchitects/forms-nest@npm:^0.5.2":
   version: 0.5.2
   resolution: "@anarchitects/forms-nest@npm:0.5.2"
@@ -2859,6 +2879,7 @@ __metadata:
     "@anarchitects/common-angular-ui-layouts": "npm:^0.0.2"
     "@anarchitects/common-angular-ui-primitives": "npm:^0.0.2"
     "@anarchitects/common-nest-mailer": "npm:^0.3.1"
+    "@anarchitects/forms-angular": "npm:^0.5.1"
     "@anarchitects/forms-nest": "npm:^0.5.2"
     "@anarchitects/nx-typeorm": "npm:^0.4.2"
     "@angular-devkit/core": "npm:~21.2.0"
@@ -2883,6 +2904,8 @@ __metadata:
     "@nestjs/schematics": "npm:^11.0.0"
     "@nestjs/testing": "npm:^11.0.0"
     "@nestjs/typeorm": "npm:^11.0.0"
+    "@ngrx/operators": "npm:^21.1.0"
+    "@ngrx/signals": "npm:^21.1.0"
     "@nx/angular": "npm:22.6.1"
     "@nx/devkit": "npm:22.6.1"
     "@nx/eslint": "npm:22.6.1"
@@ -4773,6 +4796,32 @@ __metadata:
     rxjs: ^7.2.0
     typeorm: ^0.3.0
   checksum: 10c0/bdb96fc0d05cb653ffb8d90e44f866c7634fe4065db409e878e06ab1c3ae0333b5629c7590c1f94f2adf39ef7e95422dff34eadb2910f6eb7b6c598bcc65088a
+  languageName: node
+  linkType: hard
+
+"@ngrx/operators@npm:^21.1.0":
+  version: 21.1.0
+  resolution: "@ngrx/operators@npm:21.1.0"
+  dependencies:
+    tslib: "npm:^2.3.0"
+  peerDependencies:
+    rxjs: ^6.5.3 || ^7.4.0
+  checksum: 10c0/1e91d94fba368801382be492b6a11b407f73597336557a5eb5be17ab8fb8212d5d7264436a06eb94c06f86a91d04dc6cacb8a1a3e8a5b52f93f189903e4ba7ed
+  languageName: node
+  linkType: hard
+
+"@ngrx/signals@npm:^21.1.0":
+  version: 21.1.0
+  resolution: "@ngrx/signals@npm:21.1.0"
+  dependencies:
+    tslib: "npm:^2.3.0"
+  peerDependencies:
+    "@angular/core": ^21.0.0
+    rxjs: ^6.5.3 || ^7.4.0
+  peerDependenciesMeta:
+    rxjs:
+      optional: true
+  checksum: 10c0/dc3f6c1ed7923c3be4cdf49f45aa63f47e9e4cb385158989f2e333bf2083d536a36d9aff13a69b79df1524d7def3d8eee27b7752be06c39cd338bf54d4b22314
   languageName: node
   linkType: hard
 
