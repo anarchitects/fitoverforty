@@ -176,77 +176,78 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anarchitects/common-angular-design@npm:^0.0.2":
-  version: 0.0.2
-  resolution: "@anarchitects/common-angular-design@npm:0.0.2"
+"@anarchitects/common-angular-design@npm:^0.1.0":
+  version: 0.1.0
+  resolution: "@anarchitects/common-angular-design@npm:0.1.0"
+  dependencies:
+    tslib: "npm:^2.3.0"
+  peerDependencies:
+    "@angular/common": ^21.0.0
+    "@angular/core": ^21.0.0
+  checksum: 10c0/e2ad4e50cbd4df20a9b468892b34e9ad7442f12045dd9373cd379d581982949eabc82fe189be19761774d5898262decefe9f14e26b0450fa2d03aed32b2fa820
+  languageName: node
+  linkType: hard
+
+"@anarchitects/common-angular-ui-composition@npm:^0.1.0":
+  version: 0.1.0
+  resolution: "@anarchitects/common-angular-ui-composition@npm:0.1.0"
   dependencies:
     tslib: "npm:^2.3.0"
   peerDependencies:
     "@angular/core": ^21.0.0
-  checksum: 10c0/7a7b0dbbdf21834ce09862ad8caea48b5fe6c20714aad7ceb15656938d586918acb63cea8484d4787f245551be127632a369baf1a8ef1eda1276e55d1e8196ef
+  checksum: 10c0/eb9bf09899bd99b77e3db209df048bd4907a5eb313c70a47a090a34ad22f143027d537147ec5e5cb6446e203c7121d6a2f532cb9d7056b270a21b8cfa3c2712b
   languageName: node
   linkType: hard
 
-"@anarchitects/common-angular-ui-composition@npm:^0.0.2":
-  version: 0.0.2
-  resolution: "@anarchitects/common-angular-ui-composition@npm:0.0.2"
+"@anarchitects/common-angular-ui-layouts@npm:^0.1.0":
+  version: 0.1.0
+  resolution: "@anarchitects/common-angular-ui-layouts@npm:0.1.0"
   dependencies:
-    tslib: "npm:^2.3.0"
-  peerDependencies:
-    "@angular/core": ^21.0.0
-  checksum: 10c0/68efab5202f971758b1cff9c0ec0e585aff622750a1ab067243624b936c7bf2d8b061d3a9d58b0662a8f695054c7a1c0ec43e9d78ede7368b1ce517800ec79b6
-  languageName: node
-  linkType: hard
-
-"@anarchitects/common-angular-ui-layouts@npm:^0.0.2":
-  version: 0.0.2
-  resolution: "@anarchitects/common-angular-ui-layouts@npm:0.0.2"
-  dependencies:
-    "@anarchitects/common-angular-ui-composition": "npm:^0.0.2"
-    "@anarchitects/common-angular-ui-primitives": "npm:^0.0.2"
+    "@anarchitects/common-angular-ui-composition": "npm:^0.1.0"
+    "@anarchitects/common-angular-ui-primitives": "npm:^0.1.0"
     tslib: "npm:^2.3.0"
   peerDependencies:
     "@angular/common": ^21.0.0
     "@angular/core": ^21.0.0
     rxjs: ~7.8.0
-  checksum: 10c0/141605bd74cc9519f62f65068e903eb867a5b6519afebdad69d0d0c7821611caaad74b1c6cacca76003e46c2349dcb7863c30bd9d25f6d9eca0c7048e58d522e
+  checksum: 10c0/6cbc2b53184768dcdebb80453a5296e80bc186d7ae20902b0b3480c08db218378a3401a678ea637d59c3f1084fb07331c9dcb1bfe06a65896093115c8faa3f20
   languageName: node
   linkType: hard
 
-"@anarchitects/common-angular-ui-primitives@npm:^0.0.2":
-  version: 0.0.2
-  resolution: "@anarchitects/common-angular-ui-primitives@npm:0.0.2"
+"@anarchitects/common-angular-ui-primitives@npm:^0.1.0":
+  version: 0.1.0
+  resolution: "@anarchitects/common-angular-ui-primitives@npm:0.1.0"
   dependencies:
-    "@anarchitects/common-angular-design": "npm:^0.0.2"
-    "@anarchitects/common-angular-ui-composition": "npm:^0.0.2"
+    "@anarchitects/common-angular-design": "npm:^0.1.0"
+    "@anarchitects/common-angular-ui-composition": "npm:^0.1.0"
     tslib: "npm:^2.3.0"
   peerDependencies:
     "@angular/core": ^21.0.0
-  checksum: 10c0/779b3c1341fa8a003000679ebba869f6ded9e1ad4ec76a29d03fdb54d52fa25b687190ef0b9bc774eac0fc58e3956bc68b5e4ee90a843c96ce90b0f48512220e
+  checksum: 10c0/b480111423bc9f8f465b21ae1cb592c2592972957e5b31d7244e39676413eee4d26358c6662017e263a280875adb09fb4202801689f2f5af1196e9077fad2410
   languageName: node
   linkType: hard
 
-"@anarchitects/common-nest-mailer@npm:^0.3.1":
-  version: 0.3.1
-  resolution: "@anarchitects/common-nest-mailer@npm:0.3.1"
+"@anarchitects/common-nest-mailer@npm:^0.3.2":
+  version: 0.3.2
+  resolution: "@anarchitects/common-nest-mailer@npm:0.3.2"
   dependencies:
     tslib: "npm:^2.3.0"
   peerDependencies:
     "@nestjs-modules/mailer": ^2.3.4
     "@nestjs/common": ^11.0.0
     "@nestjs/config": ^4.0.2
-  checksum: 10c0/58a63613cdad2668089236d89c918d3262de23de9b3b3c5887cda77f548e6af9dea7268c9b32ab96b727f7627040db5e22f11620588a5a6d973fb19b36cd76d0
+  checksum: 10c0/3a81125940b9f375cdadca4a5dc241cf51926fad4fae53789a4a8fd6c2cb0d62ce1c6875087f257fcc1faa3c025256574168bee7b8566c711ffdbd5d0c35d072
   languageName: node
   linkType: hard
 
-"@anarchitects/forms-angular@npm:^0.5.1":
-  version: 0.5.1
-  resolution: "@anarchitects/forms-angular@npm:0.5.1"
+"@anarchitects/forms-angular@npm:^0.6.1":
+  version: 0.6.1
+  resolution: "@anarchitects/forms-angular@npm:0.6.1"
   dependencies:
-    "@anarchitects/common-angular-ui-composition": "npm:^0.0.2"
-    "@anarchitects/common-angular-ui-layouts": "npm:^0.0.2"
-    "@anarchitects/common-angular-ui-primitives": "npm:^0.0.2"
-    "@anarchitects/forms-ts": "npm:^0.5.1"
+    "@anarchitects/common-angular-ui-composition": "npm:^0.1.0"
+    "@anarchitects/common-angular-ui-layouts": "npm:^0.1.0"
+    "@anarchitects/common-angular-ui-primitives": "npm:^0.1.0"
+    "@anarchitects/forms-ts": "npm:^0.6.0"
     tslib: "npm:^2.3.0"
   peerDependencies:
     "@angular/common": ^21.0.0
@@ -255,16 +256,16 @@ __metadata:
     "@ngrx/operators": ^21.1.0
     "@ngrx/signals": ^21.1.0
     rxjs: ~7.8.0
-  checksum: 10c0/a8256790c5bbf3eb43ac51b75ce46ef85af0ad92cd0b3f6431853e7bf74b7c93644999d3c1dbd41d1d42bbe9f56ff9259e6b46ff691bf0c775cb429b329a9cfe
+  checksum: 10c0/4880db6b2b0d782fd13ae8a761e67b1ab3b9ec604285777c05444e76e8ad96108fa0534de0fcce816c12e763cd256d78872b833cb88b95ec1f5df92912a2028c
   languageName: node
   linkType: hard
 
-"@anarchitects/forms-nest@npm:^0.5.2":
-  version: 0.5.2
-  resolution: "@anarchitects/forms-nest@npm:0.5.2"
+"@anarchitects/forms-nest@npm:^0.6.0":
+  version: 0.6.0
+  resolution: "@anarchitects/forms-nest@npm:0.6.0"
   dependencies:
-    "@anarchitects/common-nest-mailer": "npm:^0.3.1"
-    "@anarchitects/forms-ts": "npm:^0.5.1"
+    "@anarchitects/common-nest-mailer": "npm:^0.3.2"
+    "@anarchitects/forms-ts": "npm:^0.6.0"
     tslib: "npm:^2.3.0"
     uuidv7: "npm:^1.0.2"
   peerDependencies:
@@ -273,16 +274,16 @@ __metadata:
     "@nestjs/platform-fastify": ^11.1.6
     "@nestjs/typeorm": ^11.0.0
     typeorm: ^0.3.27
-  checksum: 10c0/71d9f39822e2344019b2165838210ea49acc75381ebd4c0dac857cc71c20859018ff522372af2d1f37a2054140bcd950b57d1b11c841a218dbb6cbfcde7da0c2
+  checksum: 10c0/c858259a3524b43d6b63fd1a73df7d4f8f0ac3a329eb06bf6fba95b3669ed84019fe9b6a3ea41744d3770e96d9d3b9d7508810b05dded57d0bcbdbe94a9d929a
   languageName: node
   linkType: hard
 
-"@anarchitects/forms-ts@npm:^0.5.1":
-  version: 0.5.1
-  resolution: "@anarchitects/forms-ts@npm:0.5.1"
+"@anarchitects/forms-ts@npm:^0.6.0":
+  version: 0.6.0
+  resolution: "@anarchitects/forms-ts@npm:0.6.0"
   dependencies:
     "@sinclair/typebox": "npm:^0.34.41"
-  checksum: 10c0/14b7d4fc3380cecdca4d43ae228bc513bd9c7e8c46429ac85235db128af148f088faf56845a653b20603342fc5245622f99afbdff07e65bc7d3812b34ba355e7
+  checksum: 10c0/446c0fe8f54ccfd8e22798585952020862fe1587dd0e5e85119c15c2e6e4ffe5e4cf48ce85f2b47d9b9020ebef81a91aafd2aadfaede49f1bb680a35ad60cce8
   languageName: node
   linkType: hard
 
@@ -2874,13 +2875,13 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@fitoverforty/source@workspace:."
   dependencies:
-    "@anarchitects/common-angular-design": "npm:^0.0.2"
-    "@anarchitects/common-angular-ui-composition": "npm:^0.0.2"
-    "@anarchitects/common-angular-ui-layouts": "npm:^0.0.2"
-    "@anarchitects/common-angular-ui-primitives": "npm:^0.0.2"
-    "@anarchitects/common-nest-mailer": "npm:^0.3.1"
-    "@anarchitects/forms-angular": "npm:^0.5.1"
-    "@anarchitects/forms-nest": "npm:^0.5.2"
+    "@anarchitects/common-angular-design": "npm:^0.1.0"
+    "@anarchitects/common-angular-ui-composition": "npm:^0.1.0"
+    "@anarchitects/common-angular-ui-layouts": "npm:^0.1.0"
+    "@anarchitects/common-angular-ui-primitives": "npm:^0.1.0"
+    "@anarchitects/common-nest-mailer": "npm:^0.3.2"
+    "@anarchitects/forms-angular": "npm:^0.6.1"
+    "@anarchitects/forms-nest": "npm:^0.6.0"
     "@anarchitects/nx-typeorm": "npm:^0.4.2"
     "@angular-devkit/core": "npm:~21.2.0"
     "@angular-devkit/schematics": "npm:~21.2.0"
