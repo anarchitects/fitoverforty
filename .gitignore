@@ -49,3 +49,5 @@ __screenshots__/
 
 .nx/polygraph
 **/.env.local
+
+vitest.config.*.timestamp*

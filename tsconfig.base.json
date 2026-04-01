@@ -14,7 +14,10 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
-    "paths": {}
+    "paths": {
+      "@fitoverforty/frontend-header": ["libs/frontend/header/src/index.ts"],
+      "@fitoverforty/frontend-footer": ["libs/frontend/footer/src/index.ts"]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }
