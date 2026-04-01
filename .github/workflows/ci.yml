@@ -33,9 +33,8 @@ jobs:
       TYPEORM_USERNAME: fitoverforty
       TYPEORM_PASSWORD: fitoverforty
       TYPEORM_DATABASE: fitoverforty
-      TYPEORM_SCHEMA: forms
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           filter: tree:0
           fetch-depth: 0
@@ -49,9 +48,9 @@ jobs:
       # - run: yarn dlx nx start-ci-run --distribute-on="3 linux-medium-js" --stop-agents-after="e2e-ci"
 
       # Cache node_modules
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: 22
           cache: 'yarn'
 
       - run: yarn install --immutable
