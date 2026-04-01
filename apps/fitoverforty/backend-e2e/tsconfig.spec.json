@@ -5,7 +5,7 @@
     "module": "commonjs",
     "types": ["jest", "node"]
   },
-  "include": ["jest.config.ts", "src/**/*.ts"],
+  "include": ["jest.config.cts", "src/**/*.ts"],
   "exclude": [
     "src/support/global-setup.ts",
     "src/support/global-teardown.ts",

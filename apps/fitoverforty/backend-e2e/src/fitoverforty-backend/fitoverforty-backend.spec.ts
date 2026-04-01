@@ -1,7 +1,7 @@
 import type { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { createFastifyTestApp } from '../support/create-fastify-test-app';
 
-describe('GET /api', () => {
+describe('GET /', () => {
   let app: NestFastifyApplication;
 
   beforeAll(async () => {
@@ -15,7 +15,7 @@ describe('GET /api', () => {
   it('should return a message', async () => {
     const res = await app.inject({
       method: 'GET',
-      url: '/api',
+      url: '/',
     });
 
     expect(res.statusCode).toBe(200);

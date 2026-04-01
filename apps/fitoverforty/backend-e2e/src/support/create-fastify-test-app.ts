@@ -3,12 +3,20 @@ import {
   type NestFastifyApplication,
 } from '@nestjs/platform-fastify';
 import { Test } from '@nestjs/testing';
-// eslint-disable-next-line @nx/enforce-module-boundaries
-import { AppModule } from '../../../backend/src/app/app.module';
 
 export async function createFastifyTestApp(): Promise<NestFastifyApplication> {
   // E2E tests should not depend on external SMTP services.
-  process.env.MAILER_PROVIDER = 'noop';
+  process.env.FORMS_MAILER_PROVIDER = 'noop';
+
+  // eslint-disable-next-line @nx/enforce-module-boundaries
+  const { makeRuntimeDataSource } = await import('../../../backend/src/data-source');
+  const migrationDataSource = makeRuntimeDataSource();
+  await migrationDataSource.initialize();
+  await migrationDataSource.runMigrations();
+  await migrationDataSource.destroy();
+
+  // eslint-disable-next-line @nx/enforce-module-boundaries
+  const { AppModule } = await import('../../../backend/src/app/app.module');
 
   const moduleFixture = await Test.createTestingModule({
     imports: [AppModule],

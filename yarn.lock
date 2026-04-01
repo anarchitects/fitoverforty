@@ -2963,6 +2963,7 @@ __metadata:
     "@swc-node/register": "npm:~1.11.1"
     "@swc/core": "npm:~1.15.5"
     "@swc/helpers": "npm:~0.5.18"
+    "@types/jest": "npm:^30.0.0"
     "@types/node": "npm:20.19.9"
     "@typescript-eslint/utils": "npm:^8.40.0"
     "@vitest/coverage-v8": "npm:~4.0.0"
@@ -7225,6 +7226,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/jest@npm:^30.0.0":
+  version: 30.0.0
+  resolution: "@types/jest@npm:30.0.0"
+  dependencies:
+    expect: "npm:^30.0.0"
+    pretty-format: "npm:^30.0.0"
+  checksum: 10c0/20c6ce574154bc16f8dd6a97afacca4b8c4921a819496a3970382031c509ebe87a1b37b152a1b8475089b82d8ca951a9e95beb4b9bf78fbf579b1536f0b65969
+  languageName: node
+  linkType: hard
+
 "@types/json-schema@npm:*, @types/json-schema@npm:^7.0.15, @types/json-schema@npm:^7.0.8, @types/json-schema@npm:^7.0.9":
   version: 7.0.15
   resolution: "@types/json-schema@npm:7.0.15"
@@ -11279,7 +11290,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expect@npm:30.3.0":
+"expect@npm:30.3.0, expect@npm:^30.0.0":
   version: 30.3.0
   resolution: "expect@npm:30.3.0"
   dependencies:
@@ -17180,7 +17191,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pretty-format@npm:30.3.0":
+"pretty-format@npm:30.3.0, pretty-format@npm:^30.0.0":
   version: 30.3.0
   resolution: "pretty-format@npm:30.3.0"
   dependencies:

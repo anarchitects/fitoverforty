@@ -15,7 +15,7 @@ describe('contact form flow', () => {
   it('retrieves form definition and submits contact form payload', async () => {
     const definitionResponse = await app.inject({
       method: 'GET',
-      url: '/api/forms/contact-form?formVersion=1',
+      url: '/forms/contact-form?formVersion=1',
     });
     const definitionData = JSON.parse(definitionResponse.payload);
 
@@ -42,7 +42,7 @@ describe('contact form flow', () => {
 
     const submissionResponse = await app.inject({
       method: 'POST',
-      url: '/api/forms/submit',
+      url: '/forms/submit',
       payload: submissionInput,
       headers: {
         'content-type': 'application/json',
