@@ -70,41 +70,46 @@
   --anx-ref-color-info-800: #223f4c;
   --anx-ref-color-info-900: #152830;
 
+  /* Surface & text tokens */
   --anx-sys-color-surface: var(--anx-ref-color-neutral-0);
-  --anx-sys-color-on-surface: var(--anx-ref-color-neutral-900);
-  --anx-sys-color-surface-variant: var(--anx-ref-color-neutral-100);
-  --anx-sys-color-on-surface-variant: var(--anx-ref-color-neutral-700);
+  --anx-sys-color-surface-muted: var(--anx-ref-color-neutral-100);
+  --anx-sys-color-text: var(--anx-ref-color-neutral-900);
+  --anx-sys-color-text-muted: var(--anx-ref-color-neutral-700);
+  --anx-sys-color-text-primary: var(--anx-ref-color-brand-700);
+  --anx-sys-color-text-secondary: var(--anx-ref-color-neutral-600);
+  --anx-sys-color-border: var(--anx-ref-color-neutral-200);
 
-  --anx-sys-color-primary: var(--anx-ref-color-brand-700);
-  --anx-sys-color-primary-container: var(--anx-ref-color-brand-100);
-  --anx-sys-color-on-primary: var(--anx-ref-color-neutral-0);
-  --anx-sys-color-on-primary-container: var(--anx-ref-color-brand-900);
-  --anx-sys-color-primary-contained: var(--anx-ref-color-brand-700);
-  --anx-sys-color-on-primary-contained: var(--anx-ref-color-neutral-0);
+  /* Accent (brand primary) tokens */
+  --anx-sys-color-accent: var(--anx-ref-color-brand-700);
+  --anx-sys-color-accent-contrast: var(--anx-ref-color-neutral-0);
 
+  /* Success tokens */
   --anx-sys-color-success: var(--anx-ref-color-success-600);
-  --anx-sys-color-success-container: var(--anx-ref-color-success-100);
-  --anx-sys-color-on-success: var(--anx-ref-color-neutral-0);
-  --anx-sys-color-on-success-container: var(--anx-ref-color-success-900);
-  --anx-sys-color-on-success-contained: var(--anx-ref-color-neutral-0);
+  --anx-sys-color-success-surface: var(--anx-ref-color-success-100);
+  --anx-sys-color-success-contrast: var(--anx-ref-color-neutral-0);
 
+  /* Warning tokens (app-specific) */
   --anx-sys-color-warning: var(--anx-ref-color-warning-500);
-  --anx-sys-color-warning-container: var(--anx-ref-color-warning-100);
-  --anx-sys-color-on-warning: var(--anx-ref-color-neutral-0);
-  --anx-sys-color-on-warning-container: var(--anx-ref-color-warning-900);
+  --anx-sys-color-warning-surface: var(--anx-ref-color-warning-100);
+  --anx-sys-color-warning-contrast: var(--anx-ref-color-neutral-0);
 
-  --anx-sys-color-error: var(--anx-ref-color-error-600);
-  --anx-sys-color-error-container: var(--anx-ref-color-error-100);
-  --anx-sys-color-on-error: var(--anx-ref-color-neutral-0);
-  --anx-sys-color-on-error-container: var(--anx-ref-color-error-900);
-  --anx-sys-color-on-error-contained: var(--anx-ref-color-neutral-0);
+  /* Danger tokens */
+  --anx-sys-color-danger: var(--anx-ref-color-error-600);
+  --anx-sys-color-danger-surface: var(--anx-ref-color-error-100);
+  --anx-sys-color-danger-contrast: var(--anx-ref-color-neutral-0);
 
+  /* Info tokens (app-specific) */
   --anx-sys-color-info: var(--anx-ref-color-info-600);
-  --anx-sys-color-info-container: var(--anx-ref-color-info-100);
-  --anx-sys-color-on-info: var(--anx-ref-color-neutral-0);
-  --anx-sys-color-on-info-container: var(--anx-ref-color-info-900);
+  --anx-sys-color-info-surface: var(--anx-ref-color-info-100);
+  --anx-sys-color-info-contrast: var(--anx-ref-color-neutral-0);
 
-  --anx-ref-shadow-soft: 0 18px 42px rgba(29, 26, 21, 0.12);
+  /* Disabled state tokens */
+  --anx-sys-color-disabled-surface: var(--anx-ref-color-neutral-100);
+  --anx-sys-color-disabled-fg: var(--anx-ref-color-neutral-500);
+  --anx-sys-color-disabled-border: var(--anx-ref-color-neutral-300);
+
+  /* Shadow */
+  --anx-sys-shadow-surface: 0 18px 42px rgba(29, 26, 21, 0.12);
 }
 
 /* Fit Over Forty - Dark theme (surface='dark') */
@@ -145,39 +150,44 @@
   --anx-ref-color-info-100: #20323b;
   --anx-ref-color-info-900: #d2e4ea;
 
+  /* Surface & text tokens */
   --anx-sys-color-surface: var(--anx-ref-color-neutral-0);
-  --anx-sys-color-on-surface: var(--anx-ref-color-neutral-900);
-  --anx-sys-color-surface-variant: var(--anx-ref-color-neutral-100);
-  --anx-sys-color-on-surface-variant: var(--anx-ref-color-neutral-700);
+  --anx-sys-color-surface-muted: var(--anx-ref-color-neutral-100);
+  --anx-sys-color-text: var(--anx-ref-color-neutral-900);
+  --anx-sys-color-text-muted: var(--anx-ref-color-neutral-700);
+  --anx-sys-color-text-primary: var(--anx-ref-color-brand-700);
+  --anx-sys-color-text-secondary: var(--anx-ref-color-neutral-600);
+  --anx-sys-color-border: var(--anx-ref-color-neutral-200);
 
-  --anx-sys-color-primary: var(--anx-ref-color-brand-700);
-  --anx-sys-color-primary-container: var(--anx-ref-color-brand-200);
-  --anx-sys-color-on-primary: var(--anx-ref-color-neutral-0);
-  --anx-sys-color-on-primary-container: var(--anx-ref-color-brand-900);
-  --anx-sys-color-primary-contained: var(--anx-ref-color-brand-700);
-  --anx-sys-color-on-primary-contained: var(--anx-ref-color-neutral-0);
+  /* Accent (brand primary) tokens */
+  --anx-sys-color-accent: var(--anx-ref-color-brand-700);
+  --anx-sys-color-accent-contrast: var(--anx-ref-color-neutral-0);
 
+  /* Success tokens */
   --anx-sys-color-success: var(--anx-ref-color-success-500);
-  --anx-sys-color-success-container: var(--anx-ref-color-success-100);
-  --anx-sys-color-on-success: var(--anx-ref-color-neutral-0);
-  --anx-sys-color-on-success-container: var(--anx-ref-color-success-900);
-  --anx-sys-color-on-success-contained: var(--anx-ref-color-neutral-0);
+  --anx-sys-color-success-surface: var(--anx-ref-color-success-100);
+  --anx-sys-color-success-contrast: var(--anx-ref-color-neutral-0);
 
+  /* Warning tokens (app-specific) */
   --anx-sys-color-warning: var(--anx-ref-color-warning-500);
-  --anx-sys-color-warning-container: var(--anx-ref-color-warning-100);
-  --anx-sys-color-on-warning: var(--anx-ref-color-neutral-0);
-  --anx-sys-color-on-warning-container: var(--anx-ref-color-warning-900);
+  --anx-sys-color-warning-surface: var(--anx-ref-color-warning-100);
+  --anx-sys-color-warning-contrast: var(--anx-ref-color-neutral-0);
 
-  --anx-sys-color-error: var(--anx-ref-color-error-600);
-  --anx-sys-color-error-container: var(--anx-ref-color-error-100);
-  --anx-sys-color-on-error: var(--anx-ref-color-neutral-0);
-  --anx-sys-color-on-error-container: var(--anx-ref-color-error-900);
-  --anx-sys-color-on-error-contained: var(--anx-ref-color-neutral-0);
+  /* Danger tokens */
+  --anx-sys-color-danger: var(--anx-ref-color-error-600);
+  --anx-sys-color-danger-surface: var(--anx-ref-color-error-100);
+  --anx-sys-color-danger-contrast: var(--anx-ref-color-neutral-0);
 
+  /* Info tokens (app-specific) */
   --anx-sys-color-info: var(--anx-ref-color-info-600);
-  --anx-sys-color-info-container: var(--anx-ref-color-info-100);
-  --anx-sys-color-on-info: var(--anx-ref-color-neutral-0);
-  --anx-sys-color-on-info-container: var(--anx-ref-color-info-900);
+  --anx-sys-color-info-surface: var(--anx-ref-color-info-100);
+  --anx-sys-color-info-contrast: var(--anx-ref-color-neutral-0);
 
-  --anx-ref-shadow-soft: 0 24px 56px rgba(0, 0, 0, 0.38);
+  /* Disabled state tokens */
+  --anx-sys-color-disabled-surface: var(--anx-ref-color-neutral-200);
+  --anx-sys-color-disabled-fg: var(--anx-ref-color-neutral-600);
+  --anx-sys-color-disabled-border: var(--anx-ref-color-neutral-400);
+
+  /* Shadow */
+  --anx-sys-shadow-surface: 0 24px 56px rgba(0, 0, 0, 0.38);
 }
