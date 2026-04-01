@@ -42,8 +42,7 @@ body {
       140deg,
       color-mix(in srgb, var(--anx-sys-color-surface) 92%, #000 8%) 0%,
       var(--anx-sys-color-surface) 62%,
-      color-mix(in srgb, var(--anx-sys-color-surface-muted) 76%, #000 24%)
-        100%
+      color-mix(in srgb, var(--anx-sys-color-surface-muted) 76%, #000 24%) 100%
     );
   background-attachment: fixed;
 }

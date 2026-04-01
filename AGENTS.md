@@ -21,6 +21,7 @@
 - The `nx-generate` skill handles generator discovery internally - don't call nx_docs just to look up generator syntax
 
 <!-- nx configuration end-->
+
 ## Anarchitecture Bricks Overlay
 
 - Apply the Bricks README-First Overlay first.

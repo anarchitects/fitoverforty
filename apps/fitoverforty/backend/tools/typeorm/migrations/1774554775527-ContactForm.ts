@@ -3,7 +3,6 @@ import type { FormConfig } from '@anarchitects/forms-ts/models';
 import { FormConfigEntity } from '@anarchitects/forms-nest';
 
 export class ContactForm1774554775527 implements MigrationInterface {
-
   public async up(queryRunner: QueryRunner): Promise<void> {
     const contactFormConfig: FormConfig = {
       id: 'contact-form',
@@ -50,11 +49,13 @@ export class ContactForm1774554775527 implements MigrationInterface {
           enabled: true,
           subject: 'Thank you for contacting us!',
           templateId: 'contact-form-autoreply',
-        }
-      }
+        },
+      },
     };
 
-    await queryRunner.manager.getRepository(FormConfigEntity).save(contactFormConfig);
+    await queryRunner.manager
+      .getRepository(FormConfigEntity)
+      .save(contactFormConfig);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
@@ -62,5 +63,4 @@ export class ContactForm1774554775527 implements MigrationInterface {
       .getRepository(FormConfigEntity)
       .delete({ id: 'contact-form' });
   }
-
 }

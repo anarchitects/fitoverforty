@@ -6,12 +6,12 @@ services:
       POSTGRES_PASSWORD: fitoverforty
       POSTGRES_DB: fitoverforty
     ports:
-      - "5432:5432"
+      - '5432:5432'
   mailpit:
     image: axllent/mailpit
     environment:
       MP_SMTP_AUTH_ACCEPT_ANY: 1
       MP_SMTP_AUTH_ALLOW_INSECURE: 1
     ports:
-      - "1025:1025"
-      - "8025:8025"
+      - '1025:1025'
+      - '8025:8025'

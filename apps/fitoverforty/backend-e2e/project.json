@@ -10,8 +10,7 @@
       "options": {
         "jestConfig": "apps/fitoverforty/backend-e2e/jest.config.cts",
         "passWithNoTests": true
-      },
-      "dependsOn": ["fitoverforty-backend:build", "fitoverforty-backend:serve"]
+      }
     }
   }
 }
