@@ -13,8 +13,28 @@ permissions:
 jobs:
   main:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: fitoverforty
+          POSTGRES_PASSWORD: fitoverforty
+          POSTGRES_DB: fitoverforty
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U fitoverforty -d fitoverforty"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      TYPEORM_HOST: localhost
+      TYPEORM_PORT: '5432'
+      TYPEORM_USERNAME: fitoverforty
+      TYPEORM_PASSWORD: fitoverforty
+      TYPEORM_DATABASE: fitoverforty
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           filter: tree:0
           fetch-depth: 0
@@ -28,9 +48,9 @@ jobs:
       # - run: yarn dlx nx start-ci-run --distribute-on="3 linux-medium-js" --stop-agents-after="e2e-ci"
 
       # Cache node_modules
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: 22
           cache: 'yarn'
 
       - run: yarn install --immutable

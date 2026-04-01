@@ -1,0 +1,94 @@
+<html lang='en'>
+  <head>
+    <meta charset='utf-8' />
+    <meta name='viewport' content='width=device-width, initial-scale=1' />
+    <title>Thank you for contacting us</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 24px;
+        background: #f3f1eb;
+        color: #1d1a15;
+        font-family: 'Segoe UI', Arial, sans-serif;
+      }
+
+      .container {
+        max-width: 680px;
+        margin: 0 auto;
+        background: #ffffff;
+        border: 1px solid #d4cbb8;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(29, 26, 21, 0.1);
+      }
+
+      .header {
+        padding: 18px 24px;
+        background: linear-gradient(135deg, #315934, #426f44);
+        color: #ffffff;
+      }
+
+      .header h1 {
+        margin: 0;
+        font-size: 22px;
+        line-height: 1.2;
+      }
+
+      .content {
+        padding: 24px;
+      }
+
+      .content p {
+        margin: 0 0 14px;
+        line-height: 1.6;
+      }
+
+      .message {
+        margin-top: 6px;
+        padding: 12px 14px;
+        border: 1px solid #e2dccf;
+        border-radius: 8px;
+        background: #f8f6f1;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+
+      .signoff {
+        margin-top: 20px;
+        color: #315934;
+        font-weight: 600;
+      }
+
+      .footer {
+        padding: 14px 24px 20px;
+        border-top: 1px solid #ece8de;
+        font-size: 12px;
+        color: #70644e;
+        background: #fcfbf8;
+      }
+    </style>
+  </head>
+  <body>
+    <div class='container'>
+      <div class='header'>
+        <h1>Thank you for contacting Fit Over Forty</h1>
+      </div>
+
+      <div class='content'>
+        <p>Hi {{name}},</p>
+        <p>Thanks for reaching out. We have received your message and will get
+          back to you as soon as possible.</p>
+
+        <p><strong>Your message:</strong></p>
+        <p class='message'>{{message}}</p>
+
+        <p class='signoff'>Warm regards,<br />Fit Over Forty Team</p>
+      </div>
+
+      <div class='footer'>
+        This is an automated acknowledgement email for your recent contact form
+        submission.
+      </div>
+    </div>
+  </body>
+</html>
