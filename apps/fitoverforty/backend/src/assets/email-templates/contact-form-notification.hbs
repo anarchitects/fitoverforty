@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>New Contact Form Submission</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 24px;
+        background: #f3f1eb;
+        color: #1d1a15;
+        font-family: 'Segoe UI', Arial, sans-serif;
+      }
+
+      .container {
+        max-width: 680px;
+        margin: 0 auto;
+        background: #ffffff;
+        border: 1px solid #d4cbb8;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(29, 26, 21, 0.1);
+      }
+
+      .header {
+        padding: 18px 24px;
+        background: linear-gradient(135deg, #315934, #426f44);
+        color: #ffffff;
+      }
+
+      .header h1 {
+        margin: 0;
+        font-size: 22px;
+        line-height: 1.2;
+      }
+
+      .header p {
+        margin: 6px 0 0;
+        font-size: 14px;
+        opacity: 0.95;
+      }
+
+      .content {
+        padding: 24px;
+      }
+
+      .label {
+        margin: 0 0 4px;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: #574d3d;
+      }
+
+      .value {
+        margin: 0 0 18px;
+        padding: 12px 14px;
+        border: 1px solid #e2dccf;
+        border-radius: 8px;
+        background: #f8f6f1;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+
+      .meta {
+        margin-top: 8px;
+        font-size: 12px;
+        color: #70644e;
+      }
+
+      .footer {
+        padding: 14px 24px 20px;
+        border-top: 1px solid #ece8de;
+        font-size: 12px;
+        color: #70644e;
+        background: #fcfbf8;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>New Contact Form Submission</h1>
+        <p>Fit Over Forty</p>
+      </div>
+
+      <div class="content">
+        <p class="label">Name</p>
+        <p class="value">{{name}}</p>
+
+        <p class="label">Email</p>
+        <p class="value">{{email}}</p>
+
+        <p class="label">Message</p>
+        <p class="value">{{message}}</p>
+
+        <p class="meta">Template: contact-form-notification</p>
+      </div>
+
+      <div class="footer">
+        This email was generated automatically from the Fit Over Forty contact form.
+      </div>
+    </div>
+  </body>
+</html>
