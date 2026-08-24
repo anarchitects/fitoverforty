@@ -51,3 +51,6 @@ __screenshots__/
 **/.env.local
 
 vitest.config.*.timestamp*
+
+# Yarn local install state (regenerated on every install)
+.yarn/install-state.gz
