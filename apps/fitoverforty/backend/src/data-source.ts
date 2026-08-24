@@ -11,9 +11,9 @@ export const AppDataSource = new DataSource({
   type: 'postgres',
   host: process.env.TYPEORM_HOST ?? 'localhost',
   port: Number.parseInt(process.env.TYPEORM_PORT ?? '5432', 10) || 5432,
-  username: process.env.TYPEORM_USERNAME ?? 'postgres',
-  password: process.env.TYPEORM_PASSWORD ?? 'postgres',
-  database: process.env.TYPEORM_DATABASE ?? 'fitoverforty_backend',
+  username: process.env.TYPEORM_USERNAME ?? 'fitoverforty',
+  password: process.env.TYPEORM_PASSWORD ?? 'fitoverforty',
+  database: process.env.TYPEORM_DATABASE ?? 'fitoverforty',
   schema: process.env.TYPEORM_SCHEMA ?? 'public',
   ssl: process.env.TYPEORM_SSL === 'true',
   applicationName:
