@@ -8,13 +8,7 @@ export async function createFastifyTestApp(): Promise<NestFastifyApplication> {
   // E2E tests should not depend on external SMTP services.
   process.env.FORMS_MAILER_PROVIDER = 'noop';
 
-  // eslint-disable-next-line @nx/enforce-module-boundaries
-  const { makeRuntimeDataSource } = await import('../../../backend/src/data-source');
-  const migrationDataSource = makeRuntimeDataSource();
-  await migrationDataSource.initialize();
-  await migrationDataSource.runMigrations();
-  await migrationDataSource.destroy();
-
+  // Migrations are applied once by global-setup, before any worker starts.
   // eslint-disable-next-line @nx/enforce-module-boundaries
   const { AppModule } = await import('../../../backend/src/app/app.module');
 

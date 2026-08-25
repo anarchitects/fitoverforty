@@ -1,5 +1,6 @@
 module.exports = {
   displayName: 'fitoverforty-backend-e2e',
+  globalSetup: '<rootDir>/src/support/global-setup.ts',
   testEnvironment: 'node',
   transform: {
     '^.+\\.[tj]s$': [

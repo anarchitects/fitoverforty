@@ -1,0 +1,19 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "fitoverforty",
+      "runtimeExecutable": "env",
+      "runtimeArgs": [
+        "-u",
+        "PORT",
+        "corepack",
+        "yarn",
+        "nx",
+        "run",
+        "fitoverforty-frontend:serve"
+      ],
+      "port": 4200
+    }
+  ]
+}
