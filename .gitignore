@@ -48,9 +48,18 @@ Thumbs.db
 __screenshots__/
 
 .nx/polygraph
-**/.env.local
+
+# Local environment files (env.example is the tracked template)
+**/.env
+**/.env.*
+!**/.env.example
 
 vitest.config.*.timestamp*
 
 # Yarn local install state (regenerated on every install)
 .yarn/install-state.gz
+
+# Playwright artifacts (@nx/playwright preset output)
+test-output/
+playwright-report/
+blob-report/
