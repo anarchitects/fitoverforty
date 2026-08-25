@@ -14,6 +14,14 @@
         "fitoverforty-frontend:serve"
       ],
       "port": 4200
+    },
+    {
+      "name": "fitoverforty-ssr",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "dist/apps/fitoverforty/backend/main.js"
+      ],
+      "port": 3000
     }
   ]
 }

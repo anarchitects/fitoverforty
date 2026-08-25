@@ -315,6 +315,25 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@anarchitects/nest-angular-ssr@npm:^0.2.1":
+  version: 0.2.1
+  resolution: "@anarchitects/nest-angular-ssr@npm:0.2.1"
+  dependencies:
+    "@fastify/static": "npm:^8.2.0"
+  peerDependencies:
+    "@angular/core": ^21.0.0
+    "@angular/platform-browser": ^21.0.0
+    "@angular/router": ^21.0.0
+    "@angular/ssr": ^21.0.0
+    "@nestjs/common": ^11.0.0
+    "@nestjs/core": ^11.0.0
+    "@nestjs/platform-fastify": ^11.0.0
+    fastify: ^5.0.0
+    reflect-metadata: ^0.2.0
+  checksum: 10c0/cda46a1708108d4d23e18d6e2f4467dfccb14676d0bbe0af9cab04fdcf327877657a57be11f06217bdfd328126154751313051470f1a2825dbb91e38fe621fc4
+  languageName: node
+  linkType: hard
+
 "@anarchitects/nx-typeorm@npm:^0.4.2":
   version: 0.4.2
   resolution: "@anarchitects/nx-typeorm@npm:0.4.2"
@@ -713,6 +732,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@angular/platform-server@npm:~21.2.0":
+  version: 21.2.21
+  resolution: "@angular/platform-server@npm:21.2.21"
+  dependencies:
+    tslib: "npm:^2.3.0"
+    xhr2: "npm:^0.2.0"
+  peerDependencies:
+    "@angular/common": 21.2.21
+    "@angular/compiler": 21.2.21
+    "@angular/core": 21.2.21
+    "@angular/platform-browser": 21.2.21
+    rxjs: ^6.5.3 || ^7.4.0
+  checksum: 10c0/a2a2b3076ae9349b828c6304fcc0f1c5d93f4cacd497eea040950b20713acfa0f5ecfb46a6ffa4da84f23ee9c508dfe7a488e85cd3978de046b27450f2ca9664
+  languageName: node
+  linkType: hard
+
 "@angular/router@npm:~21.2.0":
   version: 21.2.6
   resolution: "@angular/router@npm:21.2.6"
@@ -724,6 +759,23 @@ __metadata:
     "@angular/platform-browser": 21.2.6
     rxjs: ^6.5.3 || ^7.4.0
   checksum: 10c0/083da0921865b57bc78b33621a905e90bea48c4d198a48e066e56334bf7f75bc466426b9fb5cfe6459b524b383451dc6ed8d12228452e1f7ce8ac2f0159ddd8d
+  languageName: node
+  linkType: hard
+
+"@angular/ssr@npm:~21.2.0":
+  version: 21.2.21
+  resolution: "@angular/ssr@npm:21.2.21"
+  dependencies:
+    tslib: "npm:^2.3.0"
+  peerDependencies:
+    "@angular/common": ^21.0.0
+    "@angular/core": ^21.0.0
+    "@angular/platform-server": ^21.0.0
+    "@angular/router": ^21.0.0
+  peerDependenciesMeta:
+    "@angular/platform-server":
+      optional: true
+  checksum: 10c0/06414a0e7735cb840ba7e1f19d8cfc9e060f9e240302698c0a875788fa2c8f3cf923b841b764e4e926075faabf3a8689265f4db60ef92609ce3e1e93402f308d
   languageName: node
   linkType: hard
 
@@ -2833,6 +2885,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@fastify/accept-negotiator@npm:^2.0.0":
+  version: 2.1.0
+  resolution: "@fastify/accept-negotiator@npm:2.1.0"
+  checksum: 10c0/91024193e2a11549aea222fde8f63f81a6d9d4f410162f2123de9088ee0ed45603798bd9ad2aa23ab9cbc4e895e4ef918f3639b551410a356ddeb00816c30981
+  languageName: node
+  linkType: hard
+
 "@fastify/ajv-compiler@npm:^4.0.5":
   version: 4.0.5
   resolution: "@fastify/ajv-compiler@npm:4.0.5"
@@ -2906,6 +2965,33 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@fastify/send@npm:^4.0.0":
+  version: 4.1.1
+  resolution: "@fastify/send@npm:4.1.1"
+  dependencies:
+    "@lukeed/ms": "npm:^2.0.2"
+    escape-html: "npm:~1.0.3"
+    fast-decode-uri-component: "npm:^1.0.1"
+    http-errors: "npm:^2.0.0"
+    mime: "npm:^3"
+  checksum: 10c0/e2bc6e0b4a7bda4f84102b6ecdb847d093952fe8843ccdba4392b9db1f827f468997142a20a5ea99fd06be918238432fecbec08e08ca5b1b355e825a7a9f6181
+  languageName: node
+  linkType: hard
+
+"@fastify/static@npm:^8.2.0":
+  version: 8.3.0
+  resolution: "@fastify/static@npm:8.3.0"
+  dependencies:
+    "@fastify/accept-negotiator": "npm:^2.0.0"
+    "@fastify/send": "npm:^4.0.0"
+    content-disposition: "npm:^0.5.4"
+    fastify-plugin: "npm:^5.0.0"
+    fastq: "npm:^1.17.1"
+    glob: "npm:^11.0.0"
+  checksum: 10c0/dcaecf26690e4faffb4ef05ad2f468b84ac255c6cde6817bf9c4132dad0759eae0e926e4df19814f2c01d65000e023148ad3e6a10cc44d53771a6b59c2e08b71
+  languageName: node
+  linkType: hard
+
 "@fitoverforty/source@workspace:.":
   version: 0.0.0-use.local
   resolution: "@fitoverforty/source@workspace:."
@@ -2919,6 +3005,7 @@ __metadata:
     "@anarchitects/common-nest-mailer": "npm:^0.3.2"
     "@anarchitects/forms-angular": "npm:^0.6.1"
     "@anarchitects/forms-nest": "npm:^0.6.0"
+    "@anarchitects/nest-angular-ssr": "npm:^0.2.1"
     "@anarchitects/nx-typeorm": "npm:^0.4.2"
     "@angular-devkit/core": "npm:~21.2.0"
     "@angular-devkit/schematics": "npm:~21.2.0"
@@ -2931,7 +3018,9 @@ __metadata:
     "@angular/forms": "npm:~21.2.0"
     "@angular/language-service": "npm:~21.2.0"
     "@angular/platform-browser": "npm:~21.2.0"
+    "@angular/platform-server": "npm:~21.2.0"
     "@angular/router": "npm:~21.2.0"
+    "@angular/ssr": "npm:~21.2.0"
     "@eslint/js": "npm:^9.8.0"
     "@nestjs-modules/mailer": "npm:^2.3.4"
     "@nestjs/common": "npm:^11.0.0"
@@ -3310,6 +3399,13 @@ __metadata:
     wrap-ansi: "npm:^8.1.0"
     wrap-ansi-cjs: "npm:wrap-ansi@^7.0.0"
   checksum: 10c0/b1bf42535d49f11dc137f18d5e4e63a28c5569de438a221c369483731e9dac9fb797af554e8bf02b6192d1e5eba6e6402cf93900c3d0ac86391d00d04876789e
+  languageName: node
+  linkType: hard
+
+"@isaacs/cliui@npm:^9.0.0":
+  version: 9.0.0
+  resolution: "@isaacs/cliui@npm:9.0.0"
+  checksum: 10c0/971063b7296419f85053dacd0a0285dcadaa3dfc139228b23e016c1a9848121ad4aa5e7fcca7522062014e1eb6239a7424188b9f2cba893a79c90aae5710319c
   languageName: node
   linkType: hard
 
@@ -3989,6 +4085,13 @@ __metadata:
   version: 1.1.0
   resolution: "@lukeed/csprng@npm:1.1.0"
   checksum: 10c0/5d6dcf478af732972083ab2889c294b57f1028fa13c2c240d7a4aaa079c2c75df7ef0dcbdda5419147fc6704b4adf96b2de92f1a9a72ac21c6350c4014fffe6c
+  languageName: node
+  linkType: hard
+
+"@lukeed/ms@npm:^2.0.2":
+  version: 2.0.2
+  resolution: "@lukeed/ms@npm:2.0.2"
+  checksum: 10c0/843b922717313bcde4943f478145d8bc13115b9b91d83bbaed53739b5644122984412310aed574792f4e6b492f2cbda178175f601856d310f67e14834c3f17a0
   languageName: node
   linkType: hard
 
@@ -9673,19 +9776,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"content-disposition@npm:^1.0.0":
-  version: 1.0.1
-  resolution: "content-disposition@npm:1.0.1"
-  checksum: 10c0/bd7ff1fe8d2542d3a2b9a29428cc3591f6ac27bb5595bba2c69664408a68f9538b14cbd92479796ea835b317a09a527c8c7209c4200381dedb0c34d3b658849e
-  languageName: node
-  linkType: hard
-
-"content-disposition@npm:~0.5.4":
+"content-disposition@npm:^0.5.4, content-disposition@npm:~0.5.4":
   version: 0.5.4
   resolution: "content-disposition@npm:0.5.4"
   dependencies:
     safe-buffer: "npm:5.2.1"
   checksum: 10c0/bac0316ebfeacb8f381b38285dc691c9939bf0a78b0b7c2d5758acadad242d04783cee5337ba7d12a565a19075af1b3c11c728e1e4946de73c6ff7ce45f3f1bb
+  languageName: node
+  linkType: hard
+
+"content-disposition@npm:^1.0.0":
+  version: 1.0.1
+  resolution: "content-disposition@npm:1.0.1"
+  checksum: 10c0/bd7ff1fe8d2542d3a2b9a29428cc3591f6ac27bb5595bba2c69664408a68f9538b14cbd92479796ea835b317a09a527c8c7209c4200381dedb0c34d3b658849e
   languageName: node
   linkType: hard
 
@@ -11836,7 +11939,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"foreground-child@npm:^3.1.0":
+"foreground-child@npm:^3.1.0, foreground-child@npm:^3.3.1":
   version: 3.3.1
   resolution: "foreground-child@npm:3.3.1"
   dependencies:
@@ -12169,6 +12272,22 @@ __metadata:
   bin:
     glob: dist/esm/bin.mjs
   checksum: 10c0/100705eddbde6323e7b35e1d1ac28bcb58322095bd8e63a7d0bef1a2cdafe0d0f7922a981b2b48369a4f8c1b077be5c171804534c3509dfe950dde15fbe6d828
+  languageName: node
+  linkType: hard
+
+"glob@npm:^11.0.0":
+  version: 11.1.0
+  resolution: "glob@npm:11.1.0"
+  dependencies:
+    foreground-child: "npm:^3.3.1"
+    jackspeak: "npm:^4.1.1"
+    minimatch: "npm:^10.1.1"
+    minipass: "npm:^7.1.2"
+    package-json-from-dist: "npm:^1.0.0"
+    path-scurry: "npm:^2.0.0"
+  bin:
+    glob: dist/esm/bin.mjs
+  checksum: 10c0/1ceae07f23e316a6fa74581d9a74be6e8c2e590d2f7205034dd5c0435c53f5f7b712c2be00c3b65bf0a49294a1c6f4b98cd84c7637e29453b5aa13b79f1763a2
   languageName: node
   linkType: hard
 
@@ -13245,6 +13364,15 @@ __metadata:
     "@pkgjs/parseargs":
       optional: true
   checksum: 10c0/6acc10d139eaefdbe04d2f679e6191b3abf073f111edf10b1de5302c97ec93fffeb2fdd8681ed17f16268aa9dd4f8c588ed9d1d3bffbbfa6e8bf897cbb3149b9
+  languageName: node
+  linkType: hard
+
+"jackspeak@npm:^4.1.1":
+  version: 4.2.3
+  resolution: "jackspeak@npm:4.2.3"
+  dependencies:
+    "@isaacs/cliui": "npm:^9.0.0"
+  checksum: 10c0/b5c0c414f1607c2aa0597f4bf2c03b8443897fccd5fd3c2b3e4f77d556b2bc7c3d3413828ba91e0789f6fb40ad90242f7f89fb20aee9e9d705bc1681f7564f67
   languageName: node
   linkType: hard
 
@@ -14787,6 +14915,15 @@ __metadata:
   bin:
     mime: cli.js
   checksum: 10c0/a7f2589900d9c16e3bdf7672d16a6274df903da958c1643c9c45771f0478f3846dcb1097f31eb9178452570271361e2149310931ec705c037210fc69639c8e6c
+  languageName: node
+  linkType: hard
+
+"mime@npm:^3":
+  version: 3.0.0
+  resolution: "mime@npm:3.0.0"
+  bin:
+    mime: cli.js
+  checksum: 10c0/402e792a8df1b2cc41cb77f0dcc46472b7944b7ec29cb5bbcd398624b6b97096728f1239766d3fdeb20551dd8d94738344c195a6ea10c4f906eb0356323b0531
   languageName: node
   linkType: hard
 
@@ -16449,7 +16586,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"path-scurry@npm:^2.0.2":
+"path-scurry@npm:^2.0.0, path-scurry@npm:^2.0.2":
   version: 2.0.2
   resolution: "path-scurry@npm:2.0.2"
   dependencies:
@@ -21194,6 +21331,13 @@ __metadata:
   dependencies:
     is-wsl: "npm:^3.1.0"
   checksum: 10c0/44318f3585eb97be994fc21a20ddab2649feaf1fbe893f1f866d936eea3d5f8c743bec6dc02e49fbdd3c0e69e9b36f449d90a0b165a4f47dd089747af4cf2377
+  languageName: node
+  linkType: hard
+
+"xhr2@npm:^0.2.0":
+  version: 0.2.1
+  resolution: "xhr2@npm:0.2.1"
+  checksum: 10c0/eebe95bd0ae9087da9b4dda636abee1f30cf9b424fbe8ebd0c7dcfd9be5db3e4aa634cf1837fa3e82b486aace9396a2dbf6be2dc8084862c8239dccec4e16dca
   languageName: node
   linkType: hard
 
