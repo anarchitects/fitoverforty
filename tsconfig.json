@@ -5,7 +5,8 @@
   "ts-node": {
     "compilerOptions": {
       "module": "commonjs",
-      "moduleResolution": "node"
+      "moduleResolution": "node",
+      "esModuleInterop": true
     }
   }
 }
