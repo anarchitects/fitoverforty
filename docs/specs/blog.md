@@ -1,6 +1,6 @@
 # Spec — Blog v1
 
-Status: draft, for review.
+Status: draft, second revision.
 Supersedes the content sections of `docs/2026-08-25-baseline-and-open-decisions.md`.
 
 Read `CLAUDE.md` first for commands, architecture and gotchas. This spec does not
@@ -11,60 +11,105 @@ restate them.
 Ship a public blog on fitoverforty: an archive, individual posts, tag archives, an
 RSS feed, and a newsletter signup that puts subscribers into MailerLite lawfully.
 
-Two technical authors write posts as markdown in this repository. Publishing is a
-pull request. There is no CMS, no posts table, and no authoring UI in v1.
+Posts are authored in **Editor.js**, stored as structured JSON, and published from an
+authenticated admin area. Publishing is a button, not a deploy.
 
-## 2. Decisions taken
+## 2. What changed since the first revision
 
-| Decision                                                          | Rationale                                                                                                 |
-| ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| Content lives as markdown in the repo                             | Both authors are technical; ships fastest; prerenders perfectly; no auth or moderation surface            |
-| Markdown becomes typed data in a **frontend build step**          | Keeps the backend off the content path; markdown/YAML parsers stay build-time and never reach the browser |
-| Blog routes are **prerendered at build** (`outputMode: 'static'`) | Content is fully known at build time. Best SEO, no server on the content path, independent of PR #7       |
-| Tag archives, newsletter CTA and RSS are **in v1**                | Tags shape URLs and are painful to retrofit; the feed is near-free once the contract exists               |
-| Full-text search is **out of v1**                                 | Tag archives cover the need at low post counts; revisit past ~40 posts                                    |
+The first draft specified markdown files in the repo, parsed at build time and
+prerendered. Following review, content moves to Editor.js integrated with Angular via
+Anarchitects Community packages (community epics #66–#74).
 
-### Relationship to PR #7 (SSR spike)
+That is not a swap of one content source for another. It changes four things:
 
-They do not collide, and v1 does not depend on the spike landing.
+| Area      | First revision                    | This revision                            |
+| --------- | --------------------------------- | ---------------------------------------- |
+| Storage   | Markdown files in git             | Editor.js `OutputData` JSON in Postgres  |
+| Rendering | Prerendered at build, no server   | Runtime SSR — **this now depends on #7** |
+| Authoring | A pull request                    | Admin UI, which requires authentication  |
+| Media     | Images committed next to the post | Uploads, which require object storage    |
 
-PR #7 wires **runtime** SSR — Angular rendered per request inside Nest. This spec
-needs only **build-time** prerendering, which emits static HTML and needs no Node
-process on the content path. Both use `@angular/ssr`, but through different output
-modes, and only one output mode can be active at a time.
+**The one thing that survived intact is the content contract.** `PostBody` was defined
+as a discriminated union precisely so an Editor.js source would not force a UI rewrite,
+and that has now paid off: `{ kind: 'blocks' }` becomes the primary shape and no
+consumer of the port changes. §4 is largely as reviewed.
 
-To keep the door open, render modes are declared in `app.routes.server.ts` from day
-one even though v1 builds statically. If PR #7 later goes to production, that file
-carries over unchanged: blog routes stay `RenderMode.Prerender`, and only
-`outputMode` changes from `static` to `server`.
+**Scope roughly doubles.** Auth, an admin shell, editor integration, upload storage and
+a block renderer are all new surface that markdown did not need. §14 proposes a phase
+split that lets the public blog ship without waiting for the full authoring stack.
 
-## 3. The content contract
+## 3. Decisions taken
 
-The one architectural constraint from the baseline note: the rendering layer must
-not know where a post came from. This is where that gets enforced.
+| Decision                                             | Rationale                                                                                                    |
+| ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Content is Editor.js `OutputData` in Postgres        | Reviewed decision. Aligns the app with community epics #66–#74 and makes this app where that shape is proven |
+| Blog routes are **server-rendered per request**      | Content changes without a deploy, so build-time output cannot stay correct                                   |
+| Tag archives, newsletter CTA and RSS are in v1       | Tags shape URLs and are painful to retrofit; the feed is near-free once the contract exists                  |
+| Full-text search is out of v1                        | Tag archives cover the need at low post counts; revisit past ~40 posts                                       |
+| Auth via `@anarchitects/better-auth-typeorm-adapter` | Published at 0.1.1, already TypeORM-and-Postgres shaped, and dogfoods the ecosystem                          |
+
+### This revision depends on #7
+
+The first draft argued the blog was independent of the SSR spike. **That is no longer
+true, and it is the most important consequence of this change.**
+
+Build-time prerendering only works when content is known at build time. Once a post can
+be published from an admin UI, the rendered output has to be produced per request or it
+goes stale the moment anyone publishes. Blog routes therefore render through
+`@anarchitects/nest-angular-ssr` — the package #7 spikes.
+
+#7 is approved but still carries the unresolved items listed in its own description and
+in community issue #501: build ordering, the dev/prod topology split, and CI asserting a
+rendered response. Those now block the blog rather than sitting beside it, and should be
+closed out before §8 is built on top.
+
+## 4. The content contract
+
+Unchanged from the reviewed draft except where noted. The rendering layer must not know
+where a post came from.
 
 New lib `libs/shared/content-model` (`@fitoverforty/content-model`) — framework-free
-types, imported by both the Node generator and the Angular lib.
+types, imported by the backend, the frontend and any future package extraction.
 
 ```ts
-export type Iso8601Date = string; // 'YYYY-MM-DD'
+export type Iso8601 = string;
 
 export interface ImageRef {
-  src: string; // app-absolute, e.g. '/assets/blog/<slug>/hero.jpg'
+  src: string;
   alt: string;
   width: number;
   height: number;
 }
 
 export interface AuthorRef {
-  id: string; // 'paul' | 'johan'
+  id: string;
   name: string;
   avatar?: ImageRef;
 }
 
 export interface TagRef {
   slug: string; // kebab-case
-  name: string; // display form
+  name: string;
+}
+
+export interface PostSummary {
+  slug: string;
+  title: string;
+  description: string; // <= 160 chars; drives meta, cards and the feed
+  publishedAt: Iso8601;
+  updatedAt?: Iso8601;
+  authors: AuthorRef[];
+  tags: TagRef[];
+  hero?: ImageRef;
+  readingTimeMinutes: number;
+}
+
+/** `blocks` is the v1 shape. `html` is retained for imported or legacy content. */
+export type PostBody = { kind: 'blocks'; blocks: OutputData } | { kind: 'html'; html: string };
+
+export interface Post extends PostSummary {
+  body: PostBody;
+  headings: Heading[];
 }
 
 export interface Heading {
@@ -72,321 +117,297 @@ export interface Heading {
   id: string;
   text: string;
 }
-
-export interface PostSummary {
-  slug: string;
-  title: string;
-  description: string; // <= 160 chars; drives meta, cards and the feed
-  publishedAt: Iso8601Date;
-  updatedAt?: Iso8601Date;
-  authors: AuthorRef[];
-  tags: TagRef[];
-  hero?: ImageRef;
-  readingTimeMinutes: number;
-}
-
-/** Discriminated so an Editor.js source can be added without touching the UI. */
-export type PostBody = { kind: 'html'; html: string } | { kind: 'blocks'; blocks: unknown }; // reserved; not implemented in v1
-
-export interface Post extends PostSummary {
-  body: PostBody;
-  headings: Heading[]; // for a future table of contents
-}
 ```
 
-The source itself is a port, provided through an injection token:
+`OutputData` is Editor.js's own type. Epic #66 (`@anarchitects/editorjs-core`) will own
+the canonical typing; until it exists, this lib re-exports the type from `@editorjs/editorjs`
+behind our own alias so the later switch is one import change.
+
+The source stays a port:
 
 ```ts
 export interface ContentSource {
-  listPosts(): PostSummary[];
-  listTags(): TagRef[];
-  postsByTag(tagSlug: string): PostSummary[];
+  listPosts(page: number, perPage: number): Promise<Paged<PostSummary>>;
+  listTags(): Promise<TagRef[]>;
+  postsByTag(tagSlug: string, page: number, perPage: number): Promise<Paged<PostSummary>>;
   loadPost(slug: string): Promise<Post | undefined>;
 }
 ```
 
-v1 ships exactly one implementation, `GeneratedContentSource`, reading the build
-output. A future API-backed or Editor.js-backed source implements the same interface
-and no component changes.
+Now async throughout, since the source is a database rather than a generated module.
 
-`PostBody` being a union rather than a bare HTML string is the whole point. A
-renderer that switches on `kind` costs nothing now; one that assumes HTML has to be
-rewritten later.
+## 5. Data model
 
-## 4. Authoring format
+New `blog` schema, following the existing convention that forms tables live in `forms`
+rather than `public`. Migrations under `backend/tools/typeorm/migrations/`.
 
 ```
-content/
-  authors.yml
-  blog/
-    tags.yml
-    why-lifting-after-40-is-different/
-      index.md
-      hero.jpg
+blog.posts
+  id                    uuid pk
+  slug                  text unique not null
+  title                 text not null
+  description           text not null
+  body                  jsonb not null      -- Editor.js OutputData
+  body_schema_version   int not null        -- our version, not Editor.js's
+  status                text not null       -- 'draft' | 'published'
+  published_at          timestamptz null
+  reading_time_minutes  int not null
+  hero_media_id         uuid null -> blog.media
+  created_at            timestamptz not null
+  updated_at            timestamptz not null
+
+blog.tags        id, slug unique, name
+blog.post_tags   post_id, tag_id  (composite pk)
+blog.media       id, storage_key, url, mime, bytes, width, height, alt
+blog.post_authors post_id, user_id
 ```
 
-The directory name **is** the slug. The filesystem then guarantees slugs are unique
-and URL-safe, and images live next to the post that uses them.
+Notes that matter:
 
-```yaml
----
-title: Why lifting after 40 is different
-description: What actually changes in your forties, and what to do about it.
-publishedAt: 2026-09-01
-updatedAt: 2026-10-14 # optional
-authors: [paul]
-tags: [strength, recovery]
-hero:
-  src: ./hero.jpg
-  alt: A lifter racking a barbell mid-set
-draft: false # optional, defaults to false
----
-Body markdown starts here.
-```
+- **`body_schema_version` is ours, distinct from Editor.js's own `version` field.** Epic
+  #74 calls for a versioning strategy; this column is what makes a future migration of
+  stored blocks tractable instead of guesswork.
+- **`reading_time_minutes` is computed on write**, not on read, so listing pages never
+  parse block JSON. `ceil(words / 200)`, minimum 1.
+- **Scheduling comes free.** `status = 'published'` with a future `published_at` is a
+  scheduled post; the read query filters on `published_at <= now()`. This needed a build
+  step under the markdown design.
+- Indexes: `(status, published_at desc)` for the archive, and the unique `slug`.
 
-`authors.yml` and `tags.yml` are closed vocabularies. With two authors, uncontrolled
-tags sprawl into near-duplicates within a dozen posts, so an unknown tag is a build
-failure, not a new tag.
+## 6. Content security
 
-### Build-time validation
+This is the section that changed most in risk terms, and it deserves attention rather
+than a footnote.
 
-The generator **fails the build** on any of: a missing required field; a description
-over 160 characters; an unknown author or tag id; a hero or inline image with no
-`alt`; an image file that does not exist; an unparseable or future-invalid date; a
-tag slug that is not kebab-case; a duplicate slug.
+Under the markdown design, content arrived through a reviewed pull request from one of
+two people, so the first draft bypassed Angular's sanitizer. **That justification is now
+gone.** Content enters through a web form, and Editor.js blocks carry HTML fragments in
+their `text` fields. Stored XSS via a compromised or careless admin session is a real
+path, not a theoretical one.
 
-Failing loudly at build time is deliberate — the alternative is discovering a broken
-post in production, where the only fix is another deploy.
+Therefore:
 
-### Drafts and scheduling
+- **Sanitise on write, server-side**, with an allowlist over the block payloads — the
+  inline tags Editor.js actually produces (`b`, `i`, `a`, `code`, `mark`, `br`) and
+  nothing else. Rejecting at the boundary means the database never holds hostile markup.
+- **Do not bypass Angular's sanitizer on read.** The block renderer emits components per
+  block type; inline HTML goes through the default sanitizer. There is no
+  `bypassSecurityTrustHtml` anywhere in this design.
+- Validate `OutputData` structurally on write against the registered tool set. Unknown
+  block types are rejected, not stored and skipped at render.
 
-`draft: true`, or a `publishedAt` in the future, excludes a post from a production
-build. `--include-drafts` includes both, and `nx serve` sets it. Unfinished posts can
-therefore sit on `main` safely.
+Belt and braces is the right posture here: the write-side allowlist is the real control,
+and the read-side sanitizer is what protects content that predates a future bug in it.
 
-## 5. The content build step
+## 7. Rendering blocks
 
-New lib `libs/content/blog-source` (`@fitoverforty/content-blog-source`), Node-only,
-Vitest. This introduces a `libs/content/*` grouping alongside the existing
-`libs/frontend/*`; Nx tags keep Angular code from importing it.
+A read-only renderer maps `OutputData.blocks` to Angular components — paragraph,
+header, list, quote, image, code, delimiter, table.
 
-Exposed as target `fitoverforty-frontend:content`, which `build`, `serve`, `test` and
-`e2e` declare in `dependsOn`. A `--watch` flag uses `fs.watch(dir, { recursive: true })`
-— no new runtime dependency — so editing a post during `nx serve` regenerates.
+**The renderer is not the editor, and keeping them apart is what makes v1 tractable.**
+The public site needs only to display blocks; it never needs Editor.js itself, its
+toolbar, or its plugins. The editor is admin-only, lazily loaded, and browser-only. That
+separation matters directly for SSR: epic #69 exists because Editor.js touches `window`
+at import time, and a public page that never imports it cannot crash the server renderer.
 
-Build-time dependencies, all `devDependencies` and none of which reach the browser:
-`gray-matter` (frontmatter), `markdown-it` (rendering), `image-size` (intrinsic
-dimensions, so `<img>` carries `width`/`height` and avoids layout shift).
+Unknown block types render nothing in production and a visible placeholder in
+development, so a tool added to the editor before the renderer supports it fails loudly
+where it should and silently where it must.
 
-### Output
+## 8. Routes
 
-Generated into `apps/fitoverforty/frontend/src/app/blog/generated/`, gitignored:
+| Path             | Page                                        | Rendering |
+| ---------------- | ------------------------------------------- | --------- |
+| `/`              | Home: intro, latest 6 posts, newsletter CTA | SSR       |
+| `/blog`          | Paginated archive, 10 per page              | SSR       |
+| `/blog/page/:n`  | Archive page n                              | SSR       |
+| `/blog/:slug`    | Post detail                                 | SSR       |
+| `/blog/tags`     | Tag index with post counts                  | SSR       |
+| `/blog/tag/:tag` | Tag archive                                 | SSR       |
+| `/contact`       | Existing contact form                       | SSR       |
+| `/admin/**`      | Authoring area                              | Client    |
+| `**`             | Not found                                   | SSR (404) |
 
-```
-generated/
-  index.ts            // PostSummary[], TagRef[], and a slug -> loader map
-  posts/<slug>.ts     // one module per post, containing the full Post
-```
+The current `''` → `/contact` redirect goes; home becomes a real page.
 
-Bodies are **not** in the index. Each post is its own module reached through a
-generated dynamic-import map:
+**404s** use a native Angular `**` route, per review. Because rendering is per request,
+the SSR layer can set an actual 404 status rather than serving a 200 with error content
+— which was not possible under static output and is a genuine advantage of this change.
 
-```ts
-export const postLoaders: Record<string, () => Promise<{ post: Post }>> = {
-  'why-lifting-after-40-is-different': () => import('./posts/why-lifting-after-40-is-different'),
-};
-```
+`/admin` is client-rendered and `noindex`. There is nothing to server-render behind a
+login and no SEO value in trying.
 
-esbuild code-splits each post into its own chunk, so the archive page does not ship
-every post's HTML. Just as importantly, the prerenderer resolves these imports
-in-process — no HTTP, no base-URL problem, no `HttpClient` during prerender.
+Caching: SSR responses for published content get a short `s-maxage` with
+`stale-while-revalidate`, invalidated on publish. Without this, every request re-renders
+and re-queries for content that changes a few times a week.
 
-Also emitted, into `apps/fitoverforty/frontend/src/assets/`:
+## 9. Authoring
 
-- `blog/<slug>/*` — post images, with markdown `./foo.jpg` references rewritten
-- `feed.xml`, `sitemap.xml`, `robots.txt`
+Admin area at `/admin`, behind authentication.
 
-### HTML sanitisation
+- **Auth**: Better Auth with `@anarchitects/better-auth-typeorm-adapter` (0.1.1,
+  published). Two accounts, email and password, no public registration — the sign-up
+  path is disabled rather than merely unlinked.
+- **Editor**: Editor.js in an Angular wrapper, dynamically imported inside an
+  `isPlatformBrowser` guard, per epic #69.
+- **Tools**: header, list, quote, image, code, table, delimiter, link. Registered
+  through one place, which is the shape epic #70 describes.
+- **Media**: uploads through an adapter interface (epic #72) so the storage target is a
+  configuration choice. Local disk in development; object storage in production — **the
+  bucket and credentials are an open question for Johan**, since nothing in this repo
+  provisions them.
+- **Workflow**: save draft, preview as rendered, publish, schedule, unpublish.
+- Preview renders through the same block renderer as the public site. Two renderers that
+  drift is the classic failure here.
 
-Rendered markdown is bound with `[innerHTML]` through
-`DomSanitizer.bypassSecurityTrustHtml`.
+## 10. Editor.js packages — the decision to make
 
-This is safe **only** because content is trusted: it arrives through a reviewed pull
-request from one of two authors, never from a user. That assumption is load-bearing.
-If content ever becomes user-supplied — the Editor.js CMS direction — this must
-become real sanitisation before that source is wired up. The bypass call gets a
-comment saying so.
+Community epics #66–#74 define nine packages. **None are published; `packages/` in the
+community repo currently holds `better-auth`, `governance` and `nest` only.** So a
+straightforward "consume the community package" is not available yet, and this spec
+cannot assume it.
 
-## 6. Routes
+Two routes:
 
-| Path             | Page                                        | Render mode        |
-| ---------------- | ------------------------------------------- | ------------------ |
-| `/`              | Home: intro, latest 6 posts, newsletter CTA | Prerender          |
-| `/blog`          | Paginated archive, 10 per page              | Prerender          |
-| `/blog/page/:n`  | Archive page n                              | Prerender (params) |
-| `/blog/:slug`    | Post detail                                 | Prerender (params) |
-| `/blog/tags`     | Tag index with post counts                  | Prerender          |
-| `/blog/tag/:tag` | Tag archive                                 | Prerender (params) |
-| `/contact`       | Existing contact form                       | **Client**         |
+1. **Build the community packages first**, then consume them here. Cleanest layering,
+   but the blog waits on nine epics landing in another repo.
+2. **Build app-local behind the contract in §4, extract once stable.** The blog ships;
+   the package shape is discovered against a real consumer.
 
-`getPrerenderParams` enumerates slugs, tags and page numbers from the generated index.
+**Recommendation: (2).** It is how `@anarchitects/nest-angular-ssr` and the forms
+packages already came about, and the baseline note made the same argument — this app is
+where the content shape would be discovered. Concretely: keep the editor wrapper, tool
+registry and upload adapter in `libs/frontend/editorjs-*` with no fitoverforty-specific
+imports, so extraction is a move rather than a rewrite.
 
-`/` currently redirects to `/contact`; that redirect goes. Home becomes a real page.
-It shows excerpts only and canonicalises to `/`, while `/blog` is the full archive —
-distinct pages, not duplicate content.
+This is the call most worth settling before anyone writes code, because it determines
+which repository the work lands in.
 
-`/contact` stays client-rendered because `@anarchitects/forms-angular` fetches its
-configuration from the backend at runtime. There is nothing to prerender and no SEO
-value in trying.
+## 11. UI and styling
 
-Unknown slugs render a 404 page. Under static output there is no server to return a
-404 status, so hosting is configured to serve `404.html` — Johan's call on the
-platform, flagged in §11.
+Deferred pending Johan's reconsideration of the `@anarchitects` UI packages and the
+possible move to Tailwind v4 with those packages wrapping it for defaults and consistent
+configuration.
 
-## 7. UI
+**This spec therefore does not specify component structure or styling.** The blog needs
+post cards, an archive layout, prose typography, tag chips and pagination, and every one
+of those is exactly what that decision governs. Building them against the current
+three-tier custom-property system now would mean rewriting them shortly after.
 
-New lib `libs/frontend/blog` (project `fitoverforty-frontend-blog`, alias
-`@fitoverforty/frontend-blog`, selector prefix `fitoverforty-`, standalone, `OnPush`,
-Vitest), following the existing header/footer conventions.
+`libs/frontend/blog` still exists as the home for these components, following the
+existing header/footer conventions. What goes inside waits.
 
-Components: post card, post list, pagination, tag chip, tag list, post header
-(title, authors, date, reading time), post body renderer (switches on `PostBody.kind`),
-newsletter CTA.
+## 12. SEO, feed and newsletter
 
-**Prerequisite, before any of this is written:** read the READMEs for
-`@anarchitects/common-angular-ui-primitives`, `-ui-composition`, `-ui-layouts` and
-`-angular-design`, per the Bricks README-first overlay in `AGENTS.md`. Card, stack,
-prose and typography treatments may already exist there, and this app exists partly to
-dogfood them. Assume nothing about what is available; hand-rolling something the
-design system already provides is the failure mode to avoid.
+**SEO** — per route: `<title>`, meta description, canonical, OpenGraph, Twitter card,
+and JSON-LD `BlogPosting` on post pages. All rendered server-side. `sitemap.xml` is
+generated from the database rather than a build step, and `robots.txt` disallows
+`/admin`.
 
-Styling follows the existing three-tier custom-property system. No colour is
-hardcoded outside `frontend/src/styles/themes.css`.
+**RSS** — `/blog/feed.xml`, RSS 2.0 with `<atom:link rel="self">`, the 20 most recent
+published posts. Item descriptions rather than full bodies: lighter, and it keeps
+readers arriving on pages that carry the newsletter CTA. Served by the backend from the
+same query the archive uses, cached alongside it.
 
-## 8. SEO
+**Newsletter** — unchanged from the reviewed draft. `POST /api/newsletter/subscribe`
+behind a `SubscriberPort` with a `MailerLiteSubscriberAdapter`; API key server-side only;
+honeypot plus per-IP rate limiting.
 
-Per route: `<title>`, meta description, canonical link, OpenGraph and Twitter card
-tags, and JSON-LD `BlogPosting` on post pages. All of it lands in prerendered HTML.
+UK GDPR/PECR obligations, also unchanged and still the only part of v1 carrying legal
+risk:
 
-`sitemap.xml` and `robots.txt` come from the content build step. `SITE_URL` supplies
-the origin for absolute URLs.
+- **Double opt-in** handled by MailerLite — the subscriber is created `unconfirmed` in a
+  group configured for double opt-in. That group setting lives in the MailerLite UI, so
+  nothing in CI can prove it; worth confirming directly.
+- **One-click unsubscribe** handled by MailerLite in campaign emails.
+- **Affirmative consent**: an unticked checkbox, separate from any other purpose, linking
+  to a privacy policy. **A privacy policy page is therefore a v1 requirement.**
+- **Consent recorded locally** in `newsletter_consent` — email, UTC timestamp, source
+  URL, IP, and the wording version from `NEWSLETTER_CONSENT_VERSION`. Owning the audit
+  trail matters; the ESP's record is not ours if we change provider.
 
-## 9. RSS
+The CTA remains a lightweight component posting to that endpoint rather than a
+`forms-angular` render. The original reason was prerendering, which no longer applies —
+but the server side still mirrors the `forms-nest` `delivery` shape so it can collapse
+into a subscriber delivery target later. **If the preference is that every form goes
+through the forms stack, this is the moment to say so**; the argument for keeping it
+separate is now weaker than it was.
 
-`/blog/feed.xml` — RSS 2.0 with an `<atom:link rel="self">`, the 20 most recent
-published posts, newest first. Each item carries title, link, guid (the canonical
-URL, `isPermaLink="true"`), `pubDate` and the post description.
+Environment: `MAILERLITE_API_KEY`, `MAILERLITE_GROUP_ID`, `MAILERLITE_API_URL`,
+`SITE_URL`, `NEWSLETTER_CONSENT_VERSION`, plus auth and storage variables from §9.
+Unlike the mailer gotcha in `CLAUDE.md`, these **fail fast at boot** when the feature is
+enabled and the key is missing.
 
-Descriptions rather than full bodies: lighter, and it keeps readers arriving on pages
-that carry the newsletter CTA.
+## 13. Testing and CI
 
-## 10. Newsletter
+- **Backend unit**: sanitisation allowlist (including hostile payloads), `OutputData`
+  structural validation, reading-time calculation, slug uniqueness, scheduled-post
+  filtering.
+- **Backend e2e** (Jest): post CRUD behind auth, unauthenticated writes rejected, draft
+  invisible on public endpoints, scheduled post appearing only after its time, newsletter
+  subscribe against a faked `SubscriberPort` — no live MailerLite in CI.
+- **Frontend unit** (Vitest): block renderer per block type, unknown block handling.
+- **Playwright**: archive to post navigation, tag filtering, feed well-formedness,
+  newsletter happy path, admin login and publish round trip.
+- **CI SSR assertion**: request a post route and assert the response body contains the
+  post title as text, and that an unknown slug returns a real 404 status. This is both
+  the check that catches a silent regression to client-only rendering and the CI gap
+  #501 already identifies.
 
-The heaviest part of v1, because consent is a legal obligation rather than a feature.
+## 14. Phasing
 
-### Shape
+The scope increase makes a single v1 milestone unrealistic. Two phases, where **Phase A
+is a complete public blog with no authoring UI**:
 
-`POST /api/newsletter/subscribe`, body `{ email, consent, source, honeypot }`.
+**Phase A — the public site**
 
-Backend `NewsletterModule` implements it behind a `SubscriberPort` interface with a
-`MailerLiteSubscriberAdapter`. The MailerLite API key is server-side only and never
-reaches the browser.
+1. `content-model` lib; `blog` schema, entities and migrations.
+2. Backend read API and the DB-backed `ContentSource`; sanitisation and validation on
+   write, exercised by a seed path.
+3. Block renderer, routes, SSR wiring, 404 handling, CI SSR assertion.
+4. Tags, RSS, sitemap, SEO metadata, JSON-LD.
+5. Newsletter, consent persistence, privacy policy page.
 
-### Deviation from "forms are configuration"
+Content during Phase A is seeded as `OutputData` JSON through a migration or a small
+CLI, exactly as the contact form config is seeded today. It is a stopgap and reaches the
+same tables the admin will later write to, so nothing is thrown away.
 
-Everything else form-shaped in this app is a database row rendered by
-`@anarchitects/forms-angular`. The newsletter CTA is not, and that is deliberate: it
-is embedded in every prerendered blog page, and a runtime config fetch on each one
-would defeat prerendering entirely for a control with one email field and one
-checkbox.
+**Phase B — authoring**
 
-The server side still mirrors the `forms-nest` `delivery` shape, so that if
-`forms-nest` grows a subscriber delivery target — package candidate #2 in the
-baseline note — this collapses into it rather than being rewritten.
+6. Better Auth wiring, admin shell, route guards.
+7. Editor.js Angular wrapper, SSR-safe, with the tool registry.
+8. Media upload adapter and storage.
+9. Publish, schedule, preview and unpublish workflow.
 
-**This is the deviation most worth arguing with.** If the preference is to keep every
-form going through the forms stack, say so and the CTA becomes a configured form on
-the archive and home pages only, not on every post.
+Phase A is publishable on its own. Phase B is what makes it pleasant. Splitting them
+means the blog is not gated on nine community epics, and §10's recommendation is what
+keeps Phase B extractable afterwards.
 
-### UK GDPR / PECR
-
-- **Double opt-in** is handled by MailerLite: the subscriber is created as
-  `unconfirmed` in a group with double opt-in enabled, and MailerLite sends the
-  confirmation. No confirmation-token flow is needed in this app. The group must be
-  configured for double opt-in **in the MailerLite UI** — a setting outside this repo
-  and easy to get wrong.
-- **One-click unsubscribe** is handled by MailerLite in campaign emails.
-- **Consent must be affirmative**: an unticked checkbox, separate from any other
-  purpose, with a link to the privacy policy. No pre-tick, no bundling.
-- **Consent is recorded locally** in a `newsletter_consent` table — email, UTC
-  timestamp, source URL, IP, and the consent wording version from
-  `NEWSLETTER_CONSENT_VERSION`. Owning the audit trail matters; relying on the ESP's
-  record leaves nothing to produce if we ever change provider.
-- The wording is versioned so a change to it is visible in the record rather than
-  silently retconning what people agreed to.
-
-A privacy policy page is therefore a v1 requirement, not a nicety.
-
-### Abuse
-
-A honeypot field plus per-IP rate limiting on the endpoint. Enough for a small blog;
-not a CAPTCHA.
-
-### Environment
-
-`MAILERLITE_API_KEY`, `MAILERLITE_GROUP_ID`, `MAILERLITE_API_URL`, `SITE_URL`,
-`NEWSLETTER_CONSENT_VERSION` — documented in `env.example`.
-
-Note the mailer gotcha in `CLAUDE.md`: placeholder defaults mean unset does not mean
-disabled, and the failure surfaces late. The newsletter config does the opposite —
-**fail fast at boot** if `MAILERLITE_API_KEY` is missing while the feature is enabled.
-
-## 11. Testing and CI
-
-- **Generator** (Vitest): fixture content directories covering frontmatter
-  validation, unknown-tag failure, draft and future-date exclusion, reading time,
-  image URL rewriting, slug collisions.
-- **Blog lib** (Vitest): component rendering, both `PostBody` kinds routed correctly.
-- **Backend e2e** (Jest): subscribe endpoint against a faked `SubscriberPort` —
-  happy path, invalid email, absent consent rejected, consent row persisted, honeypot
-  rejected. No live MailerLite calls in CI.
-- **Playwright**: archive to post navigation, tag filtering, `/blog/feed.xml` returns
-  well-formed XML, newsletter happy path.
-- **CI prerender assertion**: after `build`, assert that a post's emitted HTML file
-  contains the post title as text. This is the check that catches a silent regression
-  to client-only rendering, which is otherwise invisible until search rankings move.
-
-Reading time is `ceil(words / 200)`, minimum 1.
-
-## 12. Out of scope for v1
+## 15. Out of scope
 
 Full-text search, comments, related posts, author profile pages, series, i18n,
-Editor.js or any CMS, and the shop. Named individually so they read as deferred
-rather than forgotten.
+multi-author roles beyond the two accounts, revision history, and the shop. Named so
+they read as deferred rather than forgotten.
 
-## 13. Open questions
+Revision history is the one most likely to be regretted — `body_schema_version` and a
+`jsonb` column make it cheap to add later, but only if nobody designs around its absence.
 
-1. **404 handling under static output.** Needs the hosting platform's rewrite rule.
+## 16. Open questions
+
+1. **§10 — app-local or community-first.** Determines which repo the work lands in. The
+   biggest open item.
+2. **Media storage target and credentials.** Nothing in this repo provisions a bucket.
    Johan's call.
-2. **Do the `@anarchitects` UI packages already cover prose typography and cards?**
-   Answered by reading the READMEs — first task of §7, and it may shrink that section.
-3. **Home page content.** This spec assumes intro plus latest posts plus CTA. If the
-   site wants a real landing page with positioning copy, that is a separate design
-   conversation.
-4. **Author avatars.** `AuthorRef.avatar` is modelled but the images do not exist.
-5. **Pagination size** of 10 is a guess and cheap to change before launch.
+3. **When are #7's loose ends closed?** Build ordering, dev/prod topology and the CI
+   assertion now block Phase A step 3.
+4. **UI direction (§11)** — Tailwind v4 wrapped by `@anarchitects` packages, or the
+   current three-tier token system. Phase A step 3 needs an answer.
+5. **Newsletter CTA** — bespoke component, or a `forms-angular` render now that the
+   prerendering argument has gone.
+6. Pagination size of 10 is a guess and cheap to change before launch.
 
-## 14. Milestones
+## 17. Reference
 
-1. `content-model` types and `blog-source` generator, with tests, generating from
-   two real posts.
-2. Prerendering: `app.routes.server.ts`, `outputMode: 'static'`, archive and detail
-   routes rendering, CI prerender assertion.
-3. Tags: vocabulary, tag index, tag archives.
-4. Feed, sitemap, robots, SEO metadata and JSON-LD.
-5. Newsletter: port, MailerLite adapter, consent persistence, CTA component, privacy
-   policy page.
-6. Playwright coverage and the `env.example` update.
-
-Each milestone is independently mergeable. 1 and 2 together are already a publishable
-blog; 5 is the only one carrying legal risk and should not be rushed to meet 1–4.
+- Editor.js epics: community #66–#74
+- SSR integration findings: community #501
+- Ecosystem roles and cross-repo rules: `anarchitecture-meta` (private)
