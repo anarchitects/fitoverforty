@@ -8,7 +8,9 @@
   "targets": {
     "build": {
       "executor": "@angular/build:application",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
       "options": {
         "outputPath": "dist/apps/fitoverforty/frontend",
         "browser": "apps/fitoverforty/frontend/src/main.ts",
@@ -19,7 +21,14 @@
             "input": "apps/fitoverforty/frontend/public"
           }
         ],
-        "styles": ["apps/fitoverforty/frontend/src/styles.css"]
+        "styles": [
+          "apps/fitoverforty/frontend/src/styles.css"
+        ],
+        "server": "apps/fitoverforty/frontend/src/main.server.ts",
+        "ssr": {
+          "entry": "apps/fitoverforty/frontend/src/server.ts"
+        },
+        "outputMode": "server"
       },
       "configurations": {
         "production": {
@@ -57,7 +66,9 @@
         }
       },
       "defaultConfiguration": "development",
-      "dependsOn": ["fitoverforty-backend:serve"],
+      "dependsOn": [
+        "fitoverforty-backend:serve"
+      ],
       "options": {
         "proxyConfig": "apps/fitoverforty/frontend/proxy.conf.json"
       }
