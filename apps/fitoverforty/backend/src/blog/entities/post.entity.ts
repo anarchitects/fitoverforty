@@ -39,7 +39,11 @@ export class PostEntity {
   @Column({ type: 'jsonb' })
   body!: OutputData;
 
-  @Column({ type: 'int', name: 'body_schema_version', default: CURRENT_BODY_SCHEMA_VERSION })
+  @Column({
+    type: 'int',
+    name: 'body_schema_version',
+    default: CURRENT_BODY_SCHEMA_VERSION,
+  })
   bodySchemaVersion!: number;
 
   @Column({ type: 'text' })

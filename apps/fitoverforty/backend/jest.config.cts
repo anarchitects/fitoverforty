@@ -1,6 +1,5 @@
 module.exports = {
-  displayName: 'fitoverforty-backend-e2e',
-  globalSetup: '<rootDir>/src/support/global-setup.ts',
+  displayName: 'fitoverforty-backend',
   testEnvironment: 'node',
   transform: {
     '^.+\\.[tj]s$': [
@@ -10,7 +9,11 @@ module.exports = {
       },
     ],
   },
+  moduleNameMapper: {
+    '^@fitoverforty/content-model$':
+      '<rootDir>/../../../libs/shared/content-model/src/index.ts',
+  },
   transformIgnorePatterns: require('../jest.transform-ignore.cjs'),
   moduleFileExtensions: ['ts', 'js', 'html'],
-  coverageDirectory: '../../../coverage/fitoverforty-backend-e2e',
+  coverageDirectory: '../../../coverage/fitoverforty-backend',
 };

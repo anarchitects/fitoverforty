@@ -3,17 +3,20 @@
   "compilerOptions": {
     "outDir": "../../../dist/out-tsc",
     "module": "commonjs",
-    "types": ["node"],
+    "moduleResolution": "node",
+    "types": [
+      "jest",
+      "node"
+    ],
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "target": "es2021",
-    "moduleResolution": "node",
     "strictNullChecks": true,
     "noImplicitAny": true,
-    "strictBindCallApply": true,
-    "forceConsistentCasingInFileNames": true,
-    "noFallthroughCasesInSwitch": true
+    "allowJs": true
   },
-  "include": ["src/**/*.ts"],
-  "exclude": ["src/**/*.spec.ts", "src/**/*.test.ts", "jest.config.cts"]
+  "include": [
+    "jest.config.cts",
+    "src/**/*.ts"
+  ]
 }
