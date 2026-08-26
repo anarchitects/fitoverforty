@@ -16,7 +16,8 @@
     "baseUrl": ".",
     "paths": {
       "@fitoverforty/frontend-header": ["libs/frontend/header/src/index.ts"],
-      "@fitoverforty/frontend-footer": ["libs/frontend/footer/src/index.ts"]
+      "@fitoverforty/frontend-footer": ["libs/frontend/footer/src/index.ts"],
+      "@fitoverforty/content-model": ["libs/shared/content-model/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

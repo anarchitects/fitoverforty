@@ -5,6 +5,13 @@ import {
   SubmissionEntity,
 } from '@anarchitects/forms-nest/infrastructure-persistence';
 import { ContactForm1774554775527 } from '../tools/typeorm/migrations/1774554775527-ContactForm';
+import { CreateBlogSchema1787753192528 } from '../tools/typeorm/migrations/1787753192528-CreateBlogSchema';
+import {
+  AuthorEntity,
+  MediaEntity,
+  PostEntity,
+  TagEntity,
+} from './blog/entities';
 import { DataSource } from 'typeorm';
 
 export const AppDataSource = new DataSource({
@@ -23,11 +30,19 @@ export const AppDataSource = new DataSource({
     5000,
   synchronize: false,
   logging: true,
-  entities: [FormConfigEntity, SubmissionEntity],
+  entities: [
+    FormConfigEntity,
+    SubmissionEntity,
+    PostEntity,
+    TagEntity,
+    AuthorEntity,
+    MediaEntity,
+  ],
   migrations: [
     CreateFormsTables1720300000000,
     AddValidationRulesToFormConfigs1720310000000,
     ContactForm1774554775527,
+    CreateBlogSchema1787753192528,
   ],
 });
 
