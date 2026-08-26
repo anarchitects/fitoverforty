@@ -260,42 +260,59 @@ Admin area at `/admin`, behind authentication.
 - Preview renders through the same block renderer as the public site. Two renderers that
   drift is the classic failure here.
 
-## 10. Editor.js packages — the decision to make
+## 10. Editor.js packages — deferred to Phase B
 
 Community epics #66–#74 define nine packages. **None are published; `packages/` in the
-community repo currently holds `better-auth`, `governance` and `nest` only.** So a
-straightforward "consume the community package" is not available yet, and this spec
-cannot assume it.
+community repo currently holds `better-auth`, `governance` and `nest` only.**
 
-Two routes:
+That looked like it blocked the blog. It does not, because of what the epics actually
+cover: **not one of them covers read-only rendering.** All nine concern editing —
+instance lifecycle (#67), reactive forms (#68), SSR-safe editor usage (#69), the tool
+registry (#70), tool wrappers (#71), uploads (#72), custom tools (#73) — plus core
+typings (#66) and persistence patterns (#74). The single mention of rendering, in #67,
+is the editor rendering inside an Angular app.
 
-1. **Build the community packages first**, then consume them here. Cleanest layering,
-   but the blog waits on nine epics landing in another repo.
-2. **Build app-local behind the contract in §4, extract once stable.** The blog ships;
-   the package shape is discovered against a real consumer.
+**Phase A therefore has no overlap with the epics at all.** Displaying stored blocks on
+a public page is this app's own concern, and the question of which repository owns the
+editor integration only becomes live at Phase B.
 
-**Recommendation: (2).** It is how `@anarchitects/nest-angular-ssr` and the forms
-packages already came about, and the baseline note made the same argument — this app is
-where the content shape would be discovered. Concretely: keep the editor wrapper, tool
-registry and upload adapter in `libs/frontend/editorjs-*` with no fitoverforty-specific
-imports, so extraction is a move rather than a rewrite.
+When it does, the answer is: **build app-local behind the §4 contract, extract once
+stable.** It is how `@anarchitects/nest-angular-ssr` and the forms packages came about,
+and `INTERACTIONS.md` in `anarchitecture-meta` explicitly warns against community
+becoming "an undocumented dumping ground" — extraction with a proven consumer is the
+guard against that. Concretely: keep the editor wrapper, tool registry and upload
+adapter in `libs/frontend/editorjs-*` with no fitoverforty-specific imports, so
+extraction is a move rather than a rewrite.
 
-This is the call most worth settling before anyone writes code, because it determines
-which repository the work lands in.
+Two epics touch Phase A, and in both cases this app supplies rather than consumes: #66
+wants canonical typings and validation helpers, which §4 and §6 define concretely; #74
+wants a persistence and versioning strategy, which `body_schema_version` and the §5
+storage model are a worked example of. Both are worth contributing back once proven.
+
+`editorjs-html` on npm is deliberately not used. It turns blocks into an HTML string,
+which puts us straight back to bypassing Angular's sanitizer — the exact thing §6
+removes. Eight block components is a small price for keeping the sanitizer on.
 
 ## 11. UI and styling
 
-Deferred pending Johan's reconsideration of the `@anarchitects` UI packages and the
-possible move to Tailwind v4 with those packages wrapping it for defaults and consistent
+The direction is unresolved — Johan is reconsidering the `@anarchitects` UI packages and
+weighing Tailwind v4 with those packages wrapping it for defaults and consistent
 configuration.
 
-**This spec therefore does not specify component structure or styling.** The blog needs
-post cards, an archive layout, prose typography, tag chips and pagination, and every one
-of those is exactly what that decision governs. Building them against the current
-three-tier custom-property system now would mean rewriting them shortly after.
+**This does not block Phase A, because the block renderer commits to semantics rather
+than styling.** It emits `<h2>`, `<figure>`, `<blockquote>`, `<pre><code>`, `<ul>` and
+so on, with structural class hooks and no visual opinion. Semantic markup is the
+substrate under either outcome, so the styling decision collapses into one later pass
+instead of gating step 4.
 
-`libs/frontend/blog` still exists as the home for these components, following the
-existing header/footer conventions. What goes inside waits.
+**Fallback if the decision has not landed by then:** use the existing three-tier custom
+property system. It is already wired, already themed, and already works.
+
+Note that `CLAUDE.md` currently states "No Tailwind, no SCSS" as fact. If Tailwind v4
+wins, that line and the styling section around it need updating in the same change.
+
+`libs/frontend/blog` remains the home for post cards, archive layout, prose typography,
+tag chips and pagination, following the existing header/footer conventions.
 
 ## 12. SEO, feed and newsletter
 
@@ -326,12 +343,12 @@ risk:
   URL, IP, and the wording version from `NEWSLETTER_CONSENT_VERSION`. Owning the audit
   trail matters; the ESP's record is not ours if we change provider.
 
-The CTA remains a lightweight component posting to that endpoint rather than a
-`forms-angular` render. The original reason was prerendering, which no longer applies —
-but the server side still mirrors the `forms-nest` `delivery` shape so it can collapse
-into a subscriber delivery target later. **If the preference is that every form goes
-through the forms stack, this is the moment to say so**; the argument for keeping it
-separate is now weaker than it was.
+**Decided: the CTA stays a lightweight bespoke component** posting to that endpoint
+rather than a `forms-angular` render. Prerendering was the original argument and it has
+gone, but the CTA sits on every page with a single field, and double opt-in plus consent
+versioning is not what `forms-nest` models today. The server side still mirrors the
+`forms-nest` `delivery` shape, so this collapses into a subscriber delivery target if
+one is ever added.
 
 Environment: `MAILERLITE_API_KEY`, `MAILERLITE_GROUP_ID`, `MAILERLITE_API_URL`,
 `SITE_URL`, `NEWSLETTER_CONSENT_VERSION`, plus auth and storage variables from §9.
@@ -368,6 +385,10 @@ is a complete public blog with no authoring UI**:
 4. Tags, RSS, sitemap, SEO metadata, JSON-LD.
 5. Newsletter, consent persistence, privacy policy page.
 
+**Steps 1 and 2 are unblocked** — no dependency on Johan, on the epics, or on the
+styling decision. Step 3's SSR wiring can run in parallel with them, since it touches
+the build and the backend rather than the content model.
+
 Content during Phase A is seeded as `OutputData` JSON through a migration or a small
 CLI, exactly as the contact form config is seeded today. It is a stopgap and reaches the
 same tables the admin will later write to, so nothing is thrown away.
@@ -394,17 +415,27 @@ Revision history is the one most likely to be regretted — `body_schema_version
 
 ## 16. Open questions
 
-1. **§10 — app-local or community-first.** Determines which repo the work lands in. The
-   biggest open item.
-2. **Media storage target and credentials.** Nothing in this repo provisions a bucket.
-   Johan's call.
-3. **When are #7's loose ends closed?** Build ordering, dev/prod topology and the CI
-   assertion now block Phase A step 3.
-4. **UI direction (§11)** — Tailwind v4 wrapped by `@anarchitects` packages, or the
-   current three-tier token system. Phase A step 3 needs an answer.
-5. **Newsletter CTA** — bespoke component, or a `forms-angular` render now that the
-   prerendering argument has gone.
-6. Pagination size of 10 is a guess and cheap to change before launch.
+Most of the previous revision's open items are resolved above. What remains:
+
+1. **UI direction (§11).** Tailwind v4 wrapped by `@anarchitects` packages, or the
+   current three-tier token system. Mitigated — the semantic renderer defers it to a
+   single styling pass, with the existing system as the fallback.
+2. **Media storage target and credentials.** Phase B only. Phase A ships hero images as
+   committed frontend assets; the `MediaStoragePort` gets a local-disk adapter and the
+   production provider is a configuration swap.
+3. **MailerLite double opt-in group configuration.** Lives in the MailerLite UI, not in
+   this repo, and nothing in CI can verify it. Needs whoever holds the account.
+
+### Resolved since the last revision
+
+- **§10, app-local or community-first** — deferred to Phase B; no epic covers rendering,
+  so Phase A is unaffected.
+- **#7's loose ends** — not a decision but scheduled work: Nx `dependsOn` for build
+  ordering, a documented dev/prod topology, and a CI check that boots and asserts a
+  rendered response.
+- **Newsletter CTA** — stays bespoke (§12).
+- **Pagination** — 10 per page.
+- **404 handling** — native Angular `**` route, returning a real 404 status.
 
 ## 17. Reference
 
