@@ -65,7 +65,9 @@ test.describe('contact form flow', () => {
       });
     });
 
-    await page.goto('/');
+    // '/' is the blog home now; the contact form has its own route since
+    // the redirect that used to point here was removed.
+    await page.goto('/contact');
 
     await expect(
       page.getByRole('heading', { level: 1, name: 'Contact Us' }),

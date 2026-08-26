@@ -1,5 +1,8 @@
-import type { Heading, OutputData } from '@fitoverforty/content-model';
-import { toPlainText } from './inline-html';
+import {
+  deriveHeadings,
+  plainText,
+  type OutputData,
+} from '@fitoverforty/content-model';
 
 const WORDS_PER_MINUTE = 200;
 
@@ -65,47 +68,15 @@ function collectText(body: OutputData): string[] {
  */
 export function readingTimeMinutes(body: OutputData): number {
   const words = collectText(body)
-    .map(toPlainText)
+    .map(plainText)
     .join(' ')
     .split(/\s+/)
     .filter(Boolean).length;
   return Math.max(1, Math.ceil(words / WORDS_PER_MINUTE));
 }
 
-function slugify(text: string): string {
-  return text
-    .normalize('NFKD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-}
-
 /**
- * Anchor ids for a future table of contents. Duplicate headings get a numeric
- * suffix rather than colliding, since an id has to address one element.
+ * Re-exported from the content model so the backend and the Angular renderer
+ * cannot disagree about anchor ids. See headings.ts there for why.
  */
-export function extractHeadings(body: OutputData): Heading[] {
-  const seen = new Map<string, number>();
-  const headings: Heading[] = [];
-
-  for (const block of body.blocks) {
-    if (block.type !== 'header') continue;
-    const data = (block.data ?? {}) as Data;
-    const level = data['level'];
-    if (level !== 2 && level !== 3) continue;
-    const text = toPlainText(String(data['text'] ?? ''));
-    if (!text) continue;
-
-    const base = slugify(text) || 'section';
-    const count = seen.get(base) ?? 0;
-    seen.set(base, count + 1);
-
-    headings.push({
-      depth: level,
-      id: count === 0 ? base : `${base}-${count + 1}`,
-      text,
-    });
-  }
-  return headings;
-}
+export { deriveHeadings as extractHeadings };

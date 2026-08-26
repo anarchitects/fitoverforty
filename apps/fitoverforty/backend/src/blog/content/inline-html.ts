@@ -19,15 +19,3 @@ export function sanitiseInline(input: string): string {
     disallowedTagsMode: 'discard',
   });
 }
-
-/** Plain text with all markup removed. Used for reading time and headings. */
-export function toPlainText(input: string): string {
-  return sanitizeHtml(input, { allowedTags: [], allowedAttributes: {} })
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .trim();
-}

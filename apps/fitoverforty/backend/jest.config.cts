@@ -1,3 +1,5 @@
+const shared = require('../jest.shared.cjs');
+
 module.exports = {
   displayName: 'fitoverforty-backend',
   testEnvironment: 'node',
@@ -9,11 +11,8 @@ module.exports = {
       },
     ],
   },
-  moduleNameMapper: {
-    '^@fitoverforty/content-model$':
-      '<rootDir>/../../../libs/shared/content-model/src/index.ts',
-  },
-  transformIgnorePatterns: require('../jest.transform-ignore.cjs'),
+  moduleNameMapper: shared.moduleNameMapper,
+  transformIgnorePatterns: shared.transformIgnorePatterns,
   moduleFileExtensions: ['ts', 'js', 'html'],
   coverageDirectory: '../../../coverage/fitoverforty-backend',
 };
