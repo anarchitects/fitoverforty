@@ -78,6 +78,28 @@ No Tailwind, no SCSS. A three-tier CSS custom property system: `--anx-ref-*` raw
 CSS logical properties throughout. Never hardcode a colour outside
 `frontend/src/styles/themes.css`.
 
+## Related repositories
+
+This app **consumes** the Anarchitects ecosystem but is not a member of it — it appears
+in no ecosystem catalogue. Two repos govern what it consumes:
+
+| Repo                                                                                   | Visibility | What it answers                                                                              |
+| -------------------------------------------------------------------------------------- | ---------- | -------------------------------------------------------------------------------------------- |
+| [`anarchitecture-meta`](https://github.com/anarchitects/anarchitecture-meta)           | private    | Repository roles, cross-repo dependency rules, ecosystem-level architecture positions        |
+| [`anarchitecture-community`](https://github.com/anarchitects/anarchitecture-community) | public     | The `@anarchitects/*` packages this app depends on, and epics for ones that do not yet exist |
+
+Consult `anarchitecture-meta` before deciding **where** code should live — this app, a
+community package, or a plugin. Start with `README.md`, `ECOSYSTEM-MODEL.md`,
+`INTERACTIONS.md` and `AI-ENABLEMENT.md`; `adr/` carries the reasoning behind them.
+
+Two things that cost time otherwise:
+
+- **Private repos need `gh repo clone`.** Plain `git clone` over HTTPS has no credentials
+  and fails with a misleading `Repository not found`, as though the name were wrong.
+- **An epic in the community repo is intent, not a package.** `packages/` there currently
+  holds only `better-auth`, `governance` and `nest`. Check npm before designing against
+  an `@anarchitects/*` name that only appears in an issue.
+
 ## Gotchas
 
 These cost real debugging time; none are inferable from the code.
