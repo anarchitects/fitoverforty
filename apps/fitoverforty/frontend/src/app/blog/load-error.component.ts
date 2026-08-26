@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { setServerStatus } from './server-status';
 
 /**
  * Shown when content could not be fetched — deliberately distinct from an
- * empty list. Returning a 5xx status alongside this needs the server renderer,
- * and is tracked with the rest of the SSR wiring.
+ * empty list, and served with a 503 when server-rendered so that a backend
+ * outage is not cached or indexed as a successful, empty page.
  */
 @Component({
   selector: 'app-load-error',
@@ -15,4 +16,8 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LoadErrorComponent {}
+export class LoadErrorComponent {
+  constructor() {
+    setServerStatus(503);
+  }
+}

@@ -8,6 +8,10 @@ import {
   withFetch,
   withInterceptors,
 } from '@angular/common/http';
+import {
+  provideClientHydration,
+  withEventReplay,
+} from '@angular/platform-browser';
 import { provideDesignSystemConfig } from '@anarchitects/common-angular-design/config';
 import { provideAnxDefaultLayouts } from '@anarchitects/common-angular-ui-layouts/defaults';
 import { appRoutes } from './app.routes';
@@ -18,6 +22,10 @@ import { HttpContentSource } from './blog/http-content-source';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
+    // Without this Angular throws away the server-rendered DOM and renders
+    // again from scratch, which also means no HTTP transfer cache and every
+    // request the server already made being repeated by the browser.
+    provideClientHydration(withEventReplay()),
     provideRouter(appRoutes, withComponentInputBinding()),
     provideHttpClient(withFetch(), withInterceptors([apiBaseUrlInterceptor])),
     HttpContentSource,

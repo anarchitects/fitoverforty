@@ -28,6 +28,13 @@ export default defineConfig({
     url: 'http://localhost:4200',
     reuseExistingServer: true,
     cwd: workspaceRoot,
+    /*
+     * Playwright's default is 60s, which stopped being enough once the dev
+     * server started server-rendering: it builds both a browser and a server
+     * bundle and boots the backend first, while CI runs the other e2e projects
+     * alongside it.
+     */
+    timeout: 240_000,
   },
   projects: [
     {
