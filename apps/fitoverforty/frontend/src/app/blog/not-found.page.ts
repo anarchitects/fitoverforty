@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { SeoService } from '../seo/seo.service';
 import { setServerStatus } from './server-status';
 
 /**
@@ -21,7 +22,16 @@ import { setServerStatus } from './server-status';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NotFoundPage {
+  private readonly seo = inject(SeoService);
+
   constructor() {
     setServerStatus(404);
+    this.seo.apply({
+      title: 'Not found',
+      description: 'That page does not exist, or is not published yet.',
+      // noIndex, so no canonical is emitted and this path is never used.
+      path: '/404',
+      noIndex: true,
+    });
   }
 }

@@ -51,7 +51,11 @@ async function bootstrap() {
     new FastifyAdapter(),
   );
   const globalPrefix = 'api';
-  app.setGlobalPrefix(globalPrefix);
+  // The feed, sitemap and robots.txt are public documents at conventional,
+  // fixed URLs. Prefixing them with /api would put them where nothing looks.
+  app.setGlobalPrefix(globalPrefix, {
+    exclude: ['blog/feed.xml', 'sitemap.xml', 'robots.txt'],
+  });
 
   const ssrEnabled = await registerSsr(app);
 

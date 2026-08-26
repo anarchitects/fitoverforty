@@ -1,5 +1,12 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  inject,
+  input,
+} from '@angular/core';
 import type { Paged, PostSummary } from '@fitoverforty/content-model';
+import { SeoService } from '../seo/seo.service';
 import type { Loaded } from './loaded';
 import { LoadErrorComponent } from './load-error.component';
 import { PaginationComponent } from './pagination.component';
@@ -31,4 +38,20 @@ import { PostSummaryListComponent } from './post-summary-list.component';
 export class BlogArchivePage {
   /** Bound from the route resolver by withComponentInputBinding(). */
   readonly posts = input.required<Loaded<Paged<PostSummary>>>();
+
+  private readonly seo = inject(SeoService);
+
+  constructor() {
+    effect(() => {
+      const result = this.posts();
+      const page = result.ok ? result.data.page : 1;
+      this.seo.apply({
+        title: page > 1 ? `Blog, page ${page}` : 'Blog',
+        description:
+          'Every post: training, recovery and nutrition for people over forty.',
+        // Page 1 canonicalises to /blog so the two URLs are not duplicates.
+        path: page > 1 ? `/blog/page/${page}` : '/blog',
+      });
+    });
+  }
 }

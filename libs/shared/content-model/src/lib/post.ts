@@ -47,3 +47,15 @@ export function isHtmlBody(
 ): body is Extract<PostBody, { kind: 'html' }> {
   return body.kind === 'html';
 }
+
+/**
+ * The minimum needed to address a post without loading it.
+ *
+ * Used by the sitemap, and by anything else that needs the set of public URLs
+ * rather than their contents.
+ */
+export interface PostRef {
+  slug: string;
+  publishedAt: Iso8601;
+  updatedAt?: Iso8601;
+}

@@ -4,7 +4,7 @@ import type {
   Paged,
   Post,
   PostSummary,
-  TagRef,
+  TagSummary,
 } from '@fitoverforty/content-model';
 import { CONTENT_SOURCE } from './content-source.token';
 import { loaded, type Loaded } from './loaded';
@@ -31,7 +31,7 @@ export const archiveResolver: ResolveFn<Loaded<Paged<PostSummary>>> = (route) =>
 export const latestResolver: ResolveFn<Loaded<Paged<PostSummary>>> = () =>
   loaded(inject(CONTENT_SOURCE).listPosts(1, LATEST_ON_HOME));
 
-export const tagsResolver: ResolveFn<Loaded<TagRef[]>> = () =>
+export const tagsResolver: ResolveFn<Loaded<TagSummary[]>> = () =>
   loaded(inject(CONTENT_SOURCE).listTags());
 
 export const tagPostsResolver: ResolveFn<Loaded<Paged<PostSummary>>> = (

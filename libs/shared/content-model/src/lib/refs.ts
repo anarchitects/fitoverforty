@@ -21,3 +21,13 @@ export interface TagRef {
   slug: string;
   name: string;
 }
+
+/**
+ * A tag plus how many published posts carry it.
+ *
+ * Widens TagRef rather than replacing it: a post's own tags do not need a
+ * count, and making every TagRef carry one would mean computing it everywhere.
+ */
+export interface TagSummary extends TagRef {
+  postCount: number;
+}

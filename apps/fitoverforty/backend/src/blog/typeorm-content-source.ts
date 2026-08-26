@@ -5,10 +5,11 @@ import type {
   ContentSource,
   Paged,
   Post,
+  PostRef,
   PostSummary,
-  TagRef,
+  TagSummary,
 } from '@fitoverforty/content-model';
-import { PostEntity, TagEntity } from './entities';
+import { PostEntity } from './entities';
 import { toPost, toPostSummary } from './post.mapper';
 
 const POST_RELATIONS = {
@@ -22,8 +23,6 @@ export class TypeOrmContentSource implements ContentSource {
   constructor(
     @InjectRepository(PostEntity)
     private readonly posts: Repository<PostEntity>,
-    @InjectRepository(TagEntity)
-    private readonly tags: Repository<TagEntity>,
   ) {}
 
   /**
@@ -103,30 +102,44 @@ export class TypeOrmContentSource implements ContentSource {
     return post ? toPost(post) : undefined;
   }
 
-  async listTags(): Promise<TagRef[]> {
-    // Only tags that actually have a visible post. An empty tag archive is a
-    // dead end for readers and a crawl target for nothing.
-    //
-    // EXISTS rather than a join: the join would return one row per matching
-    // post and need de-duplicating, and we only care whether any exists.
-    const tags = await this.tags
-      .createQueryBuilder('tag')
-      .where((qb) => {
-        const sub = qb
-          .subQuery()
-          .select('1')
-          .from(PostEntity, 'post')
-          .innerJoin('post.tags', 'posttag')
-          .where('posttag.id = tag.id')
-          .andWhere('post.status = :status')
-          .andWhere('post.published_at <= now()')
-          .getQuery();
-        return `EXISTS ${sub}`;
-      })
-      .setParameter('status', 'published')
-      .orderBy('tag.name', 'ASC')
-      .getMany();
+  async listPublishedRefs(): Promise<PostRef[]> {
+    // No relations and no pagination: the sitemap needs every public URL, and
+    // loading tags and authors for each would be pure waste.
+    const rows = await this.posts.find({
+      where: this.publishedWhere(),
+      select: { slug: true, publishedAt: true, updatedAt: true },
+      order: { publishedAt: 'DESC' },
+    });
 
-    return tags.map((tag) => ({ slug: tag.slug, name: tag.name }));
+    return rows.map((row) => ({
+      slug: row.slug,
+      publishedAt: (row.publishedAt as Date).toISOString(),
+      updatedAt: row.updatedAt?.toISOString(),
+    }));
+  }
+
+  async listTags(): Promise<TagSummary[]> {
+    // Only tags with a visible post, and how many carry each. One grouped
+    // query rather than a count per tag, which would make the tag index N+1.
+    const rows = await this.posts
+      .createQueryBuilder('post')
+      .select('tag.slug', 'slug')
+      .addSelect('tag.name', 'name')
+      .addSelect('COUNT(post.id)', 'count')
+      .innerJoin('post.tags', 'tag')
+      .where('post.status = :status', { status: 'published' })
+      .andWhere('post.published_at <= now()')
+      .groupBy('tag.slug')
+      .addGroupBy('tag.name')
+      .orderBy('tag.name', 'ASC')
+      .getRawMany<{ slug: string; name: string; count: string }>();
+
+    // COUNT comes back as a string from pg: it is a bigint, which does not fit
+    // a JS number in the general case.
+    return rows.map((row) => ({
+      slug: row.slug,
+      name: row.name,
+      postCount: Number.parseInt(row.count, 10),
+    }));
   }
 }

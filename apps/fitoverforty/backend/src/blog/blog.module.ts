@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BlogController } from './blog.controller';
+import { SyndicationController } from './syndication.controller';
 import { CONTENT_SOURCE } from './content-source.token';
 import { AuthorEntity, MediaEntity, PostEntity, TagEntity } from './entities';
 import { TypeOrmContentSource } from './typeorm-content-source';
@@ -14,7 +15,7 @@ import { TypeOrmContentSource } from './typeorm-content-source';
       MediaEntity,
     ]),
   ],
-  controllers: [BlogController],
+  controllers: [BlogController, SyndicationController],
   providers: [
     TypeOrmContentSource,
     { provide: CONTENT_SOURCE, useExisting: TypeOrmContentSource },

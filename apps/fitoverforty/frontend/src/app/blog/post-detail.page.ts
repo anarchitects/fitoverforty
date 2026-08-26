@@ -7,10 +7,10 @@ import {
   input,
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { Title } from '@angular/platform-browser';
 import { RouterLink } from '@angular/router';
 import { BlockRendererComponent } from '@fitoverforty/frontend-blog';
 import { isBlocksBody, type Post } from '@fitoverforty/content-model';
+import { SeoService } from '../seo/seo.service';
 import type { Loaded } from './loaded';
 import { LoadErrorComponent } from './load-error.component';
 import { NotFoundPage } from './not-found.page';
@@ -94,17 +94,28 @@ export class PostDetailPage {
     return result.ok ? result.data : undefined;
   });
 
-  private readonly title = inject(Title);
+  private readonly seo = inject(SeoService);
 
   constructor() {
     // Set here rather than as a route `title` resolver: that would race with
-    // the post resolver it depends on. Description, canonical, OpenGraph and
-    // JSON-LD land with the rest of the SEO work.
+    // the post resolver it depends on.
     effect(() => {
       const post = this.loadedPost();
-      this.title.setTitle(
-        post ? `${post.title} — Fit Over Forty` : 'Not found — Fit Over Forty',
-      );
+      if (!post) {
+        // NotFoundPage sets its own metadata when it renders.
+        return;
+      }
+      this.seo.apply({
+        title: post.title,
+        description: post.description,
+        path: `/blog/${post.slug}`,
+        type: 'article',
+        publishedAt: post.publishedAt,
+        modifiedAt: post.updatedAt,
+        authors: post.authors.map((author) => author.name),
+        tags: post.tags.map((tag) => tag.name),
+        image: post.hero?.src,
+      });
     });
   }
 

@@ -5,8 +5,8 @@ import {
   inject,
   input,
 } from '@angular/core';
-import { Title } from '@angular/platform-browser';
 import type { Paged, PostSummary } from '@fitoverforty/content-model';
+import { SeoService } from '../seo/seo.service';
 import type { Loaded } from './loaded';
 import { LoadErrorComponent } from './load-error.component';
 import { PaginationComponent } from './pagination.component';
@@ -43,13 +43,16 @@ export class TagArchivePage {
   /** Bound from the :tag route parameter. */
   readonly tag = input.required<string>();
 
-  private readonly title = inject(Title);
+  private readonly seo = inject(SeoService);
 
   constructor() {
     effect(() => {
-      this.title.setTitle(
-        `Tagged \u201C${this.tag()}\u201D \u2014 Fit Over Forty`,
-      );
+      const tag = this.tag();
+      this.seo.apply({
+        title: `Tagged \u201C${tag}\u201D`,
+        description: `Posts tagged ${tag}.`,
+        path: `/blog/tag/${tag}`,
+      });
     });
   }
 }
