@@ -4,3 +4,9 @@ export type { Heading, Post, PostBody, PostSummary } from './lib/post';
 export { isBlocksBody, isHtmlBody } from './lib/post';
 export type { Paged } from './lib/paged';
 export type { ContentSource } from './lib/content-source';
+export {
+  deriveHeadings,
+  headingIdsByBlockIndex,
+  plainText,
+  slugify,
+} from './lib/headings';
