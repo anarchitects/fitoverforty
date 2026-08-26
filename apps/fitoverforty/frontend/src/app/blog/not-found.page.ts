@@ -1,10 +1,11 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { setServerStatus } from './server-status';
 
 /**
- * Renders the body of a 404. Setting an actual 404 *status* needs the server
- * renderer (Angular's RESPONSE_INIT), so under client rendering this is a 200
- * carrying not-found content. That is tracked with the rest of the SSR wiring.
+ * Renders the body of a 404, and sets the status to match when server-rendered.
+ * Under client rendering the status is whatever served index.html, because
+ * there is no server in that path to tell.
  */
 @Component({
   selector: 'app-not-found-page',
@@ -19,4 +20,8 @@ import { RouterLink } from '@angular/router';
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class NotFoundPage {}
+export class NotFoundPage {
+  constructor() {
+    setServerStatus(404);
+  }
+}
