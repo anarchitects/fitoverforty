@@ -6,6 +6,7 @@ import {
 } from '@anarchitects/forms-nest/infrastructure-persistence';
 import { ContactForm1774554775527 } from '../tools/typeorm/migrations/1774554775527-ContactForm';
 import { CreateBlogSchema1787753192528 } from '../tools/typeorm/migrations/1787753192528-CreateBlogSchema';
+import { SeedBlogContent1787754605505 } from '../tools/typeorm/migrations/1787754605505-SeedBlogContent';
 import {
   AuthorEntity,
   MediaEntity,
@@ -43,6 +44,7 @@ export const AppDataSource = new DataSource({
     AddValidationRulesToFormConfigs1720310000000,
     ContactForm1774554775527,
     CreateBlogSchema1787753192528,
+    SeedBlogContent1787754605505,
   ],
 });
 

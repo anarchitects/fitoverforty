@@ -9,6 +9,7 @@ import { FormsModule } from '@anarchitects/forms-nest';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AppDataSource } from '../data-source';
+import { BlogModule } from '../blog/blog.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { AppDataSource } from '../data-source';
     }),
     CommonMailerModule.forRootFromConfig(),
     FormsModule.forRootFromConfig(),
+    BlogModule,
   ],
   controllers: [AppController],
   providers: [AppService],
