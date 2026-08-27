@@ -27,6 +27,19 @@ const transformIgnorePatterns = [
 const moduleNameMapper = {
   '^@fitoverforty/content-model$':
     '<rootDir>/../../../libs/shared/content-model/src/index.ts',
+
+  /**
+   * better-auth and its TypeORM adapter are ESM-only and CANNOT be loaded in
+   * these CommonJS suites — `jest-resolve` treats a `.mjs` extension, and a
+   * `"type": "module"` package, as ESM before any transform is consulted, so
+   * no `transformIgnorePatterns` entry helps. See `../test-stubs/README.md`.
+   */
+  '^better-auth$': '<rootDir>/../test-stubs/better-auth.cjs',
+  '^@anarchitects/better-auth-typeorm-adapter$':
+    '<rootDir>/../test-stubs/better-auth-typeorm-adapter.cjs',
 };
 
-module.exports = { transformIgnorePatterns, moduleNameMapper };
+/** Environment the suites need before any module is constructed. */
+const setupFiles = ['<rootDir>/../test-stubs/env.cjs'];
+
+module.exports = { transformIgnorePatterns, moduleNameMapper, setupFiles };

@@ -34,6 +34,13 @@ jobs:
       TYPEORM_USERNAME: fitoverforty
       TYPEORM_PASSWORD: fitoverforty
       TYPEORM_DATABASE: fitoverforty
+      # The backend refuses to construct Better Auth without a signing secret,
+      # deliberately — see apps/fitoverforty/backend/env.example. CI boots the
+      # backend (frontend-e2e and ssr-e2e both do), so it needs one. Nothing in
+      # CI signs in, and this value is public by definition, so it is written
+      # here rather than kept as a secret: a repository secret would imply it
+      # protects something.
+      BETTER_AUTH_SECRET: ci-only-secret-not-used-for-any-real-session-0123
     steps:
       - uses: actions/checkout@v6
         with:

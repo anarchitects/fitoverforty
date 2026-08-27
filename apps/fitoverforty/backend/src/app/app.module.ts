@@ -11,6 +11,7 @@ import { AppService } from './app.service';
 import { AppDataSource } from '../data-source';
 import { BlogModule } from '../blog/blog.module';
 import { NewsletterModule } from '../newsletter/newsletter.module';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { NewsletterModule } from '../newsletter/newsletter.module';
     }),
     CommonMailerModule.forRootFromConfig(),
     FormsModule.forRootFromConfig(),
+    AuthModule,
     BlogModule,
     NewsletterModule,
   ],
