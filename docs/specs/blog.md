@@ -1,7 +1,10 @@
 # Spec — Blog v1
 
-Status: draft, second revision.
-Supersedes the content sections of `docs/2026-08-25-baseline-and-open-decisions.md`.
+Status: second revision. **Phase A is delivered and merged**; Phase B has not started.
+Where this spec describes authoring, admin or media, it still describes intent — see
+§14.
+Supersedes the dated baseline note that fed it. That note was deleted once this spec
+landed; its durable items moved to `CLAUDE.md`.
 
 Read `CLAUDE.md` first for commands, architecture and gotchas. This spec does not
 restate them.
@@ -402,24 +405,25 @@ enabled and the key is missing.
 The scope increase makes a single v1 milestone unrealistic. Two phases, where **Phase A
 is a complete public blog with no authoring UI**:
 
-**Phase A — the public site**
+**Phase A — the public site.** Delivered; all five steps are on `main`.
 
-1. `content-model` lib; `blog` schema, entities and migrations.
+1. `content-model` lib; `blog` schema, entities and migrations. — #12
 2. Backend read API and the DB-backed `ContentSource`; sanitisation and validation on
-   write, exercised by a seed path.
-3. Block renderer, routes, SSR wiring, 404 handling, CI SSR assertion.
-4. Tags, RSS, sitemap, SEO metadata, JSON-LD.
-5. Newsletter, consent persistence, privacy policy page.
+   write, exercised by a seed path. — #15
+3. Block renderer, routes, SSR wiring, 404 handling, CI SSR assertion. — #14, #16
+4. Tags, RSS, sitemap, SEO metadata, JSON-LD. — #17
+5. Newsletter, consent persistence, privacy policy page. — #18
 
-**Steps 1 and 2 are unblocked** — no dependency on Johan, on the epics, or on the
-styling decision. Step 3's SSR wiring can run in parallel with them, since it touches
-the build and the backend rather than the content model.
+Steps 1 and 2 turned out to be unblocked — no dependency on Johan, on the epics, or on
+the styling decision — which is what let Phase A proceed at all. Step 3's SSR wiring ran
+alongside them, since it touched the build and the backend rather than the content model.
 
-Content during Phase A is seeded as `OutputData` JSON through a migration or a small
-CLI, exactly as the contact form config is seeded today. It is a stopgap and reaches the
-same tables the admin will later write to, so nothing is thrown away.
+Content during Phase A is seeded as `OutputData` JSON through a migration, exactly as
+the contact form config is seeded today. (A `db:seed` CLI was tried first and abandoned:
+the executor's dynamic `import()` makes the seed file ESM under Node 24.) It is a stopgap
+and reaches the same tables the admin will later write to, so nothing is thrown away.
 
-**Phase B — authoring**
+**Phase B — authoring.** Not started.
 
 6. Better Auth wiring, admin shell, route guards.
 7. Editor.js Angular wrapper, SSR-safe, with the tool registry.
