@@ -7,6 +7,8 @@ import {
 import { ContactForm1774554775527 } from '../tools/typeorm/migrations/1774554775527-ContactForm';
 import { CreateBlogSchema1787753192528 } from '../tools/typeorm/migrations/1787753192528-CreateBlogSchema';
 import { SeedBlogContent1787754605505 } from '../tools/typeorm/migrations/1787754605505-SeedBlogContent';
+import { CreateNewsletterSchema1787784560093 } from '../tools/typeorm/migrations/1787784560093-CreateNewsletterSchema';
+import { NewsletterConsentEntity } from './newsletter/entities/newsletter-consent.entity';
 import {
   AuthorEntity,
   MediaEntity,
@@ -38,6 +40,7 @@ export const AppDataSource = new DataSource({
     TagEntity,
     AuthorEntity,
     MediaEntity,
+    NewsletterConsentEntity,
   ],
   migrations: [
     CreateFormsTables1720300000000,
@@ -45,6 +48,7 @@ export const AppDataSource = new DataSource({
     ContactForm1774554775527,
     CreateBlogSchema1787753192528,
     SeedBlogContent1787754605505,
+    CreateNewsletterSchema1787784560093,
   ],
 });
 

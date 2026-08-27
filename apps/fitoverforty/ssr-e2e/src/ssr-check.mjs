@@ -113,7 +113,10 @@ async function main() {
   await once(stub.server, 'listening');
   const stubPort = stub.server.address().port;
 
-  const { PORT: _ignored, ...env } = process.env;
+  // Drop any inherited PORT: it would override the one set below, which is
+  // the collision documented in CLAUDE.md.
+  const env = { ...process.env };
+  delete env.PORT;
   const backend = spawn('node', [BACKEND], {
     env: {
       ...env,

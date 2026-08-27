@@ -62,6 +62,11 @@ export const appRoutes: Route[] = [
     resolve: { post: postResolver },
   },
   {
+    path: 'privacy',
+    loadComponent: () =>
+      import('./legal/privacy.page').then((m) => m.PrivacyPage),
+  },
+  {
     path: 'contact',
     loadComponent: () =>
       import('@anarchitects/forms-angular').then(

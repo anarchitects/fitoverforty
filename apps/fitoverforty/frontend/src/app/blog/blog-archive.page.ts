@@ -11,11 +11,17 @@ import type { Loaded } from './loaded';
 import { LoadErrorComponent } from './load-error.component';
 import { PaginationComponent } from './pagination.component';
 import { PostSummaryListComponent } from './post-summary-list.component';
+import { NewsletterCtaComponent } from '../newsletter/newsletter-cta.component';
 
 @Component({
   selector: 'app-blog-archive-page',
   standalone: true,
-  imports: [PostSummaryListComponent, PaginationComponent, LoadErrorComponent],
+  imports: [
+    PostSummaryListComponent,
+    PaginationComponent,
+    LoadErrorComponent,
+    NewsletterCtaComponent,
+  ],
   template: `
     <section class="anx-section blog-archive">
       <h1>Blog</h1>
@@ -31,6 +37,7 @@ import { PostSummaryListComponent } from './post-summary-list.component';
           <app-load-error />
         }
       }
+      <app-newsletter-cta />
     </section>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,

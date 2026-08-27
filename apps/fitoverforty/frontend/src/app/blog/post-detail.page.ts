@@ -14,6 +14,7 @@ import { SeoService } from '../seo/seo.service';
 import type { Loaded } from './loaded';
 import { LoadErrorComponent } from './load-error.component';
 import { NotFoundPage } from './not-found.page';
+import { NewsletterCtaComponent } from '../newsletter/newsletter-cta.component';
 
 @Component({
   selector: 'app-post-detail-page',
@@ -24,6 +25,7 @@ import { NotFoundPage } from './not-found.page';
     RouterLink,
     NotFoundPage,
     LoadErrorComponent,
+    NewsletterCtaComponent,
   ],
   template: `
     @if (failed()) {
