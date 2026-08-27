@@ -22,6 +22,13 @@ export class BlogController {
     return this.content.listPosts(p, pp);
   }
 
+  // Declared before 'posts/:slug', which would otherwise match 'refs' as a
+  // slug and return 404 for it.
+  @Get('posts/refs')
+  listPublishedRefs() {
+    return this.content.listPublishedRefs();
+  }
+
   @Get('posts/:slug')
   async post(@Param('slug') slug: string) {
     const post = await this.content.loadPost(slug);

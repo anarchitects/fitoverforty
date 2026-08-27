@@ -6,8 +6,9 @@ import type {
   ContentSource,
   Paged,
   Post,
+  PostRef,
   PostSummary,
-  TagRef,
+  TagSummary,
 } from '@fitoverforty/content-model';
 
 const API = '/api/blog';
@@ -37,8 +38,16 @@ export class HttpContentSource implements ContentSource {
     );
   }
 
-  listTags(): Promise<TagRef[]> {
-    return firstValueFrom(this.http.get<TagRef[]>(`${API}/tags`));
+  /**
+   * Only the sitemap needs this, and the sitemap is generated server-side, so
+   * the browser never calls it. It exists to satisfy the port.
+   */
+  listPublishedRefs(): Promise<PostRef[]> {
+    return firstValueFrom(this.http.get<PostRef[]>(`${API}/posts/refs`));
+  }
+
+  listTags(): Promise<TagSummary[]> {
+    return firstValueFrom(this.http.get<TagSummary[]>(`${API}/tags`));
   }
 
   /**

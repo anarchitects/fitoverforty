@@ -1,6 +1,6 @@
 import type { Paged } from './paged';
-import type { Post, PostSummary } from './post';
-import type { TagRef } from './refs';
+import type { Post, PostRef, PostSummary } from './post';
+import type { TagSummary } from './refs';
 
 /**
  * The narrow contract between stored content and everything that renders it.
@@ -11,11 +11,14 @@ import type { TagRef } from './refs';
  */
 export interface ContentSource {
   listPosts(page: number, perPage: number): Promise<Paged<PostSummary>>;
-  listTags(): Promise<TagRef[]>;
+  listTags(): Promise<TagSummary[]>;
   postsByTag(
     tagSlug: string,
     page: number,
     perPage: number,
   ): Promise<Paged<PostSummary>>;
   loadPost(slug: string): Promise<Post | undefined>;
+
+  /** Every published post, unpaginated. For the sitemap. */
+  listPublishedRefs(): Promise<PostRef[]>;
 }

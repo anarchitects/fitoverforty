@@ -1,6 +1,13 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  inject,
+  input,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import type { Paged, PostSummary } from '@fitoverforty/content-model';
+import { SeoService } from '../seo/seo.service';
 import type { Loaded } from './loaded';
 import { LoadErrorComponent } from './load-error.component';
 import { PostSummaryListComponent } from './post-summary-list.component';
@@ -32,4 +39,17 @@ import { PostSummaryListComponent } from './post-summary-list.component';
 })
 export class HomePage {
   readonly latest = input.required<Loaded<Paged<PostSummary>>>();
+
+  private readonly seo = inject(SeoService);
+
+  constructor() {
+    effect(() => {
+      this.seo.apply({
+        title: 'Fit Over Forty',
+        description:
+          'Training, recovery and nutrition for people who did not start yesterday.',
+        path: '/',
+      });
+    });
+  }
 }

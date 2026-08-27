@@ -1,6 +1,13 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  inject,
+  input,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
-import type { TagRef } from '@fitoverforty/content-model';
+import type { TagSummary } from '@fitoverforty/content-model';
+import { SeoService } from '../seo/seo.service';
 import type { Loaded } from './loaded';
 import { LoadErrorComponent } from './load-error.component';
 
@@ -18,6 +25,10 @@ import { LoadErrorComponent } from './load-error.component';
               @for (tag of result.data; track tag.slug) {
                 <li>
                   <a [routerLink]="['/blog/tag', tag.slug]">{{ tag.name }}</a>
+                  <span class="blog-tag-count">
+                    {{ tag.postCount }}
+                    {{ tag.postCount === 1 ? 'post' : 'posts' }}
+                  </span>
                 </li>
               }
             </ul>
@@ -33,5 +44,17 @@ import { LoadErrorComponent } from './load-error.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TagIndexPage {
-  readonly tags = input.required<Loaded<TagRef[]>>();
+  readonly tags = input.required<Loaded<TagSummary[]>>();
+
+  private readonly seo = inject(SeoService);
+
+  constructor() {
+    effect(() => {
+      this.seo.apply({
+        title: 'Tags',
+        description: 'Browse posts by topic.',
+        path: '/blog/tags',
+      });
+    });
+  }
 }

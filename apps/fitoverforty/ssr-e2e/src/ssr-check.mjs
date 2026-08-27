@@ -26,6 +26,12 @@ const POST = {
   authors: [{ id: '1', slug: 'paul', name: 'Paul' }],
   tags: [{ slug: 'strength', name: 'Strength' }],
   readingTimeMinutes: 3,
+  hero: {
+    src: '/assets/hero.png',
+    alt: 'A lifter',
+    width: 1200,
+    height: 630,
+  },
 };
 
 const failures = [];
@@ -115,6 +121,7 @@ async function main() {
       WEB_SERVER_ENTRY: SERVER_ENTRY,
       WEB_BROWSER_ASSETS_DIR: BROWSER_DIR,
       WEB_ALLOWED_HOSTS: 'localhost,127.0.0.1',
+      SITE_URL: 'https://ssr-check.test',
       API_ORIGIN: `http://127.0.0.1:${stubPort}`,
     },
     stdio: ['ignore', 'pipe', 'pipe'],
@@ -151,6 +158,63 @@ async function main() {
     check(
       'transfer state present (browser does not refetch)',
       postHtml.includes('ng-state'),
+    );
+
+    console.log('seo metadata');
+    const head = postHtml.split('</head>')[0];
+    check(
+      'canonical points at the public origin',
+      head.includes(
+        `<link rel="canonical" href="https://ssr-check.test/blog/${POST.slug}">`,
+      ),
+    );
+    check(
+      'meta description is the post description',
+      head.includes(`content="${POST.description}"`),
+    );
+    check(
+      'OpenGraph type is article',
+      head.includes('property="og:type" content="article"'),
+    );
+    check(
+      'OpenGraph url is absolute',
+      head.includes(`content="https://ssr-check.test/blog/${POST.slug}"`),
+    );
+    check(
+      'hero image becomes og:image and a large twitter card',
+      head.includes('https://ssr-check.test/assets/hero.png') &&
+        head.includes('content="summary_large_image"'),
+    );
+    check('article tags are emitted', head.includes('property="article:tag"'));
+
+    let jsonLd;
+    try {
+      const match = head.match(
+        /<script id="blog-json-ld"[^>]*>([\s\S]*?)<\/script>/,
+      );
+      jsonLd = match ? JSON.parse(match[1]) : undefined;
+    } catch {
+      jsonLd = undefined;
+    }
+    check('JSON-LD is present and parses', Boolean(jsonLd));
+    check('JSON-LD is a BlogPosting', jsonLd?.['@type'] === 'BlogPosting');
+    check('JSON-LD headline matches the post', jsonLd?.headline === POST.title);
+    check(
+      'JSON-LD names the author',
+      JSON.stringify(jsonLd?.author ?? []).includes('Paul'),
+    );
+
+    console.log('not-found metadata');
+    const missingHead = (await (await fetch(`${base}/blog/nope`)).text()).split(
+      '</head>',
+    )[0];
+    check(
+      'a not-found page is noindex',
+      missingHead.includes('name="robots"') && missingHead.includes('noindex'),
+    );
+    check(
+      'and emits no canonical, which would point at a page that does not exist',
+      !missingHead.includes('rel="canonical"'),
     );
 
     console.log('archive');
