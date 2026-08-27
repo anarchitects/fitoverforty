@@ -1,9 +1,9 @@
 # Spec — Blog v1
 
-Status: second revision. **Phase A is delivered and merged, and so are Phase B steps
-6–9** — auth, the admin shell, the editor, media uploads and the publish workflow. The
-one item still describing intent rather than code is step 10, the MailerLite unsubscribe
-webhook. See §14.
+Status: second revision. **Phase A and Phase B are delivered and merged.** The blog is
+authored, published and scheduled from `/admin`, and unsubscribes are mirrored back into
+the consent log. See §14 for the PR behind each step, and §16 for what is still open —
+all of it configuration held outside this repository.
 Supersedes the dated baseline note that fed it. That note was deleted once this spec
 landed; its durable items moved to `CLAUDE.md`.
 
@@ -347,31 +347,43 @@ risk:
   URL, IP, and the wording version from `NEWSLETTER_CONSENT_VERSION`. Owning the audit
   trail matters; the ESP's record is not ours if we change provider.
 
-### Withdrawal is not recorded locally, and should be
+### Withdrawal is recorded locally — delivered in Phase B step 10
 
-Consent is recorded here; **withdrawal is not**. Unsubscribing happens entirely inside
-MailerLite — from the link in a campaign email — so the local table knows someone
-asked to be emailed and never learns they later asked us to stop.
+Phase A recorded consent but not **withdrawal**. Unsubscribing happens entirely inside
+MailerLite — from the link in a campaign email — so the local table knew someone asked
+to be emailed and never learned they later asked us to stop. That was tolerable only
+while nothing read the table to decide whether to email someone; it would have let a
+withdrawn consent look current to an auditor.
 
-For Phase A that is acceptable, because MailerLite is the system of record for
-delivery: an unsubscribed address is suppressed there and nothing is sent. The local
-table is an audit trail, not a mailing list.
+`newsletter.consents` is now a consent **event log**. `POST /api/newsletter/webhook`
+takes MailerLite's `subscriber.unsubscribed` and `subscriber.deleted` events and writes
+a withdrawal row against the address — a new row, never an update, for the same reason
+subscriptions are: the history is the evidence.
 
-It stops being acceptable the moment that table is the thing handed to an auditor, or
-the moment anything else reads it to decide whether to email someone. Either would let
-a withdrawn consent look current.
-
-The fix is a **MailerLite webhook** for `subscriber.unsubscribed` (and
-`subscriber.deleted`), writing a withdrawal row against the same address. Deliberately a
-new row rather than an update, for the same reason subscriptions are: the history is the
-evidence, and overwriting it destroys the thing the table exists for.
-
-Two things to get right when it lands: verify the webhook signature, since an unverified
-endpoint lets anyone mark any address as withdrawn; and make it idempotent, because
-providers retry.
+- **`kind`** is `granted` or `withdrawn`. The current state of an address is its newest
+  row. `consent_version`/`consent_text` are null on a withdrawal, since nobody was shown
+  a form, and a check constraint requires them on a grant.
+- **`consented_at` was renamed `recorded_at`.** On a withdrawal row the old name would
+  have named the opposite of what the row records.
+- **The signature is the entire access control.** MailerLite has no credential to
+  present, so the endpoint is public; without verification anyone could mark any address
+  as withdrawn. It is the hex HMAC-SHA256 of the raw body under a per-webhook secret
+  (`MAILERLITE_WEBHOOK_SECRET`) — the v3 scheme, not v2's base64 keyed with the API key.
+  Verified over the **raw bytes**: `JSON.stringify(JSON.parse(x))` is not `x`, so a
+  re-serialisation would reject every genuine delivery.
+- **Idempotent via a unique index**, not a read-then-write, because two retries can
+  arrive at once. MailerLite sends no event id, so the key is
+  `event:subscriber:updated_at` — stable across retries, distinct for a genuine later
+  unsubscribe after a re-subscribe.
+- **Unknown events are accepted and ignored**, not rejected: a 4xx would make MailerLite
+  retry a `subscriber.created` delivery forever.
 
 Discovered while verifying the live double opt-in flow — the subscription wrote a row,
 the unsubscribe wrote nothing.
+
+**Still needs doing in the MailerLite UI**: create the webhook, point it at
+`/api/newsletter/webhook`, subscribe it to those two events, and put its secret in the
+environment. Nothing in this repo or in CI can do or verify that.
 
 **Decided: the CTA stays a lightweight bespoke component** posting to that endpoint
 rather than a `forms-angular` render. Prerendering was the original argument and it has
@@ -381,7 +393,8 @@ versioning is not what `forms-nest` models today. The server side still mirrors 
 one is ever added.
 
 Environment: `MAILERLITE_API_KEY`, `MAILERLITE_GROUP_ID`, `MAILERLITE_API_URL`,
-`SITE_URL`, `NEWSLETTER_CONSENT_VERSION`, plus auth and storage variables from §9.
+`MAILERLITE_WEBHOOK_SECRET`, `SITE_URL`, `NEWSLETTER_CONSENT_VERSION`, plus auth and
+storage variables from §9.
 Unlike the mailer gotcha in `CLAUDE.md`, these **fail fast at boot** when the feature is
 enabled and the key is missing.
 
@@ -424,14 +437,13 @@ the contact form config is seeded today. (A `db:seed` CLI was tried first and ab
 the executor's dynamic `import()` makes the seed file ESM under Node 24.) It is a stopgap
 and reaches the same tables the admin will later write to, so nothing is thrown away.
 
-**Phase B — authoring.** Steps 6–9 are on `main`; step 10 is not started.
+**Phase B — authoring.** Delivered; all five steps are on `main`.
 
 6. Better Auth wiring, admin shell, route guards. — #20
 7. Editor.js Angular wrapper, SSR-safe, with the tool registry. — #21
 8. Media upload adapter and storage. — #22
 9. Publish, schedule, preview and unpublish workflow. — #23
-10. Mirror MailerLite unsubscribes back into `newsletter_consent` — see below.
-    *Not started.*
+10. Mirror MailerLite unsubscribes back into the consent log — #24, and §12.
 
 Three things about step 9 that are worth carrying forward rather than
 rediscovering:

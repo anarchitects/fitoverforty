@@ -62,6 +62,9 @@ export class NewsletterService {
     await this.consents.save(
       this.consents.create({
         email: input.email,
+        // Explicit rather than leaning on the column default: this row is the
+        // evidence, and what it asserts should be readable here.
+        kind: 'granted',
         consentVersion: CONSENT.version,
         consentText: CONSENT.text,
         sourceUrl: context.sourceUrl ?? input.source ?? null,
