@@ -136,6 +136,13 @@ These cost real debugging time; none are inferable from the code.
 - **Better Auth's field list comes from the library, not the adapter's README.** The
   README documents an older version and omits `accounts.issuer`, which 1.7 made
   required. `getAuthTables({})` from `@better-auth/core/db` is the authoritative list.
+- **Block types live in `@fitoverforty/content-model` and three places consume them.**
+  `SUPPORTED_BLOCK_TYPES` is read by the write-side validator, the public renderer and
+  the editor's tool registry. The dangerous drift is the editor offering more than the
+  validator accepts — an author writes a whole post and finds out at save time — so a
+  test in each direction guards it. Editor.js's list tool ships a checklist style the
+  contract does not allow and offers no way to configure it off; the registry subclasses
+  the tool to filter its toolbox instead.
 - **ESM-only packages cannot be loaded by the backend Jest suites at all.** `better-auth`
   and its adapter ship `.mjs` with `"type": "module"`, and `jest-resolve` treats both as
   ESM _before_ any transform runs — so this is not a missing `transformIgnorePatterns`

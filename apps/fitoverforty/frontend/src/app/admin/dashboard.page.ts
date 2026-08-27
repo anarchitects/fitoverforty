@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { SeoService } from '../seo/seo.service';
 import { AuthService } from './auth.service';
 
@@ -12,6 +13,7 @@ import { AuthService } from './auth.service';
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
+  imports: [RouterLink],
   template: `
     <section class="anx-section">
       <h1>Dashboard</h1>
@@ -21,9 +23,10 @@ import { AuthService } from './auth.service';
       }
 
       <p>
-        Authoring is not built yet. The editor, media uploads and the publish
-        workflow are the remaining Phase B steps; until they land, posts are
-        seeded through a migration.
+        Authoring is partly built. The
+        <a routerLink="/admin/compose">editor</a> works, but nothing saves yet:
+        media uploads and the publish workflow are the remaining Phase B steps,
+        and until they land posts are seeded through a migration.
       </p>
     </section>
   `,

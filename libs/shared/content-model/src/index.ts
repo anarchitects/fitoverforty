@@ -1,4 +1,10 @@
 export type { OutputBlockData, OutputData } from './lib/editorjs';
+export {
+  SUPPORTED_BLOCK_TYPES,
+  SUPPORTED_LIST_STYLES,
+  isSupportedBlockType,
+} from './lib/blocks';
+export type { SupportedBlockType, SupportedListStyle } from './lib/blocks';
 export type {
   AuthorRef,
   ImageRef,
