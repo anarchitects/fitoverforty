@@ -3,7 +3,9 @@ import {
   provideFormsPagePreset,
 } from '@anarchitects/forms-angular/config';
 import { Route } from '@angular/router';
+import { IMAGE_UPLOADER } from '@fitoverforty/frontend-editorjs';
 import { adminGuard, signedOutGuard } from './admin/admin.guard';
+import { HttpImageUploader } from './admin/http-image-uploader';
 import {
   archiveResolver,
   latestResolver,
@@ -80,6 +82,13 @@ export const appRoutes: Route[] = [
   {
     path: 'admin',
     canActivate: [adminGuard],
+    /**
+     * The editor library ships an uploader that refuses everything, so that a
+     * missing binding fails loudly rather than dropping files. This is where
+     * the app supplies the real one — scoped to the admin routes, since
+     * nothing else mounts an editor.
+     */
+    providers: [{ provide: IMAGE_UPLOADER, useExisting: HttpImageUploader }],
     loadComponent: () =>
       import('./admin/admin-shell.page').then((m) => m.AdminShellPage),
     children: [

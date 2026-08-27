@@ -162,11 +162,26 @@ export class EditorjsComponent {
           { Header, List, Quote, ImageTool, CodeTool, Table, Delimiter },
           { uploader: this.uploader },
         ),
-        onChange: async () => {
-          // `onChange` fires for cursor moves and tune changes too, so the
-          // payload is re-read rather than assumed from the event.
-          const output = await instance.save();
-          if (!this.destroyed) this.contentChange.emit(output);
+        /**
+         * Never allowed to reject.
+         *
+         * `onChange` fires for cursor moves and tune changes too, so the
+         * payload is re-read rather than assumed from the event — and
+         * `save()` can fail while a tool is mid-flight, an image tool waiting
+         * on an upload being the obvious case. Letting that rejection escape
+         * into Editor.js's own listener risks losing every later
+         * notification, which presents as an editor that quietly stops
+         * reporting what the author typed.
+         */
+        onChange: () => {
+          void instance
+            .save()
+            .then((output) => {
+              if (!this.destroyed) this.contentChange.emit(output);
+            })
+            .catch((error: unknown) => {
+              console.error('Editor.js could not save on change', error);
+            });
         },
       });
 

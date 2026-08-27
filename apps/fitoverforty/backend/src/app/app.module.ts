@@ -12,6 +12,7 @@ import { AppDataSource } from '../data-source';
 import { BlogModule } from '../blog/blog.module';
 import { NewsletterModule } from '../newsletter/newsletter.module';
 import { AuthModule } from '../auth/auth.module';
+import { MediaModule } from '../media/media.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { AuthModule } from '../auth/auth.module';
     FormsModule.forRootFromConfig(),
     AuthModule,
     BlogModule,
+    MediaModule,
     NewsletterModule,
   ],
   controllers: [AppController],
