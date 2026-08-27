@@ -1,4 +1,5 @@
 import type { OutputBlockData, OutputData } from '@fitoverforty/content-model';
+import { SUPPORTED_LIST_STYLES } from '@fitoverforty/content-model';
 import { InvalidBlockError } from './errors';
 import { sanitiseInline } from './inline-html';
 
@@ -109,10 +110,13 @@ const HANDLERS: Record<string, (data: Data, ctx: Ctx) => Data> = {
 
   list: (data, ctx) => {
     const style = data['style'];
-    if (style !== 'ordered' && style !== 'unordered') {
+    // Checked against the shared constant rather than a literal pair, so the
+    // editor's toolbar and this validator cannot disagree about what a list
+    // may be. The editor filters its own toolbox from the same list.
+    if (!(SUPPORTED_LIST_STYLES as readonly unknown[]).includes(style)) {
       fail(
         ctx,
-        `"style" must be "ordered" or "unordered", got ${JSON.stringify(style)}`,
+        `"style" must be one of ${SUPPORTED_LIST_STYLES.join(', ')}, got ${JSON.stringify(style)}`,
       );
     }
     return { style, items: sanitiseListItems(data['items'], ctx) };

@@ -29,6 +29,7 @@ import { AuthService } from './auth.service';
       <div class="admin-bar">
         <nav aria-label="Admin">
           <a routerLink="/admin">Dashboard</a>
+          <a routerLink="/admin/compose">Compose</a>
           <a routerLink="/">View site</a>
         </nav>
 

@@ -90,6 +90,12 @@ export const appRoutes: Route[] = [
           import('./admin/dashboard.page').then((m) => m.DashboardPage),
         title: 'Dashboard — Fit Over Forty',
       },
+      {
+        path: 'compose',
+        loadComponent: () =>
+          import('./admin/compose.page').then((m) => m.ComposePage),
+        title: 'Compose — Fit Over Forty',
+      },
     ],
   },
   {
