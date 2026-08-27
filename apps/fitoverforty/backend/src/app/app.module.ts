@@ -10,6 +10,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AppDataSource } from '../data-source';
 import { BlogModule } from '../blog/blog.module';
+import { NewsletterModule } from '../newsletter/newsletter.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { BlogModule } from '../blog/blog.module';
     CommonMailerModule.forRootFromConfig(),
     FormsModule.forRootFromConfig(),
     BlogModule,
+    NewsletterModule,
   ],
   controllers: [AppController],
   providers: [AppService],

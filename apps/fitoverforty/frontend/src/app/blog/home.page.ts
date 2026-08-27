@@ -11,11 +11,17 @@ import { SeoService } from '../seo/seo.service';
 import type { Loaded } from './loaded';
 import { LoadErrorComponent } from './load-error.component';
 import { PostSummaryListComponent } from './post-summary-list.component';
+import { NewsletterCtaComponent } from '../newsletter/newsletter-cta.component';
 
 @Component({
   selector: 'app-home-page',
   standalone: true,
-  imports: [PostSummaryListComponent, RouterLink, LoadErrorComponent],
+  imports: [
+    PostSummaryListComponent,
+    RouterLink,
+    LoadErrorComponent,
+    NewsletterCtaComponent,
+  ],
   template: `
     <section class="anx-section blog-home">
       <h1>Fit Over Forty</h1>
@@ -33,6 +39,7 @@ import { PostSummaryListComponent } from './post-summary-list.component';
           <app-load-error />
         }
       }
+      <app-newsletter-cta />
     </section>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
