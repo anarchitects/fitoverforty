@@ -343,6 +343,32 @@ risk:
   URL, IP, and the wording version from `NEWSLETTER_CONSENT_VERSION`. Owning the audit
   trail matters; the ESP's record is not ours if we change provider.
 
+### Withdrawal is not recorded locally, and should be
+
+Consent is recorded here; **withdrawal is not**. Unsubscribing happens entirely inside
+MailerLite — from the link in a campaign email — so the local table knows someone
+asked to be emailed and never learns they later asked us to stop.
+
+For Phase A that is acceptable, because MailerLite is the system of record for
+delivery: an unsubscribed address is suppressed there and nothing is sent. The local
+table is an audit trail, not a mailing list.
+
+It stops being acceptable the moment that table is the thing handed to an auditor, or
+the moment anything else reads it to decide whether to email someone. Either would let
+a withdrawn consent look current.
+
+The fix is a **MailerLite webhook** for `subscriber.unsubscribed` (and
+`subscriber.deleted`), writing a withdrawal row against the same address. Deliberately a
+new row rather than an update, for the same reason subscriptions are: the history is the
+evidence, and overwriting it destroys the thing the table exists for.
+
+Two things to get right when it lands: verify the webhook signature, since an unverified
+endpoint lets anyone mark any address as withdrawn; and make it idempotent, because
+providers retry.
+
+Discovered while verifying the live double opt-in flow — the subscription wrote a row,
+the unsubscribe wrote nothing.
+
 **Decided: the CTA stays a lightweight bespoke component** posting to that endpoint
 rather than a `forms-angular` render. Prerendering was the original argument and it has
 gone, but the CTA sits on every page with a single field, and double opt-in plus consent
@@ -399,6 +425,7 @@ same tables the admin will later write to, so nothing is thrown away.
 7. Editor.js Angular wrapper, SSR-safe, with the tool registry.
 8. Media upload adapter and storage.
 9. Publish, schedule, preview and unpublish workflow.
+10. Mirror MailerLite unsubscribes back into `newsletter_consent` — see below.
 
 Phase A is publishable on its own. Phase B is what makes it pleasant. Splitting them
 means the blog is not gated on nine community epics, and §10's recommendation is what
