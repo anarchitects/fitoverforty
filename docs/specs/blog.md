@@ -429,7 +429,7 @@ and reaches the same tables the admin will later write to, so nothing is thrown 
 6. Better Auth wiring, admin shell, route guards. — #20
 7. Editor.js Angular wrapper, SSR-safe, with the tool registry. — #21
 8. Media upload adapter and storage. — #22
-9. Publish, schedule, preview and unpublish workflow. — PR_NUMBER_9
+9. Publish, schedule, preview and unpublish workflow. — #23
 10. Mirror MailerLite unsubscribes back into `newsletter_consent` — see below.
     *Not started.*
 
