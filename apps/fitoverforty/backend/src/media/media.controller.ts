@@ -48,6 +48,7 @@ export class MediaController {
   @UseGuards(AdminGuard)
   async upload(@Req() request: FastifyRequest): Promise<{
     success: 1;
+    mediaId: string;
     file: { url: string; width: number; height: number };
   }> {
     if (!request.isMultipart()) {
@@ -71,9 +72,17 @@ export class MediaController {
 
     try {
       const stored = await this.media.store(buffer);
-      // The shape is Editor.js's image tool's, which expects success: 1.
+      /**
+       * `success` and `file` are Editor.js's image tool's shape, which it
+       * requires. `mediaId` is beside them rather than inside `file` because
+       * the tool copies `file` into the block, and a `blog.media` id has no
+       * business being stored in block JSON — the hero is a foreign key, and
+       * a body image is just a URL. Editor.js ignores the extra key; the hero
+       * picker, which posts to this same endpoint, is what reads it.
+       */
       return {
         success: 1,
+        mediaId: stored.id,
         file: {
           url: stored.url,
           width: stored.width,

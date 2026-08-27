@@ -32,3 +32,15 @@ Editor.js touches `window` at module scope, so it is loaded by dynamic
 `import()` behind an `isPlatformBrowser` guard. A static import would break
 the server render of any route that merely _references_ the component, not
 only the routes that show it.
+
+## `EditorBlock` and `EditorOutput` are aliases, not declarations
+
+They point at `OutputBlockData` and `OutputData` in `@fitoverforty/content-model`.
+This library did declare its own structural mirror once, and the two disagreed
+almost immediately — this one said `data: Record<string, unknown>`, the content
+model says `data: unknown` — with the result that a post loaded from the API
+could not be handed back to the editor that produced it.
+
+One structural mirror of Editor.js's types is a deliberate trade, made in the
+content model so the backend does not have to install an editor. A second one
+is just a place for drift.

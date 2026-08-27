@@ -1,8 +1,9 @@
 # Spec — Blog v1
 
-Status: second revision. **Phase A is delivered and merged**; Phase B has not started.
-Where this spec describes authoring, admin or media, it still describes intent — see
-§14.
+Status: second revision. **Phase A is delivered and merged, and so are Phase B steps
+6–9** — auth, the admin shell, the editor, media uploads and the publish workflow. The
+one item still describing intent rather than code is step 10, the MailerLite unsubscribe
+webhook. See §14.
 Supersedes the dated baseline note that fed it. That note was deleted once this spec
 landed; its durable items moved to `CLAUDE.md`.
 
@@ -423,13 +424,30 @@ the contact form config is seeded today. (A `db:seed` CLI was tried first and ab
 the executor's dynamic `import()` makes the seed file ESM under Node 24.) It is a stopgap
 and reaches the same tables the admin will later write to, so nothing is thrown away.
 
-**Phase B — authoring.** Not started.
+**Phase B — authoring.** Steps 6–9 are on `main`; step 10 is not started.
 
-6. Better Auth wiring, admin shell, route guards.
-7. Editor.js Angular wrapper, SSR-safe, with the tool registry.
-8. Media upload adapter and storage.
-9. Publish, schedule, preview and unpublish workflow.
+6. Better Auth wiring, admin shell, route guards. — #20
+7. Editor.js Angular wrapper, SSR-safe, with the tool registry. — #21
+8. Media upload adapter and storage. — #22
+9. Publish, schedule, preview and unpublish workflow. — PR_NUMBER_9
 10. Mirror MailerLite unsubscribes back into `newsletter_consent` — see below.
+    *Not started.*
+
+Three things about step 9 that are worth carrying forward rather than
+rediscovering:
+
+- **Alt text is required to publish, not to save.** A draft may hold a hero with
+  no alt text, because Editor.js uploads before the author has written anything
+  about the image. Publishing is the last moment where refusing still costs
+  nothing, so that is where the check lives.
+- **The scheduling claim in §5 is now tested rather than asserted.** A future
+  `published_at` is invisible to every read endpoint, and nothing runs at the
+  scheduled time — the read query simply starts matching.
+- **§8's publish-time cache invalidation is still unbuilt.** No read endpoint
+  sets `s-maxage` today, so there is nothing to invalidate and publishing takes
+  effect immediately. That is correct behaviour and the wrong performance
+  story; whoever adds the caching header owns the invalidation with it, and
+  adding one without the other is how a published post fails to appear.
 
 Phase A is publishable on its own. Phase B is what makes it pleasant. Splitting them
 means the blog is not gated on nine community epics, and §10's recommendation is what

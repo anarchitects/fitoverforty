@@ -114,9 +114,24 @@ These cost real debugging time; none are inferable from the code.
   executors spawn the TypeORM CLI from the workspace root; without a root tsconfig,
   ts-node falls back to `module: node16`, emits ESM, and every `db:*` target fails to
   load the data source. The backend's own `ts-node` block is never discovered from there.
-- **e2e migrations run once in `globalSetup`**, not per suite. Jest runs suites in
-  parallel workers, and concurrent `runMigrations()` on a fresh database races on the
-  migrations table. Do not move them back into `beforeAll`.
+- **A backend-e2e suite must only delete rows it created, by prefix.** The suites share
+  a database with the seeded blog content, and `blog.tags` is where that bites: writing
+  a test that tags a post "Recovery" and then cleans up `WHERE slug = 'recovery'`
+  deletes the *seeded* tag, and the failure lands on three assertions in two other
+  suites that never mentioned it. `publish-workflow.spec.ts` prefixes everything it
+  creates and deletes by `LIKE 'e2e-publish-%'`; do the same.
+- **backend-e2e runs one suite at a time, and must.** The suites share a database and
+  assert on global state — how many posts the archive holds, how many published posts
+  carry each tag — so a suite that publishes something breaks a different suite that is
+  merely counting. That was accidentally safe until Phase B step 9 added a suite that
+  writes: a two-core CI runner makes Jest's default `cores - 1` equal one, so a bigger
+  runner would have broken CI with no code change. `maxWorkers: 1` in
+  `backend-e2e/jest.config.cts` states it. `testTimeout` is raised there too, because
+  every suite boots a whole Nest app and five seconds is not a budget for that.
+- **e2e migrations still run once in `globalSetup`**, not per suite, and should stay
+  there even now that workers are serial: `runMigrations()` per suite would re-check the
+  whole migration table on every file for no benefit, and the original race it avoided
+  returns the moment anyone raises `maxWorkers` again.
 - **`docker compose down` destroys the local database.** No named volume is declared, so
   Postgres data sits on an anonymous one. Use `stop`, not `down` — or declare a named
   volume, which nobody has done yet and which would remove the hazard for good.
@@ -143,6 +158,18 @@ These cost real debugging time; none are inferable from the code.
   test in each direction guards it. Editor.js's list tool ships a checklist style the
   contract does not allow and offers no way to configure it off; the registry subclasses
   the tool to filter its toolbox instead.
+- **`AdminGuard` cannot pass in the backend Jest suites without an override.** The
+  Better Auth stub throws, so every guarded route answers 500 rather than anything
+  meaningful — which would leave the authoring API, the part that most wants a real
+  database, untestable. `createFastifyTestApp({ signedInAs })` in `backend-e2e`
+  overrides `AUTH_INSTANCE` with a session; `signedInAs: null` overrides with no
+  session, which is how a test asserts 401 rather than 500. Omitting the key leaves the
+  stub in place.
+- **Alt text is required to publish a post, not to save one.** Editor.js uploads a file
+  before the author has written anything about it, so `blog.media.alt` is empty at
+  upload by design and `PostAdminService.publish` is what refuses. Moving the check to
+  the draft save would make it impossible to park an unfinished post with an image in
+  it.
 - **ESM-only packages cannot be loaded by the backend Jest suites at all.** `better-auth`
   and its adapter ship `.mjs` with `"type": "module"`, and `jest-resolve` treats both as
   ESM _before_ any transform runs — so this is not a missing `transformIgnorePatterns`

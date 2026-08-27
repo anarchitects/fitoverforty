@@ -10,12 +10,16 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import type { OutputData } from '@fitoverforty/content-model';
+import type { OutputData, PostStatus } from '@fitoverforty/content-model';
 import { AuthorEntity } from './author.entity';
 import { MediaEntity } from './media.entity';
 import { TagEntity } from './tag.entity';
 
-export type PostStatus = 'draft' | 'published';
+/**
+ * Re-exported rather than redeclared: the editor and the database have to mean
+ * the same thing by "published", and two literal unions drift.
+ */
+export type { PostStatus };
 
 /** Bumped when the stored block shape changes in a way that needs migrating. */
 export const CURRENT_BODY_SCHEMA_VERSION = 1;
