@@ -118,9 +118,23 @@ These cost real debugging time; none are inferable from the code.
   parallel workers, and concurrent `runMigrations()` on a fresh database races on the
   migrations table. Do not move them back into `beforeAll`.
 - **`docker compose down` destroys the local database.** No named volume is declared, so
-  Postgres data sits on an anonymous one. Use `stop`, not `down`.
+  Postgres data sits on an anonymous one. Use `stop`, not `down` — or declare a named
+  volume, which nobody has done yet and which would remove the hazard for good.
 - **`gh pr edit` fails** on the installed `gh` (deprecated Projects-classic GraphQL).
   Use `gh api -X PATCH repos/<owner>/<repo>/pulls/<n> -F body=@file` instead.
+
+## Known rough edges
+
+Deliberately unfixed, and worth knowing before you trip over them or duplicate the work.
+
+- **Nx Cloud is provisioned but wired to nothing.** Workspace
+  `69c55480ee9de4adf5c7a1d0` was created in March; `nx.json` has no `nxCloudId`, so no
+  target reads or writes the remote cache. If you connect it, reuse that ID — running
+  `nx connect` creates a second workspace rather than adopting the existing one.
+- **TypeORM logs every query.** `backend/src/data-source.ts` sets `logging: true`, so a
+  CI run carries the whole query stream and grepping the logs for an actual failure is
+  painful. Narrowing it to `['error', 'warn']` is the fix; it has not been done because
+  the noise has so far been more useful than annoying while the schema was moving.
 
 ## Conventions
 

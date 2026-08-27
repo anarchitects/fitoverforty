@@ -1,7 +1,8 @@
 # Spec — Blog v1
 
 Status: draft, second revision.
-Supersedes the content sections of `docs/2026-08-25-baseline-and-open-decisions.md`.
+Supersedes the dated baseline note that fed it. That note was deleted once this spec
+landed; its durable items moved to `CLAUDE.md`.
 
 Read `CLAUDE.md` first for commands, architecture and gotchas. This spec does not
 restate them.
