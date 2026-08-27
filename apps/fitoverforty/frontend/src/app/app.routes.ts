@@ -3,6 +3,7 @@ import {
   provideFormsPagePreset,
 } from '@anarchitects/forms-angular/config';
 import { Route } from '@angular/router';
+import { adminGuard, signedOutGuard } from './admin/admin.guard';
 import {
   archiveResolver,
   latestResolver,
@@ -60,6 +61,36 @@ export const appRoutes: Route[] = [
     loadComponent: () =>
       import('./blog/post-detail.page').then((m) => m.PostDetailPage),
     resolve: { post: postResolver },
+  },
+  /**
+   * The admin area. Nothing here is server-rendered — see app.routes.server.ts
+   * — and every child sits behind `adminGuard`.
+   *
+   * `sign-in` is a sibling of the shell rather than a child of it, so that the
+   * sign-in page does not render inside a frame carrying a sign-out button and
+   * the name of nobody.
+   */
+  {
+    path: 'admin/sign-in',
+    canActivate: [signedOutGuard],
+    loadComponent: () =>
+      import('./admin/sign-in.page').then((m) => m.SignInPage),
+    title: 'Sign in — Fit Over Forty',
+  },
+  {
+    path: 'admin',
+    canActivate: [adminGuard],
+    loadComponent: () =>
+      import('./admin/admin-shell.page').then((m) => m.AdminShellPage),
+    children: [
+      {
+        path: '',
+        pathMatch: 'full',
+        loadComponent: () =>
+          import('./admin/dashboard.page').then((m) => m.DashboardPage),
+        title: 'Dashboard — Fit Over Forty',
+      },
+    ],
   },
   {
     path: 'privacy',
