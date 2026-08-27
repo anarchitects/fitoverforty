@@ -122,6 +122,27 @@ These cost real debugging time; none are inferable from the code.
   volume, which nobody has done yet and which would remove the hazard for good.
 - **`gh pr edit` fails** on the installed `gh` (deprecated Projects-classic GraphQL).
   Use `gh api -X PATCH repos/<owner>/<repo>/pulls/<n> -F body=@file` instead.
+- **`BETTER_AUTH_SECRET` is required or the backend will not boot.** Unlike `MAILER_*`
+  there is no placeholder default, on purpose: a known signing secret means anyone who
+  can read this repository can mint an admin session. Anything that boots the backend
+  needs one — your root `.env`, CI's workflow env, and the SSR check's spawn env all set
+  it separately.
+- **Better Auth's tables use camelCase column names, and must.**
+  `@anarchitects/better-auth-typeorm-adapter` resolves joined rows by TypeORM property
+  name; a column renamed with `name: 'provider_id'` is silently dropped from the joined
+  projection. That breaks sign-in specifically — it loads the user together with its
+  accounts, then matches on `providerId` — and fails as "User not found" while the row
+  sits correctly in the table. The rest of the repo is snake_case; `auth` is not.
+- **Better Auth's field list comes from the library, not the adapter's README.** The
+  README documents an older version and omits `accounts.issuer`, which 1.7 made
+  required. `getAuthTables({})` from `@better-auth/core/db` is the authoritative list.
+- **ESM-only packages cannot be loaded by the backend Jest suites at all.** `better-auth`
+  and its adapter ship `.mjs` with `"type": "module"`, and `jest-resolve` treats both as
+  ESM _before_ any transform runs — so this is not a missing `transformIgnorePatterns`
+  entry, and adding one will not help. They are mapped to deliberately-loud stubs
+  instead; see `apps/fitoverforty/test-stubs/README.md`. Node 24 loads them fine via
+  `require(esm)`, which is why the built server works and why real sign-in is covered by
+  Playwright rather than Jest.
 
 ## Known rough edges
 

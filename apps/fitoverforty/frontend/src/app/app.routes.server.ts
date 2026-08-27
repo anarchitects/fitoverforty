@@ -14,6 +14,24 @@ export const serverRoutes: ServerRoute[] = [
     renderMode: RenderMode.Client,
   },
   {
+    /**
+     * Client-rendered, and this one is not a workaround.
+     *
+     * Every admin screen is behind a session, so there is nothing a server
+     * render could produce that is both useful and safe: it would either
+     * render the signed-out state for everyone, or start rendering
+     * account-specific HTML on a path that robots.txt already disallows and
+     * that no crawler should ever hold. Rendering it client-side also keeps
+     * the session read in one place — the browser, where the cookie is.
+     */
+    path: 'admin/**',
+    renderMode: RenderMode.Client,
+  },
+  {
+    path: 'admin',
+    renderMode: RenderMode.Client,
+  },
+  {
     path: '**',
     renderMode: RenderMode.Server,
   },

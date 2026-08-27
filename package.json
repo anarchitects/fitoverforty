@@ -64,6 +64,7 @@
   },
   "packageManager": "yarn@4.13.0",
   "dependencies": {
+    "@anarchitects/better-auth-typeorm-adapter": "^0.1.1",
     "@anarchitects/common-angular-design": "^0.1.0",
     "@anarchitects/common-angular-ui-composition": "^0.1.0",
     "@anarchitects/common-angular-ui-layouts": "^0.1.0",
@@ -90,6 +91,7 @@
     "@ngrx/operators": "^21.1.0",
     "@ngrx/signals": "^21.1.0",
     "axios": "^1.6.0",
+    "better-auth": "^1.7.2",
     "pg": "^8.20.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "~7.8.0",

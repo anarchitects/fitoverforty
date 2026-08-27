@@ -126,6 +126,10 @@ async function main() {
       WEB_ALLOWED_HOSTS: 'localhost,127.0.0.1',
       SITE_URL: 'https://ssr-check.test',
       API_ORIGIN: `http://127.0.0.1:${stubPort}`,
+      // The backend refuses to construct Better Auth without this, by design:
+      // a default signing secret would make admin sessions forgeable. Nothing
+      // here signs in, so the value only has to exist and be long enough.
+      BETTER_AUTH_SECRET: 'ssr-check-only-secret-not-used-outside-this-harness',
     },
     stdio: ['ignore', 'pipe', 'pipe'],
   });
