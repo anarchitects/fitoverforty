@@ -165,6 +165,21 @@ These cost real debugging time; none are inferable from the code.
   overrides `AUTH_INSTANCE` with a session; `signedInAs: null` overrides with no
   session, which is how a test asserts 401 rather than 500. Omitting the key leaves the
   stub in place.
+- **A migration must never save through an entity.** Entities mean whatever HEAD
+  says today; a migration has to mean the same thing forever. `SeedBlogContent`
+  saved through `AuthorEntity`, so adding `authors.user_id` in a *later*
+  migration broke that *earlier* one — the entity gained the column, the insert
+  started naming it, and it does not exist yet at that point in the sequence.
+  Because `runMigrations()` wraps the whole set in **one transaction**, the
+  rollback left an entirely empty database and the visible failure was
+  thousands of lines of `relation "blog.posts" does not exist`, pointing
+  nowhere near the cause. It cannot reproduce on a developer machine where the
+  migrations are already applied and only the new one runs: **test a new
+  migration against a dropped schema**, not against your working database.
+  Import constants with the same suspicion — a literal `1` beats
+  `CURRENT_BODY_SCHEMA_VERSION`, which is free to move and silently re-label
+  content seeded years earlier.
+
 - **Alt text is required to publish a post, not to save one.** Editor.js uploads a file
   before the author has written anything about it, so `blog.media.alt` is empty at
   upload by design and `PostAdminService.publish` is what refuses. Moving the check to
