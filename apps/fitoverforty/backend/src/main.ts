@@ -11,7 +11,9 @@ import {
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
 import { bootstrapNestAngularSsr } from '@anarchitects/nest-angular-ssr';
+import multipart from '@fastify/multipart';
 import { AppModule } from './app/app.module';
+import { MAX_UPLOAD_BYTES } from './media/image-rules';
 import { loadAngularAppEngine } from './ssr/angular-ssr.registration';
 
 /**
@@ -54,7 +56,18 @@ async function bootstrap() {
   // The feed, sitemap and robots.txt are public documents at conventional,
   // fixed URLs. Prefixing them with /api would put them where nothing looks.
   app.setGlobalPrefix(globalPrefix, {
-    exclude: ['blog/feed.xml', 'sitemap.xml', 'robots.txt'],
+    // Uploaded images are excluded for the same reason the feed is: they are
+    // linked from published posts and from OpenGraph tags, where /api would be
+    // a strange and permanent part of the URL. Uploading stays under /api.
+    exclude: ['blog/feed.xml', 'sitemap.xml', 'robots.txt', 'media/:key'],
+  });
+
+  /**
+   * Fastify parses nothing multipart without this, so an upload arrives with
+   * an empty body and no error worth reading.
+   */
+  await app.register(multipart, {
+    limits: { files: 1, fileSize: MAX_UPLOAD_BYTES },
   });
 
   const ssrEnabled = await registerSsr(app);
