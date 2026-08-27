@@ -35,6 +35,20 @@ borrow three interfaces is the wrong trade.
 When `@anarchitects/editorjs-core` publishes canonical typings, that file is the only
 thing that changes.
 
+`@fitoverforty/frontend-editorjs` re-exports these as `EditorBlock` and `EditorOutput`
+rather than declaring its own. It did declare its own once, and the two disagreed within
+a week — one said `data: Record<string, unknown>`, this one says `data: unknown` — so a
+post loaded from the API could not be handed back to the editor that wrote it. One
+structural mirror is a deliberate trade; two is a bug waiting.
+
+## `admin.ts` is the authoring contract, and is not `Post`
+
+`Post` is what a reader gets: always published, no identifiers, body already shaped for
+the renderer. `AdminPost` is what the editor needs: the row id, the raw `OutputData` to
+load back into Editor.js, drafts, and the state of the publish workflow. Sharing one
+type would put a `status` field that is only ever `'published'` on the public API, and
+leave the editor guessing at ids.
+
 ## Testing
 
 ```bash

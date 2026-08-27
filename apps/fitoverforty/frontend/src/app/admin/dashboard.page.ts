@@ -1,46 +1,162 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  signal,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
+import type { AdminPostSummary } from '@fitoverforty/content-model';
 import { SeoService } from '../seo/seo.service';
 import { AuthService } from './auth.service';
+import { PostsApi } from './posts.api';
 
 /**
- * The admin landing page.
+ * Every post, drafts included.
  *
- * It says what is not built yet rather than showing empty panels for it. An
- * authoring UI that looks present but does nothing is harder to reason about
- * than one that is honestly absent.
+ * The public archive cannot serve this: it filters to published content, which
+ * is exactly the set an author is not looking for when they come here to
+ * finish something.
  */
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [RouterLink],
+  imports: [DatePipe, RouterLink],
   template: `
     <section class="anx-section">
-      <h1>Dashboard</h1>
+      <div class="admin-dashboard-head">
+        <h1>Posts</h1>
+        <a routerLink="/admin/posts/new" class="admin-new">New post</a>
+      </div>
 
       @if (auth.user(); as user) {
         <p>Signed in as {{ user.email }}.</p>
       }
 
-      <p>
-        Authoring is partly built. The
-        <a routerLink="/admin/compose">editor</a> works, but nothing saves yet:
-        media uploads and the publish workflow are the remaining Phase B steps,
-        and until they land posts are seeded through a migration.
-      </p>
+      @if (error(); as message) {
+        <p class="admin-status is-error" role="status">{{ message }}</p>
+      } @else if (posts(); as list) {
+        @if (list.length === 0) {
+          <p>No posts yet. <a routerLink="/admin/posts/new">Write the first one.</a></p>
+        } @else {
+          <table class="admin-posts">
+            <caption class="visually-hidden">
+              All posts, most recently edited first
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Title</th>
+                <th scope="col">State</th>
+                <th scope="col">Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (post of list; track post.id) {
+                <tr>
+                  <td>
+                    <a [routerLink]="['/admin/posts', post.id]">{{ post.title }}</a>
+                    <small>/blog/{{ post.slug }}</small>
+                  </td>
+                  <td>
+                    @if (post.status === 'draft') {
+                      Draft
+                    } @else if (post.scheduled) {
+                      Scheduled
+                    } @else {
+                      Published
+                    }
+                  </td>
+                  <td>
+                    @if (post.publishedAt) {
+                      <time [attr.datetime]="post.publishedAt">
+                        {{ post.publishedAt | date: 'mediumDate' }}
+                      </time>
+                    } @else {
+                      —
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+      } @else {
+        <p>Loading…</p>
+      }
     </section>
+  `,
+  styles: `
+    .admin-dashboard-head {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: baseline;
+      justify-content: space-between;
+    }
+
+    .admin-posts {
+      inline-size: 100%;
+      margin-block-start: 1rem;
+      border-collapse: collapse;
+    }
+
+    .admin-posts th,
+    .admin-posts td {
+      padding-block: 0.5rem;
+      padding-inline-end: 1rem;
+      text-align: start;
+      vertical-align: top;
+      border-block-end: 1px solid var(--anx-sys-color-outline, currentColor);
+    }
+
+    .admin-posts small {
+      display: block;
+      opacity: 0.7;
+    }
+
+    .admin-status.is-error {
+      color: var(--anx-sys-color-error, currentColor);
+    }
+
+    /* Table captions carry the context a screen reader needs and sighted
+       readers get from the heading above. */
+    .visually-hidden {
+      position: absolute;
+      inline-size: 1px;
+      block-size: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardPage {
   readonly auth = inject(AuthService);
+  private readonly api = inject(PostsApi);
+
+  /** Null while loading, so an empty list is not mistaken for one. */
+  readonly posts = signal<AdminPostSummary[] | null>(null);
+  readonly error = signal<string | null>(null);
 
   constructor() {
     inject(SeoService).apply({
-      title: 'Dashboard',
+      title: 'Posts',
       description: 'Administration for Fit Over Forty.',
       path: '/admin',
       noIndex: true,
     });
+
+    void this.load();
+  }
+
+  private async load(): Promise<void> {
+    try {
+      this.posts.set(await this.api.list());
+    } catch (error) {
+      this.error.set(
+        error instanceof Error ? error.message : 'Could not load posts.',
+      );
+    }
   }
 }

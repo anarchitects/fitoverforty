@@ -1,12 +1,6 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 import type { OutputData } from '@fitoverforty/content-model';
 import { readingTimeMinutes, sanitiseBody } from '../../../src/blog/content';
-import {
-  AuthorEntity,
-  CURRENT_BODY_SCHEMA_VERSION,
-  PostEntity,
-  TagEntity,
-} from '../../../src/blog/entities';
 
 /**
  * Phase A content, seeded the same way the contact form config is.
@@ -16,6 +10,21 @@ import {
  *
  * Bodies go through sanitiseBody deliberately — seeded content should not be
  * able to contain anything an author could not have published through the API.
+ *
+ * **Every insert names its columns explicitly, and that is load-bearing.**
+ * This originally saved through the TypeORM entities, which meant it did not
+ * have a fixed column list at all — it had whatever `AuthorEntity` happened to
+ * declare the day it ran. Adding `authors.user_id` in a *later* migration
+ * therefore broke this *earlier* one: the entity gained the column, this insert
+ * started naming it, and it does not exist yet at this point in the sequence.
+ * The whole run is one transaction, so the rollback left a completely empty
+ * database and CI failed with "relation blog.posts does not exist" — a symptom
+ * pointing nowhere near the cause.
+ *
+ * A migration has to mean the same thing forever. Entities do not; they mean
+ * whatever HEAD says today. So nothing below reads an entity, and the schema
+ * version is a literal rather than the CURRENT_BODY_SCHEMA_VERSION constant,
+ * which is free to move without silently re-labelling this seeded content.
  */
 export class SeedBlogContent1787754605505 implements MigrationInterface {
   private readonly authors = [
@@ -138,56 +147,80 @@ export class SeedBlogContent1787754605505 implements MigrationInterface {
   ];
 
   public async up(queryRunner: QueryRunner): Promise<void> {
-    const manager = queryRunner.manager;
-
-    const authorBySlug = new Map<string, AuthorEntity>();
     for (const author of this.authors) {
-      authorBySlug.set(
-        author.slug,
-        await manager
-          .getRepository(AuthorEntity)
-          .save(
-            manager
-              .getRepository(AuthorEntity)
-              .create({ ...author, avatar: null }),
-          ),
+      await queryRunner.query(
+        `INSERT INTO "blog"."authors" ("slug", "name") VALUES ($1, $2)`,
+        [author.slug, author.name],
       );
     }
 
-    const tagBySlug = new Map<string, TagEntity>();
     for (const tag of this.tags) {
-      tagBySlug.set(
-        tag.slug,
-        await manager
-          .getRepository(TagEntity)
-          .save(manager.getRepository(TagEntity).create(tag)),
+      await queryRunner.query(
+        `INSERT INTO "blog"."tags" ("slug", "name") VALUES ($1, $2)`,
+        [tag.slug, tag.name],
       );
     }
 
     for (const post of this.posts) {
       const body = sanitiseBody(post.body);
-      await manager.getRepository(PostEntity).save(
-        manager.getRepository(PostEntity).create({
-          slug: post.slug,
-          title: post.title,
-          description: post.description,
-          body,
-          bodySchemaVersion: CURRENT_BODY_SCHEMA_VERSION,
-          status: 'published',
-          publishedAt: new Date(post.publishedAt),
-          readingTimeMinutes: readingTimeMinutes(body),
-          hero: null,
-          authors: post.authorSlugs.map((slug) => {
-            const author = authorBySlug.get(slug);
-            if (!author) throw new Error(`Unknown seed author "${slug}"`);
-            return author;
-          }),
-          tags: post.tagSlugs.map((slug) => {
-            const tag = tagBySlug.get(slug);
-            if (!tag) throw new Error(`Unknown seed tag "${slug}"`);
-            return tag;
-          }),
-        }),
+
+      const [row] = await queryRunner.query(
+        `INSERT INTO "blog"."posts"
+           ("slug", "title", "description", "body", "body_schema_version",
+            "status", "published_at", "reading_time_minutes", "hero_media_id")
+         VALUES ($1, $2, $3, $4, 1, 'published', $5, $6, NULL)
+         RETURNING "id"`,
+        [
+          post.slug,
+          post.title,
+          post.description,
+          JSON.stringify(body),
+          new Date(post.publishedAt),
+          readingTimeMinutes(body),
+        ],
+      );
+
+      // Joined by slug rather than by an id tracked in JS, so the insert and
+      // the lookup cannot disagree. The row counts are checked because
+      // `WHERE slug = ANY(...)` quietly matches fewer rows than asked for,
+      // which would seed a post with a missing byline and no error.
+      await this.link(
+        queryRunner,
+        'post_authors',
+        'author_id',
+        'authors',
+        row.id,
+        post.authorSlugs,
+      );
+      await this.link(
+        queryRunner,
+        'post_tags',
+        'tag_id',
+        'tags',
+        row.id,
+        post.tagSlugs,
+      );
+    }
+  }
+
+  private async link(
+    queryRunner: QueryRunner,
+    joinTable: string,
+    joinColumn: string,
+    target: string,
+    postId: string,
+    slugs: string[],
+  ): Promise<void> {
+    const inserted = await queryRunner.query(
+      `INSERT INTO "blog"."${joinTable}" ("post_id", "${joinColumn}")
+       SELECT $1, "id" FROM "blog"."${target}" WHERE "slug" = ANY($2)
+       RETURNING "post_id"`,
+      [postId, slugs],
+    );
+    if (inserted.length !== slugs.length) {
+      throw new Error(
+        `Seed post ${postId} referenced ${slugs.length} ${target} ` +
+          `(${slugs.join(', ')}) but matched ${inserted.length}.`,
       );
     }
   }

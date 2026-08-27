@@ -11,29 +11,27 @@ import {
   viewChild,
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
+import type {
+  OutputBlockData,
+  OutputData,
+} from '@fitoverforty/content-model';
 import { IMAGE_UPLOADER } from './image-upload.port';
 import { buildTools } from './tool-registry';
 
 /**
- * Editor.js's saved payload.
+ * The editor's payload types, which are the content model's.
  *
- * Declared structurally rather than imported from `@editorjs/editorjs`, for
- * the same reason `@fitoverforty/content-model` does it: the import would be a
- * value import of a browser-only package, and it would drag the whole library
- * into anything that only wants the type.
+ * Aliased rather than re-declared. There was a second structural mirror here,
+ * and it drifted immediately: this one said `data: Record<string, unknown>`
+ * where the content model says `data: unknown`, so a post loaded from the API
+ * could not be handed back to the editor that produced it. One declaration
+ * cannot disagree with itself.
+ *
+ * The names stay because callers use them, and because "the editor's output"
+ * is what they mean at this boundary.
  */
-export interface EditorBlock {
-  id?: string;
-  type: string;
-  data: Record<string, unknown>;
-  tunes?: Record<string, unknown>;
-}
-
-export interface EditorOutput {
-  time?: number;
-  blocks: EditorBlock[];
-  version?: string;
-}
+export type EditorBlock = OutputBlockData;
+export type EditorOutput = OutputData;
 
 type EditorInstance = {
   isReady: Promise<void>;

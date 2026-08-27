@@ -22,3 +22,11 @@ export {
   plainText,
   slugify,
 } from './lib/headings';
+export type {
+  AdminPost,
+  AdminPostHero,
+  AdminPostSummary,
+  PostDraftInput,
+  PostStatus,
+  PublishInput,
+} from './lib/admin';

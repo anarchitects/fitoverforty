@@ -5,10 +5,9 @@ import { AuthService } from './auth.service';
 /**
  * The frame every signed-in admin screen renders inside.
  *
- * Deliberately thin. The authoring screens that will fill it — the Editor.js
- * wrapper, media, the publish workflow — are later Phase B steps, and building
- * a richer shell before there is anything to put in it would be designing
- * against guesses.
+ * Deliberately thin: two links and an identity. Everything an author actually
+ * does happens on the listing and the editor, and a shell that grew navigation
+ * for screens that do not exist would be designing against guesses.
  */
 @Component({
   selector: 'app-admin-shell',
@@ -28,8 +27,8 @@ import { AuthService } from './auth.service';
     <div class="admin-shell">
       <div class="admin-bar">
         <nav aria-label="Admin">
-          <a routerLink="/admin">Dashboard</a>
-          <a routerLink="/admin/compose">Compose</a>
+          <a routerLink="/admin">Posts</a>
+          <a routerLink="/admin/posts/new">New post</a>
           <a routerLink="/">View site</a>
         </nav>
 

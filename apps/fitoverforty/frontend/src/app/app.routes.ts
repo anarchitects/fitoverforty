@@ -97,13 +97,23 @@ export const appRoutes: Route[] = [
         pathMatch: 'full',
         loadComponent: () =>
           import('./admin/dashboard.page').then((m) => m.DashboardPage),
-        title: 'Dashboard — Fit Over Forty',
+        title: 'Posts — Fit Over Forty',
+      },
+      /**
+       * `new` before `:id`, or it would be read as a post id and the editor
+       * would ask the API for a post called "new".
+       */
+      {
+        path: 'posts/new',
+        loadComponent: () =>
+          import('./admin/post-editor.page').then((m) => m.PostEditorPage),
+        title: 'New post — Fit Over Forty',
       },
       {
-        path: 'compose',
+        path: 'posts/:id',
         loadComponent: () =>
-          import('./admin/compose.page').then((m) => m.ComposePage),
-        title: 'Compose — Fit Over Forty',
+          import('./admin/post-editor.page').then((m) => m.PostEditorPage),
+        title: 'Edit post — Fit Over Forty',
       },
     ],
   },
