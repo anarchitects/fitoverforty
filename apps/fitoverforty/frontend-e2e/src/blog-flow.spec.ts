@@ -102,6 +102,22 @@ test('renders code as text, not markup', async ({ page }) => {
   await expect(page.locator('pre.blog-code script')).toHaveCount(0);
 });
 
+/**
+ * §12 makes the post page the CTA's most important home: RSS ships item
+ * descriptions rather than full bodies specifically so readers arrive here.
+ *
+ * It was missing from this page between #18 and #24 — the import was added and
+ * the element was not. The only thing that noticed was an NG8113 compiler
+ * warning, and warnings do not fail a build. This does.
+ */
+test('a post carries the newsletter CTA at its foot', async ({ page }) => {
+  await page.goto('/blog/a-seeded-post');
+
+  await expect(
+    page.getByRole('heading', { name: 'Get new posts by email' }),
+  ).toBeVisible();
+});
+
 test('an unknown post shows not-found rather than an error', async ({
   page,
 }) => {
@@ -110,6 +126,12 @@ test('an unknown post shows not-found rather than an error', async ({
   await expect(
     page.getByRole('heading', { level: 1, name: 'Not found' }),
   ).toBeVisible();
+
+  // Not under a 404. Asking for an email address as an apology for a page that
+  // does not exist is the wrong moment, and this is the branch that decides it.
+  await expect(
+    page.getByRole('heading', { name: 'Get new posts by email' }),
+  ).toHaveCount(0);
 });
 
 test('a route that matches nothing shows not-found', async ({ page }) => {

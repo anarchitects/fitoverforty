@@ -70,6 +70,18 @@ import { NewsletterCtaComponent } from '../newsletter/newsletter-cta.component';
           <p class="blog-empty">This post cannot be displayed.</p>
         }
       </article>
+
+      <!--
+        Inside the loaded branch, not below it. The CTA belongs at the foot of
+        a post somebody just read — offering a subscription under a "no such
+        post" page is asking for an email address as an apology.
+
+        This tag was missing between #18 and now: the import was added and the
+        element was not, so the compiler warned on every build and the one page
+        §12 most wants the CTA on was the one page without it. RSS ships item
+        descriptions rather than full bodies precisely so readers arrive here.
+      -->
+      <app-newsletter-cta />
     } @else {
       <!-- Loaded fine, but there is no such published post. -->
       <app-not-found-page />
