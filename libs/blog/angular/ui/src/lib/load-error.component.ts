@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { setServerStatus } from './server-status';
+import { setServerStatus } from '@fitoverforty/blog-angular-data-access';
 
 /**
  * Shown when content could not be fetched — deliberately distinct from an
@@ -7,7 +7,7 @@ import { setServerStatus } from './server-status';
  * outage is not cached or indexed as a successful, empty page.
  */
 @Component({
-  selector: 'app-load-error',
+  selector: 'fitoverforty-load-error',
   standalone: true,
   template: `
     <p class="blog-load-error" role="alert">

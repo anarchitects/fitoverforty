@@ -15,9 +15,11 @@ import {
 import { provideDesignSystemConfig } from '@anarchitects/common-angular-design/config';
 import { provideAnxDefaultLayouts } from '@anarchitects/common-angular-ui-layouts/defaults';
 import { appRoutes } from './app.routes';
-import { apiBaseUrlInterceptor } from './blog/api-base-url.interceptor';
-import { CONTENT_SOURCE } from './blog/content-source.token';
-import { HttpContentSource } from './blog/http-content-source';
+import {
+  apiBaseUrlInterceptor,
+  CONTENT_SOURCE,
+  HttpContentSource,
+} from '@fitoverforty/blog-angular-data-access';
 
 export const appConfig: ApplicationConfig = {
   providers: [

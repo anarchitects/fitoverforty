@@ -8,11 +8,11 @@ import {
 import { RouterLink } from '@angular/router';
 import type { TagSummary } from '@fitoverforty/content-model';
 import { SeoService } from '@fitoverforty/seo-angular';
-import type { Loaded } from './loaded';
-import { LoadErrorComponent } from './load-error.component';
+import type { Loaded } from '@fitoverforty/blog-angular-data-access';
+import { LoadErrorComponent } from '@fitoverforty/blog-angular-ui';
 
 @Component({
-  selector: 'app-tag-index-page',
+  selector: 'fitoverforty-tag-index-page',
   standalone: true,
   imports: [RouterLink, LoadErrorComponent],
   template: `
@@ -36,7 +36,7 @@ import { LoadErrorComponent } from './load-error.component';
             <p class="blog-empty">No tags yet.</p>
           }
         } @else {
-          <app-load-error />
+          <fitoverforty-load-error />
         }
       }
     </section>

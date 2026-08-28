@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { SeoService } from '@fitoverforty/seo-angular';
-import { setServerStatus } from './server-status';
+import { setServerStatus } from '@fitoverforty/blog-angular-data-access';
 
 /**
  * Renders the body of a 404, and sets the status to match when server-rendered.
@@ -9,7 +9,7 @@ import { setServerStatus } from './server-status';
  * there is no server in that path to tell.
  */
 @Component({
-  selector: 'app-not-found-page',
+  selector: 'fitoverforty-not-found-page',
   standalone: true,
   imports: [RouterLink],
   template: `

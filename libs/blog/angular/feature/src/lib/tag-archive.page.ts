@@ -7,13 +7,13 @@ import {
 } from '@angular/core';
 import type { Paged, PostSummary } from '@fitoverforty/content-model';
 import { SeoService } from '@fitoverforty/seo-angular';
-import type { Loaded } from './loaded';
-import { LoadErrorComponent } from './load-error.component';
-import { PaginationComponent } from './pagination.component';
-import { PostSummaryListComponent } from './post-summary-list.component';
+import type { Loaded } from '@fitoverforty/blog-angular-data-access';
+import { LoadErrorComponent } from '@fitoverforty/blog-angular-ui';
+import { PaginationComponent } from '@fitoverforty/blog-angular-ui';
+import { PostSummaryListComponent } from '@fitoverforty/blog-angular-ui';
 
 @Component({
-  selector: 'app-tag-archive-page',
+  selector: 'fitoverforty-tag-archive-page',
   standalone: true,
   imports: [PostSummaryListComponent, PaginationComponent, LoadErrorComponent],
   template: `
@@ -21,17 +21,17 @@ import { PostSummaryListComponent } from './post-summary-list.component';
       <h1>Tagged “{{ tag() }}”</h1>
       @if (posts(); as result) {
         @if (result.ok) {
-          <app-post-summary-list
+          <fitoverforty-post-summary-list
             [posts]="result.data.items"
             emptyMessage="Nothing tagged that yet."
           />
-          <app-pagination
+          <fitoverforty-pagination
             [page]="result.data.page"
             [totalPages]="result.data.totalPages"
             [basePath]="['/blog/tag', tag()]"
           />
         } @else {
-          <app-load-error />
+          <fitoverforty-load-error />
         }
       }
     </section>

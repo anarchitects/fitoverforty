@@ -8,7 +8,7 @@ import type { PostSummary } from '@fitoverforty/content-model';
  * (spec §11) — this exists so the archive is navigable in the meantime.
  */
 @Component({
-  selector: 'app-post-summary-list',
+  selector: 'fitoverforty-post-summary-list',
   standalone: true,
   imports: [DatePipe, RouterLink],
   template: `

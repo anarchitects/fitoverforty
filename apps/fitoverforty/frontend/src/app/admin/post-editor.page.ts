@@ -9,7 +9,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import type { AdminPost, PostDraftInput } from '@fitoverforty/content-model';
-import { BlockRendererComponent } from '@fitoverforty/frontend-blog';
+import { BlockRendererComponent } from '@fitoverforty/blog-angular-ui';
 import {
   EditorjsComponent,
   type EditorOutput,

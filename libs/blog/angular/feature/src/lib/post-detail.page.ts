@@ -8,16 +8,16 @@ import {
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { BlockRendererComponent } from '@fitoverforty/frontend-blog';
+import { BlockRendererComponent } from '@fitoverforty/blog-angular-ui';
 import { isBlocksBody, type Post } from '@fitoverforty/content-model';
 import { SeoService } from '@fitoverforty/seo-angular';
-import type { Loaded } from './loaded';
-import { LoadErrorComponent } from './load-error.component';
+import type { Loaded } from '@fitoverforty/blog-angular-data-access';
+import { LoadErrorComponent } from '@fitoverforty/blog-angular-ui';
 import { NotFoundPage } from './not-found.page';
 import { NewsletterCtaComponent } from '@fitoverforty/newsletter-angular';
 
 @Component({
-  selector: 'app-post-detail-page',
+  selector: 'fitoverforty-post-detail-page',
   standalone: true,
   imports: [
     BlockRendererComponent,
@@ -29,7 +29,7 @@ import { NewsletterCtaComponent } from '@fitoverforty/newsletter-angular';
   ],
   template: `
     @if (failed()) {
-      <app-load-error />
+      <fitoverforty-load-error />
     } @else if (loadedPost(); as loaded) {
       <article class="anx-section blog-post">
         <header class="blog-post-header">
@@ -84,7 +84,7 @@ import { NewsletterCtaComponent } from '@fitoverforty/newsletter-angular';
       <fitoverforty-newsletter-cta />
     } @else {
       <!-- Loaded fine, but there is no such published post. -->
-      <app-not-found-page />
+      <fitoverforty-not-found-page />
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,

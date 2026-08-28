@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 @Component({
-  selector: 'app-pagination',
+  selector: 'fitoverforty-pagination',
   standalone: true,
   imports: [RouterLink],
   template: `
