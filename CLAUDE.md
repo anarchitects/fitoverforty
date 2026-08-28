@@ -295,6 +295,13 @@ Deliberately unfixed, and worth knowing before you trip over them or duplicate t
   `index.ts`; see issue #34. A consequence: `@nx/angular:library` refuses
   `--unitTestRunner=vitest-angular` on a non-buildable lib, so generate with `none` and
   copy the `@nx/vitest:test` target and `vite.config.mts` from an existing lib.
+- **Only the frontend has moved.** `libs/{seo,newsletter,legal,blog,admin}/angular/*` are
+  done; the four backend domains and the older flat `libs/frontend/{header,footer,editorjs}`
+  plus `libs/shared/content-model` have not. Both shapes exist meanwhile.
+- **A domain splits by how it is imported, not by file count.** `admin` needs two projects
+  (`feature`, `data-access`) and `blog` three; `seo`, `newsletter` and `legal` are single
+  projects because nothing in them is lazily routed. Add a project only when the boundary
+  is real.
 - **A domain with routed pages splits into three projects**, as `blog` does:
   `libs/blog/angular/{feature,ui,data-access}`. One project cannot be both
   lazy-loaded and statically imported — `@nx/enforce-module-boundaries` rejects it, and

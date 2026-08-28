@@ -15,8 +15,8 @@ import {
   type EditorOutput,
 } from '@fitoverforty/frontend-editorjs';
 import { SeoService } from '@fitoverforty/seo-angular';
-import { MediaApi } from './media.api';
-import { PostsApi } from './posts.api';
+import { MediaApi } from '@fitoverforty/admin-angular-data-access';
+import { PostsApi } from '@fitoverforty/admin-angular-data-access';
 
 type Mode = 'write' | 'preview';
 
@@ -41,7 +41,7 @@ const EMPTY: EditorOutput = { blocks: [] };
  * drift, and the rest is page layout the editor has no say over.
  */
 @Component({
-  selector: 'app-admin-post-editor',
+  selector: 'fitoverforty-admin-post-editor',
   standalone: true,
   imports: [
     BlockRendererComponent,

@@ -18,6 +18,15 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@fitoverforty/admin-angular-data-access": [
+        "libs/admin/angular/data-access/src/index.ts"
+      ],
+      "@fitoverforty/admin-angular-feature": [
+        "libs/admin/angular/feature/src/index.ts"
+      ],
+      "@fitoverforty/admin-angular-feature/*": [
+        "libs/admin/angular/feature/src/lib/*"
+      ],
       "@fitoverforty/blog-angular-data-access": [
         "libs/blog/angular/data-access/src/index.ts"
       ],
