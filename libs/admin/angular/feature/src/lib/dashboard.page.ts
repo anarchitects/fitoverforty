@@ -6,7 +6,7 @@ import {
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import type { AdminPostSummary } from '@fitoverforty/content-model';
+import type { AdminPostSummary } from '@fitoverforty/blog-ts';
 import { SeoService } from '@fitoverforty/seo-angular';
 import { AuthService } from '@fitoverforty/admin-angular-data-access';
 import { PostsApi } from '@fitoverforty/admin-angular-data-access';

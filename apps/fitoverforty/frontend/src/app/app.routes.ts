@@ -3,7 +3,7 @@ import {
   provideFormsPagePreset,
 } from '@anarchitects/forms-angular/config';
 import { Route } from '@angular/router';
-import { IMAGE_UPLOADER } from '@fitoverforty/frontend-editorjs';
+import { IMAGE_UPLOADER } from '@fitoverforty/editorjs-angular';
 import {
   adminGuard,
   HttpImageUploader,

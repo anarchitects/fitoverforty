@@ -2,7 +2,7 @@ import {
   deriveHeadings,
   plainText,
   type OutputData,
-} from '@fitoverforty/content-model';
+} from '@fitoverforty/blog-ts';
 
 const WORDS_PER_MINUTE = 200;
 

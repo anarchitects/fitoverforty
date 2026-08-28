@@ -1,6 +1,6 @@
 import { Controller, Get, Header, Inject, Req } from '@nestjs/common';
 import type { FastifyRequest } from 'fastify';
-import type { ContentSource } from '@fitoverforty/content-model';
+import type { ContentSource } from '@fitoverforty/blog-ts';
 import { CONTENT_SOURCE } from './content-source.token';
 import { escapeXml, siteOrigin } from './site-url';
 

@@ -5,7 +5,7 @@ import type {
   Post,
   PostSummary,
   TagSummary,
-} from '@fitoverforty/content-model';
+} from '@fitoverforty/blog-ts';
 import { CONTENT_SOURCE } from './content-source.token';
 import { loaded, type Loaded } from './loaded';
 

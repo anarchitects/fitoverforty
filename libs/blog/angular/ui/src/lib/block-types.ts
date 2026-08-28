@@ -1,4 +1,4 @@
-import type { OutputBlockData } from '@fitoverforty/content-model';
+import type { OutputBlockData } from '@fitoverforty/blog-ts';
 
 /**
  * View-side shapes for the block payloads the backend sanitiser permits.

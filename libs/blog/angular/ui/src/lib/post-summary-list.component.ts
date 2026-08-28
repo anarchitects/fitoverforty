@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import type { PostSummary } from '@fitoverforty/content-model';
+import type { PostSummary } from '@fitoverforty/blog-ts';
 
 /**
  * Semantic markup only. Post cards proper wait on the styling direction

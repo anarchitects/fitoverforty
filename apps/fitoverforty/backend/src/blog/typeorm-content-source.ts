@@ -8,7 +8,7 @@ import type {
   PostRef,
   PostSummary,
   TagSummary,
-} from '@fitoverforty/content-model';
+} from '@fitoverforty/blog-ts';
 import { PostEntity } from './entities';
 import { toPost, toPostSummary } from './post.mapper';
 

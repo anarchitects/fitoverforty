@@ -8,7 +8,7 @@ import {
   headingIdsByBlockIndex,
   type OutputBlockData,
   type OutputData,
-} from '@fitoverforty/content-model';
+} from '@fitoverforty/blog-ts';
 import { BlockListComponent } from './block-list.component';
 import {
   dataOf,

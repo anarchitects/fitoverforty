@@ -8,12 +8,12 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import type { AdminPost, PostDraftInput } from '@fitoverforty/content-model';
+import type { AdminPost, PostDraftInput } from '@fitoverforty/blog-ts';
 import { BlockRendererComponent } from '@fitoverforty/blog-angular-ui';
 import {
   EditorjsComponent,
   type EditorOutput,
-} from '@fitoverforty/frontend-editorjs';
+} from '@fitoverforty/editorjs-angular';
 import { SeoService } from '@fitoverforty/seo-angular';
 import { MediaApi } from '@fitoverforty/admin-angular-data-access';
 import { PostsApi } from '@fitoverforty/admin-angular-data-access';

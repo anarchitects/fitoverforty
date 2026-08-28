@@ -6,7 +6,7 @@ import {
   input,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import type { Paged, PostSummary } from '@fitoverforty/content-model';
+import type { Paged, PostSummary } from '@fitoverforty/blog-ts';
 import { SeoService } from '@fitoverforty/seo-angular';
 import type { Loaded } from '@fitoverforty/blog-angular-data-access';
 import { LoadErrorComponent } from '@fitoverforty/blog-angular-ui';

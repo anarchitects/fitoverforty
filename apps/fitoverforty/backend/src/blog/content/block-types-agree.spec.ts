@@ -1,4 +1,4 @@
-import { SUPPORTED_BLOCK_TYPES as CANONICAL } from '@fitoverforty/content-model';
+import { SUPPORTED_BLOCK_TYPES as CANONICAL } from '@fitoverforty/blog-ts';
 import { SUPPORTED_BLOCK_TYPES as VALIDATOR_HANDLES } from './blocks';
 
 /**

@@ -25,8 +25,8 @@ const transformIgnorePatterns = [
  * its own module registry, so it registers tsconfig-paths itself.
  */
 const moduleNameMapper = {
-  '^@fitoverforty/content-model$':
-    '<rootDir>/../../../libs/shared/content-model/src/index.ts',
+  '^@fitoverforty/blog-ts$':
+    '<rootDir>/../../../libs/blog/ts/src/index.ts',
 
   /**
    * better-auth and its TypeORM adapter are ESM-only and CANNOT be loaded in

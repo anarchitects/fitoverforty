@@ -4,7 +4,7 @@ import type {
   AdminPost,
   AdminPostSummary,
   PostDraftInput,
-} from '@fitoverforty/content-model';
+} from '@fitoverforty/blog-ts';
 import { firstValueFrom, type Observable } from 'rxjs';
 
 /** Sent with every call: the session is a cookie, not a header. */

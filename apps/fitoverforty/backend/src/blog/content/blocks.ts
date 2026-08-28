@@ -1,5 +1,5 @@
-import type { OutputBlockData, OutputData } from '@fitoverforty/content-model';
-import { SUPPORTED_LIST_STYLES } from '@fitoverforty/content-model';
+import type { OutputBlockData, OutputData } from '@fitoverforty/blog-ts';
+import { SUPPORTED_LIST_STYLES } from '@fitoverforty/blog-ts';
 import { InvalidBlockError } from './errors';
 import { sanitiseInline } from './inline-html';
 
@@ -101,7 +101,7 @@ const HANDLERS: Record<string, (data: Data, ctx: Ctx) => Data> = {
     const level = data['level'];
     // The post title is the page's h1, so body headings are h2/h3 only. This
     // also keeps the stored shape aligned with the Heading type in
-    // @fitoverforty/content-model.
+    // @fitoverforty/blog-ts.
     if (level !== 2 && level !== 3) {
       fail(ctx, `"level" must be 2 or 3, got ${JSON.stringify(level)}`);
     }
