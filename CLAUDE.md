@@ -295,9 +295,17 @@ Deliberately unfixed, and worth knowing before you trip over them or duplicate t
   `index.ts`; see issue #34. A consequence: `@nx/angular:library` refuses
   `--unitTestRunner=vitest-angular` on a non-buildable lib, so generate with `none` and
   copy the `@nx/vitest:test` target and `vite.config.mts` from an existing lib.
-- **The frontend restructure is complete.** Every lib is now
-  `libs/<domain>/<platform>[/<layer>]`. The four **backend** domains (`blog`, `newsletter`,
-  `auth`, `media`) are still in `apps/fitoverforty/backend/src` and are the remaining work.
+- **The frontend restructure is complete**, and the backend is under way. Every lib is
+  `libs/<domain>/<platform>[/<layer>]`. `newsletter` is out; `blog`, `auth` and `media`
+  are still in `apps/fitoverforty/backend/src`.
+- **A Nest lib gets its Jest config by hand**, not from the generator: `@nx/nest:library`
+  with a unit test runner writes a root `jest.preset.js` and `jest.config.ts` this
+  workspace does not use. Generate with `--unitTestRunner=none` and copy
+  `libs/newsletter/nest/jest.config.cts`, which points at `apps/fitoverforty/jest.shared.cjs`.
+- **`jest.shared.cjs` derives its aliases from `tsconfig.base.json`.** Do not restate them
+  by hand. A moved library that is not mapped fails as `Cannot find module` reported
+  against `data-source.ts` — which points at the importer, not the mapping, and reads like
+  a broken move rather than a missing alias.
 - `libs/blog/ts` is the shared contract library — what bricks calls a domain contract lib —
   and is the one thing imported by **both** the backend and the frontend. It was
   `@fitoverforty/content-model`; the Jest moduleNameMapper in `apps/fitoverforty/jest.shared.cjs`

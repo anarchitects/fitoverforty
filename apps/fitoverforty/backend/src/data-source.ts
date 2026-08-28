@@ -12,7 +12,7 @@ import { CreateAuthSchema1787822337235 } from '../tools/typeorm/migrations/17878
 import { LinkAuthorsToUsers1787840262133 } from '../tools/typeorm/migrations/1787840262133-LinkAuthorsToUsers';
 import { RecordConsentWithdrawal1787871010736 } from '../tools/typeorm/migrations/1787871010736-RecordConsentWithdrawal';
 import { RelaxAccountIssuer1787926754714 } from '../tools/typeorm/migrations/1787926754714-RelaxAccountIssuer';
-import { NewsletterConsentEntity } from './newsletter/entities/newsletter-consent.entity';
+import { NewsletterConsentEntity } from '@fitoverforty/newsletter-nest';
 import {
   AuthAccountEntity,
   AuthSessionEntity,

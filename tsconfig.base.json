@@ -10,10 +10,7 @@
     "importHelpers": true,
     "target": "es2015",
     "module": "esnext",
-    "lib": [
-      "es2020",
-      "dom"
-    ],
+    "lib": ["es2020", "dom"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
@@ -36,31 +33,19 @@
       "@fitoverforty/blog-angular-feature/*": [
         "libs/blog/angular/feature/src/lib/*"
       ],
-      "@fitoverforty/blog-angular-ui": [
-        "libs/blog/angular/ui/src/index.ts"
-      ],
-      "@fitoverforty/blog-ts": [
-        "libs/blog/ts/src/index.ts"
-      ],
+      "@fitoverforty/blog-angular-ui": ["libs/blog/angular/ui/src/index.ts"],
+      "@fitoverforty/blog-ts": ["libs/blog/ts/src/index.ts"],
       "@fitoverforty/common-angular-ui": [
         "libs/common/angular/ui/src/index.ts"
       ],
-      "@fitoverforty/editorjs-angular": [
-        "libs/editorjs/angular/src/index.ts"
-      ],
-      "@fitoverforty/legal-angular": [
-        "libs/legal/angular/src/index.ts"
-      ],
+      "@fitoverforty/editorjs-angular": ["libs/editorjs/angular/src/index.ts"],
+      "@fitoverforty/legal-angular": ["libs/legal/angular/src/index.ts"],
       "@fitoverforty/newsletter-angular": [
         "libs/newsletter/angular/src/index.ts"
       ],
-      "@fitoverforty/seo-angular": [
-        "libs/seo/angular/src/index.ts"
-      ]
+      "@fitoverforty/seo-angular": ["libs/seo/angular/src/index.ts"],
+      "@fitoverforty/newsletter-nest": ["libs/newsletter/nest/src/index.ts"]
     }
   },
-  "exclude": [
-    "node_modules",
-    "tmp"
-  ]
+  "exclude": ["node_modules", "tmp"]
 }
