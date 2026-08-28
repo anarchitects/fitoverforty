@@ -100,7 +100,7 @@
     "@ngrx/operators": "^21.1.0",
     "@ngrx/signals": "^21.1.0",
     "axios": "^1.6.0",
-    "better-auth": "^1.7.2",
+    "better-auth": "~1.6.30",
     "image-size": "^2.0.2",
     "pg": "^8.20.0",
     "reflect-metadata": "^0.2.2",
