@@ -283,8 +283,20 @@ Deliberately unfixed, and worth knowing before you trip over them or duplicate t
 
 - Angular v21 suffix-less naming in apps (`app.ts`, `app.config.ts`); libs use the older
   `*.component.ts`. Match the surrounding context.
-- Libs: project `fitoverforty-frontend-<name>`, alias `@fitoverforty/frontend-<name>`,
-  selector prefix `fitoverforty-`, standalone + `OnPush`, exported via `src/index.ts`.
+- **Libs are moving to a domain layout**: `libs/<domain>/{angular,nest,ts}`, project
+  `fitoverforty-<domain>-<platform>`, alias `@fitoverforty/<domain>-<platform>`. `seo` is
+  the first; the older flat `libs/frontend/<name>` libs (`header`, `footer`, `blog`,
+  `editorjs`) have not moved yet, so both shapes exist — match the domain layout for
+  anything new.
+- **Libs stay non-buildable, deliberately** (`test` and `lint` targets only, consumed as
+  source through the tsconfig alias). The bricks repo's layered entry points —
+  `config`, `data-access`, `feature`, `state`, `ui` — are an ng-packagr feature needing
+  publishable libraries, and this app publishes nothing. Johan confirmed the plain
+  `index.ts`; see issue #34. A consequence: `@nx/angular:library` refuses
+  `--unitTestRunner=vitest-angular` on a non-buildable lib, so generate with `none` and
+  copy the `@nx/vitest:test` target and `vite.config.mts` from an existing lib.
+- Lib conventions otherwise unchanged: selector prefix `fitoverforty-`, standalone +
+  `OnPush`, exported via `src/index.ts`.
 - Import `@anarchitects/*` public entry points only, never internal paths.
 - Conventional commits. Squash-merge is the repo convention.
 - Prettier: single quotes, 2-space.

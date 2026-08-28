@@ -19,7 +19,10 @@
       "@fitoverforty/frontend-footer": ["libs/frontend/footer/src/index.ts"],
       "@fitoverforty/content-model": ["libs/shared/content-model/src/index.ts"],
       "@fitoverforty/frontend-blog": ["libs/frontend/blog/src/index.ts"],
-      "@fitoverforty/frontend-editorjs": ["libs/frontend/editorjs/src/index.ts"]
+      "@fitoverforty/frontend-editorjs": [
+        "libs/frontend/editorjs/src/index.ts"
+      ],
+      "@fitoverforty/seo-angular": ["libs/seo/angular/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

@@ -10,7 +10,7 @@ import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { BlockRendererComponent } from '@fitoverforty/frontend-blog';
 import { isBlocksBody, type Post } from '@fitoverforty/content-model';
-import { SeoService } from '../seo/seo.service';
+import { SeoService } from '@fitoverforty/seo-angular';
 import type { Loaded } from './loaded';
 import { LoadErrorComponent } from './load-error.component';
 import { NotFoundPage } from './not-found.page';
