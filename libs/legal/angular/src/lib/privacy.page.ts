@@ -12,7 +12,7 @@ import { CONSENT_TEXT } from '@fitoverforty/newsletter-angular';
  * as compliance while being wrong.
  */
 @Component({
-  selector: 'app-privacy-page',
+  selector: 'fitoverforty-privacy-page',
   standalone: true,
   imports: [RouterLink],
   template: `

@@ -120,7 +120,7 @@ export const appRoutes: Route[] = [
   {
     path: 'privacy',
     loadComponent: () =>
-      import('./legal/privacy.page').then((m) => m.PrivacyPage),
+      import('@fitoverforty/legal-angular').then((m) => m.PrivacyPage),
   },
   {
     path: 'contact',
