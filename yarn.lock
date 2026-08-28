@@ -325,22 +325,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anarchitects/nest-angular-ssr@npm:^0.2.1":
-  version: 0.2.1
-  resolution: "@anarchitects/nest-angular-ssr@npm:0.2.1"
+"@anarchitects/nest-angular-ssr@npm:^0.3.0":
+  version: 0.3.0
+  resolution: "@anarchitects/nest-angular-ssr@npm:0.3.0"
   dependencies:
     "@fastify/static": "npm:^8.2.0"
   peerDependencies:
-    "@angular/core": ^21.0.0
-    "@angular/platform-browser": ^21.0.0
-    "@angular/router": ^21.0.0
-    "@angular/ssr": ^21.0.0
+    "@angular/core": ^21.0.0 || ^22.0.0
+    "@angular/platform-browser": ^21.0.0 || ^22.0.0
+    "@angular/router": ^21.0.0 || ^22.0.0
+    "@angular/ssr": ^21.0.0 || ^22.0.0
     "@nestjs/common": ^11.0.0
     "@nestjs/core": ^11.0.0
     "@nestjs/platform-fastify": ^11.0.0
     fastify: ^5.0.0
     reflect-metadata: ^0.2.0
-  checksum: 10c0/cda46a1708108d4d23e18d6e2f4467dfccb14676d0bbe0af9cab04fdcf327877657a57be11f06217bdfd328126154751313051470f1a2825dbb91e38fe621fc4
+  checksum: 10c0/2893fcfd1cfa648b6d09a01339ddb28e07d47376419affb44d89d8896da103944def6ab8a9961df3f818f53012b567a7b2083f34242c8c772af35d4b1c92bea7
   languageName: node
   linkType: hard
 
@@ -3313,7 +3313,7 @@ __metadata:
     "@anarchitects/common-nest-mailer": "npm:^0.3.2"
     "@anarchitects/forms-angular": "npm:^0.6.1"
     "@anarchitects/forms-nest": "npm:^0.6.0"
-    "@anarchitects/nest-angular-ssr": "npm:^0.2.1"
+    "@anarchitects/nest-angular-ssr": "npm:^0.3.0"
     "@anarchitects/nx-typeorm": "npm:^0.4.2"
     "@angular-devkit/core": "npm:~21.2.0"
     "@angular-devkit/schematics": "npm:~21.2.0"
