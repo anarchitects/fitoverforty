@@ -11,7 +11,7 @@ import { AppService } from './app.service';
 import { AppDataSource } from '../data-source';
 import { BlogModule } from '../blog/blog.module';
 import { NewsletterModule } from '@fitoverforty/newsletter-nest';
-import { AuthModule } from '../auth/auth.module';
+import { AuthModule } from '@fitoverforty/auth-nest';
 import { MediaModule } from '../media/media.module';
 
 @Module({

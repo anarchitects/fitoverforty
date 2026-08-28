@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AuthModule } from '../auth';
+import { AuthModule } from '@fitoverforty/auth-nest';
 import { MediaEntity } from '../blog/entities';
 import { LocalDiskMediaStorage } from './local-disk.storage';
 import { MEDIA_STORAGE } from './media-storage.port';

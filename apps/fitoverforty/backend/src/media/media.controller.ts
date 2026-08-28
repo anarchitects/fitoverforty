@@ -21,7 +21,7 @@ import {
  */
 import '@fastify/multipart';
 import type { FastifyReply, FastifyRequest } from 'fastify';
-import { AdminGuard } from '../auth';
+import { AdminGuard } from '@fitoverforty/auth-nest';
 import { MAX_UPLOAD_BYTES, RejectedUploadError } from './image-rules';
 import { MediaService } from './media.service';
 

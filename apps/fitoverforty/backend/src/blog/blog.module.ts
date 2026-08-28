@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AuthModule } from '../auth';
+import { AuthModule } from '@fitoverforty/auth-nest';
 import { PostAdminController, PostAdminService } from './admin';
 import { BlogController } from './blog.controller';
 import { SyndicationController } from './syndication.controller';

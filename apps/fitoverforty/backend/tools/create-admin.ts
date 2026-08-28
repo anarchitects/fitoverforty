@@ -25,7 +25,7 @@ import { config } from 'dotenv';
 import { createInterface } from 'node:readline/promises';
 import { resolve } from 'node:path';
 import { makeRuntimeDataSource } from '../src/data-source';
-import { createAuth } from '../src/auth/auth.factory';
+import { createAuth } from '@fitoverforty/auth-nest';
 
 config({ path: resolve(__dirname, '../../../../.env') });
 

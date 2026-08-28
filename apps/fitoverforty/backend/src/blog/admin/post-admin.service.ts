@@ -8,7 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, In, Not, Repository } from 'typeorm';
 import { slugify } from '@fitoverforty/blog-ts';
 import type { AdminPost, AdminPostSummary } from '@fitoverforty/blog-ts';
-import type { AuthenticatedUser } from '../../auth';
+import type { AuthenticatedUser } from '@fitoverforty/auth-nest';
 import { InvalidBlockError, readingTimeMinutes, sanitiseBody } from '../content';
 import {
   AuthorEntity,
