@@ -18,7 +18,7 @@ import {
   AuthSessionEntity,
   AuthUserEntity,
   AuthVerificationEntity,
-} from './auth/entities';
+} from '@fitoverforty/auth-nest';
 import {
   AuthorEntity,
   MediaEntity,

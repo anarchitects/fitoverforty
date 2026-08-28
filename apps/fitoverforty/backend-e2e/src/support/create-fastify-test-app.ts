@@ -47,7 +47,7 @@ export async function createFastifyTestApp(
   // eslint-disable-next-line @nx/enforce-module-boundaries
   const { AppModule } = await import('../../../backend/src/app/app.module');
   // eslint-disable-next-line @nx/enforce-module-boundaries
-  const { AUTH_INSTANCE } = await import('../../../backend/src/auth');
+  const { AUTH_INSTANCE } = await import('@fitoverforty/auth-nest');
 
   let builder: TestingModuleBuilder = Test.createTestingModule({
     imports: [AppModule],

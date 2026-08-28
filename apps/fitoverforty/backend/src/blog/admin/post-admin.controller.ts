@@ -14,8 +14,8 @@ import type {
   AdminPost,
   AdminPostSummary,
 } from '@fitoverforty/blog-ts';
-import { AdminGuard, CurrentUser } from '../../auth';
-import type { AuthenticatedUser } from '../../auth';
+import { AdminGuard, CurrentUser } from '@fitoverforty/auth-nest';
+import type { AuthenticatedUser } from '@fitoverforty/auth-nest';
 import { PostAdminService } from './post-admin.service';
 import { parseDraftBody, parsePublishBody } from './post-write.request';
 

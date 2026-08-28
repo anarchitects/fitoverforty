@@ -296,8 +296,8 @@ Deliberately unfixed, and worth knowing before you trip over them or duplicate t
   `--unitTestRunner=vitest-angular` on a non-buildable lib, so generate with `none` and
   copy the `@nx/vitest:test` target and `vite.config.mts` from an existing lib.
 - **The frontend restructure is complete**, and the backend is under way. Every lib is
-  `libs/<domain>/<platform>[/<layer>]`. `newsletter` is out; `blog`, `auth` and `media`
-  are still in `apps/fitoverforty/backend/src`.
+  `libs/<domain>/<platform>[/<layer>]`. `newsletter` and `auth` are out; `blog` and
+  `media` are still in `apps/fitoverforty/backend/src`.
 - **A Nest lib gets its Jest config by hand**, not from the generator: `@nx/nest:library`
   with a unit test runner writes a root `jest.preset.js` and `jest.config.ts` this
   workspace does not use. Generate with `--unitTestRunner=none` and copy
