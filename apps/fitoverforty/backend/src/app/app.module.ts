@@ -10,7 +10,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AppDataSource } from '../data-source';
 import { BlogModule } from '../blog/blog.module';
-import { NewsletterModule } from '../newsletter/newsletter.module';
+import { NewsletterModule } from '@fitoverforty/newsletter-nest';
 import { AuthModule } from '../auth/auth.module';
 import { MediaModule } from '../media/media.module';
 

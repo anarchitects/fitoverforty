@@ -1,10 +1,17 @@
 /**
- * Jest settings shared by the backend and backend-e2e projects.
+ * Jest settings shared by the backend, backend-e2e and the Nest libraries.
  *
- * Both reach the same code through AppModule, so both need the same two
+ * They all reach the same code through AppModule, so they all need the same
  * workarounds. They live here rather than in each config because they have
  * already drifted apart once.
+ *
+ * **Paths are absolute, resolved from this file.** They used to be
+ * `<rootDir>`-relative, which silently means something different depending on
+ * how deep the consuming project sits — fine while only the two backend
+ * projects used it, wrong the moment a `libs/<domain>/nest` project did.
  */
+const { resolve } = require('node:path');
+const here = (...parts) => resolve(__dirname, ...parts);
 
 /**
  * sanitize-html is CommonJS, but its htmlparser2 chain is ESM-only. Node 24
@@ -19,14 +26,36 @@ const transformIgnorePatterns = [
 ];
 
 /**
- * Workspace path aliases. Jest does not read tsconfig `paths`.
+ * Workspace path aliases, read from `tsconfig.base.json`.
+ *
+ * Jest does not read tsconfig `paths`, so they have to be restated — but
+ * restating them by hand means every library that moves breaks these suites
+ * with a `Cannot find module` that points at `data-source.ts` rather than at
+ * the mapping. Deriving them keeps the two in step by construction.
  *
  * Note this does NOT cover backend-e2e's globalSetup: Jest runs that outside
  * its own module registry, so it registers tsconfig-paths itself.
  */
+function aliasesFromTsconfig() {
+  const root = here('../..');
+  const { compilerOptions } = require(resolve(root, 'tsconfig.base.json'));
+  const mapped = {};
+  for (const [alias, [target]] of Object.entries(compilerOptions.paths ?? {})) {
+    if (alias.endsWith('/*')) {
+      // e.g. '@fitoverforty/blog-angular-feature/*' -> capture the subpath.
+      mapped[`^${alias.slice(0, -2)}/(.*)$`] = resolve(
+        root,
+        target.replace(/\*$/, ''),
+      ) + '$1';
+    } else {
+      mapped[`^${alias}$`] = resolve(root, target);
+    }
+  }
+  return mapped;
+}
+
 const moduleNameMapper = {
-  '^@fitoverforty/blog-ts$':
-    '<rootDir>/../../../libs/blog/ts/src/index.ts',
+  ...aliasesFromTsconfig(),
 
   /**
    * better-auth and its TypeORM adapter are ESM-only and CANNOT be loaded in
@@ -34,12 +63,13 @@ const moduleNameMapper = {
    * `"type": "module"` package, as ESM before any transform is consulted, so
    * no `transformIgnorePatterns` entry helps. See `../test-stubs/README.md`.
    */
-  '^better-auth$': '<rootDir>/../test-stubs/better-auth.cjs',
-  '^@anarchitects/better-auth-typeorm-adapter$':
-    '<rootDir>/../test-stubs/better-auth-typeorm-adapter.cjs',
+  '^better-auth$': here('test-stubs/better-auth.cjs'),
+  '^@anarchitects/better-auth-typeorm-adapter$': here(
+    'test-stubs/better-auth-typeorm-adapter.cjs',
+  ),
 };
 
 /** Environment the suites need before any module is constructed. */
-const setupFiles = ['<rootDir>/../test-stubs/env.cjs'];
+const setupFiles = [here('test-stubs/env.cjs')];
 
 module.exports = { transformIgnorePatterns, moduleNameMapper, setupFiles };
