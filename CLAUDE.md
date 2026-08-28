@@ -181,6 +181,17 @@ These cost real debugging time; none are inferable from the code.
   webhook's path: matching one meant hard-coding the `/api` global prefix, which
   the e2e app does not set, so the check failed open there.
 
+- **The TypeORM CLI ignores the data source's `logging` setting.** The app logs
+  `['error', 'warn', 'migration']` — successful queries are silent, failing ones
+  still print their SQL and parameters, which is what makes a broken migration
+  diagnosable. `TYPEORM_LOGGING=all` restores the firehose for a debugging
+  session, a comma-separated list of TypeORM's levels picks something between,
+  and `false` silences it. But `nx run fitoverforty-backend:db:migrate:*` still
+  prints every query whatever you set, because TypeORM's own migration command
+  overwrites the option with `["query","error","schema"]` after loading the data
+  source. That is upstream behaviour, not a mistake here — do not "fix" it by
+  editing `data-source.ts`.
+
 - **A migration must never save through an entity.** Entities mean whatever HEAD
   says today; a migration has to mean the same thing forever. `SeedBlogContent`
   saved through `AuthorEntity`, so adding `authors.user_id` in a *later*
@@ -217,10 +228,6 @@ Deliberately unfixed, and worth knowing before you trip over them or duplicate t
   `69c55480ee9de4adf5c7a1d0` was created in March; `nx.json` has no `nxCloudId`, so no
   target reads or writes the remote cache. If you connect it, reuse that ID — running
   `nx connect` creates a second workspace rather than adopting the existing one.
-- **TypeORM logs every query.** `backend/src/data-source.ts` sets `logging: true`, so a
-  CI run carries the whole query stream and grepping the logs for an actual failure is
-  painful. Narrowing it to `['error', 'warn']` is the fix; it has not been done because
-  the noise has so far been more useful than annoying while the schema was moving.
 
 ## Conventions
 
