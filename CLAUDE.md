@@ -296,7 +296,11 @@ Deliberately unfixed, and worth knowing before you trip over them or duplicate t
   `--unitTestRunner=vitest-angular` on a non-buildable lib, so generate with `none` and
   copy the `@nx/vitest:test` target and `vite.config.mts` from an existing lib.
 - Lib conventions otherwise unchanged: selector prefix `fitoverforty-`, standalone +
-  `OnPush`, exported via `src/index.ts`.
+  `OnPush`, exported via `src/index.ts`. **Moving a component out of the app means
+  renaming its selector** — lint enforces the prefix in libs but not in apps, so an
+  `app-*` selector passes where it is and fails the moment it lands in a lib. Rename it
+  and every template that uses it in the same move; `newsletter-cta` went from
+  `app-newsletter-cta` to `fitoverforty-newsletter-cta` this way.
 - Import `@anarchitects/*` public entry points only, never internal paths.
 - Conventional commits. Squash-merge is the repo convention.
 - Prettier: single quotes, 2-space.

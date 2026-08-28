@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { SeoService } from '@fitoverforty/seo-angular';
-import { CONSENT_TEXT } from '../newsletter/consent';
+import { CONSENT_TEXT } from '@fitoverforty/newsletter-angular';
 
 /**
  * A v1 requirement, not a nicety (spec §12): affirmative consent has to link

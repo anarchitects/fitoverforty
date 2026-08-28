@@ -14,7 +14,7 @@ import { SeoService } from '@fitoverforty/seo-angular';
 import type { Loaded } from './loaded';
 import { LoadErrorComponent } from './load-error.component';
 import { NotFoundPage } from './not-found.page';
-import { NewsletterCtaComponent } from '../newsletter/newsletter-cta.component';
+import { NewsletterCtaComponent } from '@fitoverforty/newsletter-angular';
 
 @Component({
   selector: 'app-post-detail-page',
@@ -81,7 +81,7 @@ import { NewsletterCtaComponent } from '../newsletter/newsletter-cta.component';
         §12 most wants the CTA on was the one page without it. RSS ships item
         descriptions rather than full bodies precisely so readers arrive here.
       -->
-      <app-newsletter-cta />
+      <fitoverforty-newsletter-cta />
     } @else {
       <!-- Loaded fine, but there is no such published post. -->
       <app-not-found-page />
