@@ -189,9 +189,18 @@ These cost real debugging time; none are inferable from the code.
   projection. That breaks sign-in specifically — it loads the user together with its
   accounts, then matches on `providerId` — and fails as "User not found" while the row
   sits correctly in the table. The rest of the repo is snake_case; `auth` is not.
-- **Better Auth's field list comes from the library, not the adapter's README.** The
-  README documents an older version and omits `accounts.issuer`, which 1.7 made
-  required. `getAuthTables({})` from `@better-auth/core/db` is the authoritative list.
+- **Better Auth is pinned to `~1.6.30`, on purpose.**
+  `@anarchitects/better-auth-typeorm-adapter@0.1.1` accepts `better-auth: ^1.0.0` as a
+  peer but was built and validated against < 1.7, so the wider range is not a promise.
+  1.7 added `accounts.issuer` and scopes account identity by it; the adapter does not
+  know the field. Unpin only when an adapter supporting 1.7 ships — tracked at
+  anarchitecture-community#509 — and restore `accounts.issuer` to NOT NULL when you do.
+- **Better Auth's field list comes from the library, not the adapter's README**, and the
+  import path moved. On the pinned 1.6 line it is `getAuthTables({})` from
+  `better-auth/db`; `@better-auth/core` does not exist before 1.7. Ask the library rather
+  than the README, which omits `issuer` entirely. That list is also how you tell whether
+  a column is written at all: on 1.6 `account` has no `issuer`, which is why the column
+  is nullable.
 - **Block types live in `@fitoverforty/content-model` and three places consume them.**
   `SUPPORTED_BLOCK_TYPES` is read by the write-side validator, the public renderer and
   the editor's tool registry. The dangerous drift is the editor offering more than the

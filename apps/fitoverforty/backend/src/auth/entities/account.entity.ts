@@ -14,16 +14,23 @@ export class AuthAccountEntity {
   id!: string;
 
   /**
-   * Which issuer the account identity belongs to.
+   * Which issuer the account identity belongs to. Null on Better Auth 1.6.
    *
-   * Required since Better Auth 1.7, which scopes account identity by issuer so
-   * that the same `accountId` from two different providers cannot collide. The
-   * adapter package's README predates that change and does not list this
-   * field — its absence surfaces only at the first sign-up, as "Could not
-   * resolve field \"issuer\" for Better Auth model \"accounts\"".
+   * The field arrived in 1.7, which scopes account identity by issuer so that
+   * the same `accountId` from two different providers cannot collide. This app
+   * is pinned to `~1.6.30` because the adapter was validated against < 1.7
+   * (see anarchitecture-community#509), and on 1.6 the field does not exist:
+   * `getAuthTables({})` from `better-auth/db` does not list it, so nothing
+   * writes it.
+   *
+   * Kept and nullable rather than removed, because the pin is interim — when
+   * the adapter supports 1.7 this becomes required again. If you are reading
+   * this after that upgrade, `issuer` should go back to NOT NULL, and its
+   * absence surfaces as "Could not resolve field \"issuer\" for Better Auth
+   * model \"accounts\"" at the first sign-up.
    */
-  @Column({ type: 'text' })
-  issuer!: string;
+  @Column({ type: 'text', nullable: true })
+  issuer!: string | null;
 
   @Column({ type: 'text' })
   accountId!: string;
