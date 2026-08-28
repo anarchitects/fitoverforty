@@ -2,6 +2,30 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+<!-- nx configuration start-->
+<!-- Leave the start & end comments to automatically receive updates. -->
+
+# General Guidelines for working with Nx
+
+- For navigating/exploring the workspace, invoke the `nx-workspace` skill first - it has patterns for querying projects, targets, and dependencies
+- When running tasks (for example build, lint, test, e2e, etc.), always prefer running the task through `nx` (i.e. `nx run`, `nx run-many`, `nx affected`) instead of using the underlying tooling directly
+- Prefix nx commands with the workspace's package manager (e.g., `pnpm nx build`, `npm exec nx test`) - avoids using globally installed CLI
+- You have access to the Nx MCP server and its tools, use them to help the user
+- For Nx plugin best practices, check `node_modules/@nx/<plugin>/PLUGIN.md`. Not all plugins have this file - proceed without it if unavailable.
+- NEVER guess CLI flags - always check nx_docs or `--help` first when unsure
+
+## Scaffolding & Generators
+
+- For scaffolding tasks (creating apps, libs, project structure, setup), ALWAYS invoke the `nx-generate` skill FIRST before exploring or calling MCP tools
+
+## When to use nx_docs
+
+- USE for: advanced config options, unfamiliar flags, migration guides, plugin configuration, edge cases
+- DON'T USE for: basic generator syntax (`nx g @nx/react:app`), standard commands, things you already know
+- The `nx-generate` skill handles generator discovery internally - don't call nx_docs just to look up generator syntax
+
+<!-- nx configuration end-->
+
 ## Commands
 
 Always run tasks through Nx, prefixed with the package manager. **`yarn` on PATH may be
@@ -32,6 +56,10 @@ corepack yarn nx run fitoverforty-backend-e2e:e2e -- contact-form-flow
 CI can be triggered manually: `gh workflow run ci.yml --ref <branch>`.
 
 ## Running the app locally
+
+**Docker is a development convenience only.** A deployed blog runs against a dedicated
+Postgres instance on the host server; nothing in `docker-compose.yml` is a production
+artefact, and it should not be reasoned about as one.
 
 Both services are required. `nx serve fitoverforty-frontend` starts the backend too via
 `dependsOn`, and proxies `/api` to `:3000`.
@@ -81,12 +109,23 @@ CSS logical properties throughout. Never hardcode a colour outside
 ## Related repositories
 
 This app **consumes** the Anarchitects ecosystem but is not a member of it — it appears
-in no ecosystem catalogue. Two repos govern what it consumes:
+in no ecosystem catalogue. Three repos govern what it consumes:
 
-| Repo                                                                                   | Visibility | What it answers                                                                              |
-| -------------------------------------------------------------------------------------- | ---------- | -------------------------------------------------------------------------------------------- |
-| [`anarchitecture-meta`](https://github.com/anarchitects/anarchitecture-meta)           | private    | Repository roles, cross-repo dependency rules, ecosystem-level architecture positions        |
-| [`anarchitecture-community`](https://github.com/anarchitects/anarchitecture-community) | public     | The `@anarchitects/*` packages this app depends on, and epics for ones that do not yet exist |
+| Repo                                                                                         | Visibility | What it answers                                                                              |
+| ---------------------------------------------------------------------------------------------- | ---------- | -------------------------------------------------------------------------------------------- |
+| [`anarchitecture-meta`](https://github.com/anarchitects/anarchitecture-meta)                 | private    | Repository roles, cross-repo dependency rules, ecosystem-level architecture positions        |
+| [`anarchitecture-community`](https://github.com/anarchitects/anarchitecture-community)       | public     | The `@anarchitects/*` packages this app depends on, and epics for ones that do not yet exist |
+| [`anarchitecture-bricks-3tier`](https://github.com/anarchitects/anarchitecture-bricks-3tier) | public     | The 3-tier brick model: layering, naming and library entry-point conventions                 |
+
+**All three are cloned as siblings of this repo**, at `../anarchitecture-*`. Read them
+there rather than working from memory — that is why they were cloned. Re-clone with
+`gh repo clone`, not plain `git clone`: the private one fails over HTTPS with a
+misleading `Repository not found`.
+
+`anarchitecture-bricks-3tier` documents the brick model, but note its own stated scope:
+it is the home of publishable bricks and reference implementations, explicitly **not**
+of end-user applications. Its layering and entry-point conventions are the thing to
+follow here; its repository layout is not a template for this app's.
 
 Consult `anarchitecture-meta` before deciding **where** code should live — this app, a
 community package, or a plugin. Start with `README.md`, `ECOSYSTEM-MODEL.md`,
@@ -132,9 +171,11 @@ These cost real debugging time; none are inferable from the code.
   there even now that workers are serial: `runMigrations()` per suite would re-check the
   whole migration table on every file for no benefit, and the original race it avoided
   returns the moment anyone raises `maxWorkers` again.
-- **`docker compose down` destroys the local database.** No named volume is declared, so
-  Postgres data sits on an anonymous one. Use `stop`, not `down` — or declare a named
-  volume, which nobody has done yet and which would remove the hazard for good.
+- **`docker compose down` destroys the local database.** Postgres data sits on an
+  anonymous volume, so `down` takes it with the container. Use `stop`. Do **not**
+  "fix" this by declaring a named volume: Docker here is a development convenience
+  only, and a deployed blog runs against a dedicated Postgres instance on the host
+  server, so the compose file has no production role to protect.
 - **`gh pr edit` fails** on the installed `gh` (deprecated Projects-classic GraphQL).
   Use `gh api -X PATCH repos/<owner>/<repo>/pulls/<n> -F body=@file` instead.
 - **`BETTER_AUTH_SECRET` is required or the backend will not boot.** Unlike `MAILER_*`
