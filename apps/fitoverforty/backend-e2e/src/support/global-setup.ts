@@ -9,7 +9,7 @@ const WORKSPACE_ROOT = resolve(__dirname, '../../../../..');
  *
  * Jest runs globalSetup outside its own module registry, so the
  * `moduleNameMapper` in jest.config does not apply here. The data source
- * reaches the blog content code, which imports `@fitoverforty/content-model`
+ * reaches the blog content code, which imports `@fitoverforty/blog-ts`
  * as a value, and without this that import fails with "Cannot find module".
  */
 function registerWorkspacePaths(): void {

@@ -1,5 +1,5 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
-import type { OutputData } from '@fitoverforty/content-model';
+import type { OutputData } from '@fitoverforty/blog-ts';
 import { readingTimeMinutes, sanitiseBody } from '../../../src/blog/content';
 
 /**

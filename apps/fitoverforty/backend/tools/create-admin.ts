@@ -18,7 +18,7 @@
  *
  * The nx target registers `tsconfig-paths` explicitly. This script pulls in the
  * data source, which reaches blog content code importing
- * `@fitoverforty/content-model` as a value; without that registration it fails
+ * `@fitoverforty/blog-ts` as a value; without that registration it fails
  * with MODULE_NOT_FOUND on the alias rather than anything about admin accounts.
  */
 import { config } from 'dotenv';

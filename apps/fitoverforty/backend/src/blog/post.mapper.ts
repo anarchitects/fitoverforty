@@ -4,7 +4,7 @@ import type {
   Post,
   PostSummary,
   TagRef,
-} from '@fitoverforty/content-model';
+} from '@fitoverforty/blog-ts';
 import { extractHeadings } from './content';
 import type {
   AuthorEntity,

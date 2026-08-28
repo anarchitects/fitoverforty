@@ -1,13 +1,15 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { FitoverfortyFrontendHeaderComponent } from '@fitoverforty/frontend-header';
-import { FitoverfortyFrontendFooterComponent } from '@fitoverforty/frontend-footer';
+import {
+  FooterComponent,
+  HeaderComponent,
+} from '@fitoverforty/common-angular-ui';
 
 @Component({
   imports: [
     RouterOutlet,
-    FitoverfortyFrontendHeaderComponent,
-    FitoverfortyFrontendFooterComponent,
+    HeaderComponent,
+    FooterComponent,
   ],
   selector: 'app-root',
   templateUrl: './app.html',

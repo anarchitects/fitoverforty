@@ -10,7 +10,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import type { OutputData, PostStatus } from '@fitoverforty/content-model';
+import type { OutputData, PostStatus } from '@fitoverforty/blog-ts';
 import { AuthorEntity } from './author.entity';
 import { MediaEntity } from './media.entity';
 import { TagEntity } from './tag.entity';

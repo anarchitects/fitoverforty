@@ -6,7 +6,7 @@ import {
   Param,
   Query,
 } from '@nestjs/common';
-import type { ContentSource } from '@fitoverforty/content-model';
+import type { ContentSource } from '@fitoverforty/blog-ts';
 import { CONTENT_SOURCE } from './content-source.token';
 import { parsePaging } from './paging';
 

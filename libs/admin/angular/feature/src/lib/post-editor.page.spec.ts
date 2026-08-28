@@ -5,7 +5,7 @@ import {
 } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
-import type { AdminPost } from '@fitoverforty/content-model';
+import type { AdminPost } from '@fitoverforty/blog-ts';
 import { PostEditorPage } from './post-editor.page';
 
 /**

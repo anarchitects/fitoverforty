@@ -1,6 +1,6 @@
 import { BadRequestException } from '@nestjs/common';
-import { slugify } from '@fitoverforty/content-model';
-import type { PostDraftInput } from '@fitoverforty/content-model';
+import { slugify } from '@fitoverforty/blog-ts';
+import type { PostDraftInput } from '@fitoverforty/blog-ts';
 
 /**
  * Hand-written parsing, matching `subscribe.request.ts` rather than reaching

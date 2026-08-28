@@ -295,9 +295,17 @@ Deliberately unfixed, and worth knowing before you trip over them or duplicate t
   `index.ts`; see issue #34. A consequence: `@nx/angular:library` refuses
   `--unitTestRunner=vitest-angular` on a non-buildable lib, so generate with `none` and
   copy the `@nx/vitest:test` target and `vite.config.mts` from an existing lib.
-- **Only the frontend has moved.** `libs/{seo,newsletter,legal,blog,admin}/angular/*` are
-  done; the four backend domains and the older flat `libs/frontend/{header,footer,editorjs}`
-  plus `libs/shared/content-model` have not. Both shapes exist meanwhile.
+- **The frontend restructure is complete.** Every lib is now
+  `libs/<domain>/<platform>[/<layer>]`. The four **backend** domains (`blog`, `newsletter`,
+  `auth`, `media`) are still in `apps/fitoverforty/backend/src` and are the remaining work.
+- `libs/blog/ts` is the shared contract library — what bricks calls a domain contract lib —
+  and is the one thing imported by **both** the backend and the frontend. It was
+  `@fitoverforty/content-model`; the Jest moduleNameMapper in `apps/fitoverforty/jest.shared.cjs`
+  points at it by path, so moving it means editing that too.
+- `libs/common/angular/ui` holds the page chrome (header, footer). `common` is not a domain;
+  it is where shared platform UI goes, following `libs/common/angular/*` in bricks.
+- `libs/editorjs/angular` is deliberately top-level rather than under `admin`: it imports
+  nothing fitoverforty-specific and is the extraction candidate if a second consumer appears.
 - **A domain splits by how it is imported, not by file count.** `admin` needs two projects
   (`feature`, `data-access`) and `blog` three; `seo`, `newsletter` and `legal` are single
   projects because nothing in them is lazily routed. Add a project only when the boundary

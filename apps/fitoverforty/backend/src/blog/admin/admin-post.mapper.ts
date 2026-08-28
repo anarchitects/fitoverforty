@@ -1,7 +1,7 @@
 import type {
   AdminPost,
   AdminPostSummary,
-} from '@fitoverforty/content-model';
+} from '@fitoverforty/blog-ts';
 import type { PostEntity } from '../entities';
 
 /**

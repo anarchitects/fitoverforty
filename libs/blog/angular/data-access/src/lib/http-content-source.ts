@@ -9,7 +9,7 @@ import type {
   PostRef,
   PostSummary,
   TagSummary,
-} from '@fitoverforty/content-model';
+} from '@fitoverforty/blog-ts';
 
 const API = '/api/blog';
 

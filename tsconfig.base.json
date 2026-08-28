@@ -39,17 +39,14 @@
       "@fitoverforty/blog-angular-ui": [
         "libs/blog/angular/ui/src/index.ts"
       ],
-      "@fitoverforty/content-model": [
-        "libs/shared/content-model/src/index.ts"
+      "@fitoverforty/blog-ts": [
+        "libs/blog/ts/src/index.ts"
       ],
-      "@fitoverforty/frontend-editorjs": [
-        "libs/frontend/editorjs/src/index.ts"
+      "@fitoverforty/common-angular-ui": [
+        "libs/common/angular/ui/src/index.ts"
       ],
-      "@fitoverforty/frontend-footer": [
-        "libs/frontend/footer/src/index.ts"
-      ],
-      "@fitoverforty/frontend-header": [
-        "libs/frontend/header/src/index.ts"
+      "@fitoverforty/editorjs-angular": [
+        "libs/editorjs/angular/src/index.ts"
       ],
       "@fitoverforty/legal-angular": [
         "libs/legal/angular/src/index.ts"

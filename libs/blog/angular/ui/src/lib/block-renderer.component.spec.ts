@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import type { OutputData } from '@fitoverforty/content-model';
+import type { OutputData } from '@fitoverforty/blog-ts';
 import { BlockRendererComponent } from './block-renderer.component';
 
 async function render(blocks: OutputData, showUnknown = false) {

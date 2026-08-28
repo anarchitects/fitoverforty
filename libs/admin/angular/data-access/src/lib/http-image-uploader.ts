@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import type {
   ImageUploader,
   ImageUploadResult,
-} from '@fitoverforty/frontend-editorjs';
+} from '@fitoverforty/editorjs-angular';
 import { MediaApi } from './media.api';
 
 /**

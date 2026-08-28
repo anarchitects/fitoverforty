@@ -9,7 +9,7 @@ import {
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { BlockRendererComponent } from '@fitoverforty/blog-angular-ui';
-import { isBlocksBody, type Post } from '@fitoverforty/content-model';
+import { isBlocksBody, type Post } from '@fitoverforty/blog-ts';
 import { SeoService } from '@fitoverforty/seo-angular';
 import type { Loaded } from '@fitoverforty/blog-angular-data-access';
 import { LoadErrorComponent } from '@fitoverforty/blog-angular-ui';

@@ -13,7 +13,7 @@ import {
 import type {
   AdminPost,
   AdminPostSummary,
-} from '@fitoverforty/content-model';
+} from '@fitoverforty/blog-ts';
 import { AdminGuard, CurrentUser } from '../../auth';
 import type { AuthenticatedUser } from '../../auth';
 import { PostAdminService } from './post-admin.service';

@@ -1,4 +1,4 @@
-import type { OutputData } from '@fitoverforty/content-model';
+import type { OutputData } from '@fitoverforty/blog-ts';
 import { extractHeadings, readingTimeMinutes } from './index';
 
 const body = (...blocks: OutputData['blocks']): OutputData => ({ blocks });
