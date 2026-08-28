@@ -9,7 +9,7 @@ import { FormsModule } from '@anarchitects/forms-nest';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AppDataSource } from '../data-source';
-import { BlogModule } from '../blog/blog.module';
+import { BlogModule } from '@fitoverforty/blog-nest';
 import { NewsletterModule } from '@fitoverforty/newsletter-nest';
 import { AuthModule } from '@fitoverforty/auth-nest';
 import { MediaModule } from '../media/media.module';

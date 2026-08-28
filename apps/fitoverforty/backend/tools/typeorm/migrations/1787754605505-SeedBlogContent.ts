@@ -1,6 +1,6 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 import type { OutputData } from '@fitoverforty/blog-ts';
-import { readingTimeMinutes, sanitiseBody } from '../../../src/blog/content';
+import { readingTimeMinutes, sanitiseBody } from '@fitoverforty/blog-nest';
 
 /**
  * Phase A content, seeded the same way the contact form config is.

@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from '@fitoverforty/auth-nest';
-import { MediaEntity } from '../blog/entities';
+import { MediaEntity } from '@fitoverforty/blog-nest';
 import { LocalDiskMediaStorage } from './local-disk.storage';
 import { MEDIA_STORAGE } from './media-storage.port';
 import { MediaController } from './media.controller';

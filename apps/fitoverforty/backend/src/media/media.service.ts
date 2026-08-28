@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { randomUUID } from 'node:crypto';
 import { Repository } from 'typeorm';
-import { MediaEntity } from '../blog/entities';
+import { MediaEntity } from '@fitoverforty/blog-nest';
 import { inspectImage } from './image-rules';
 import { MEDIA_STORAGE, type MediaStoragePort } from './media-storage.port';
 
