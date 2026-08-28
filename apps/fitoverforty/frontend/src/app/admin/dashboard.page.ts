@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import type { AdminPostSummary } from '@fitoverforty/content-model';
-import { SeoService } from '../seo/seo.service';
+import { SeoService } from '@fitoverforty/seo-angular';
 import { AuthService } from './auth.service';
 import { PostsApi } from './posts.api';
 

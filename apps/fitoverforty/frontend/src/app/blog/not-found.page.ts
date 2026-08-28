@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { SeoService } from '../seo/seo.service';
+import { SeoService } from '@fitoverforty/seo-angular';
 import { setServerStatus } from './server-status';
 
 /**

@@ -6,7 +6,7 @@ import {
   input,
 } from '@angular/core';
 import type { Paged, PostSummary } from '@fitoverforty/content-model';
-import { SeoService } from '../seo/seo.service';
+import { SeoService } from '@fitoverforty/seo-angular';
 import type { Loaded } from './loaded';
 import { LoadErrorComponent } from './load-error.component';
 import { PaginationComponent } from './pagination.component';

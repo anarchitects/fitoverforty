@@ -14,7 +14,7 @@ import {
   EditorjsComponent,
   type EditorOutput,
 } from '@fitoverforty/frontend-editorjs';
-import { SeoService } from '../seo/seo.service';
+import { SeoService } from '@fitoverforty/seo-angular';
 import { MediaApi } from './media.api';
 import { PostsApi } from './posts.api';
 

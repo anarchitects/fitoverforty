@@ -5,7 +5,7 @@ import {
   signal,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { SeoService } from '../seo/seo.service';
+import { SeoService } from '@fitoverforty/seo-angular';
 import { AuthService } from './auth.service';
 
 @Component({
