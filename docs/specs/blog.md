@@ -390,9 +390,15 @@ subscriptions are: the history is the evidence.
 Discovered while verifying the live double opt-in flow — the subscription wrote a row,
 the unsubscribe wrote nothing.
 
-**Still needs doing in the MailerLite UI**: create the webhook, point it at
-`/api/newsletter/webhook`, subscribe it to those two events, and put its secret in the
-environment. Nothing in this repo or in CI can do or verify that.
+**Blocked on deployment, not on anyone's to-do list.** Creating the webhook needs a
+publicly reachable URL to point it at, and there is no deployed environment yet —
+MailerLite cannot call `localhost`. So the endpoint stays untriggered until the blog is
+hosted somewhere, at which point the remaining work is: create the webhook against the
+deployed `/api/newsletter/webhook`, subscribe it to those two events, and put its secret
+in the environment. Until then the route answers 503, which is honest and retryable.
+
+Do not list this as an outstanding action for the account holder — it is not one until
+there is a URL.
 
 **Decided: the CTA stays a lightweight bespoke component** posting to that endpoint
 rather than a `forms-angular` render. Prerendering was the original argument and it has
@@ -497,8 +503,9 @@ Most of the previous revision's open items are resolved above. What remains:
    Pointing production at an object store is a provider swap in `MediaModule` behind
    `MediaStoragePort` — no caller changes — but the bucket and credentials still need
    whoever owns infrastructure.
-3. **MailerLite double opt-in group configuration.** Lives in the MailerLite UI, not in
-   this repo, and nothing in CI can verify it. Needs whoever holds the account.
+3. ~~**MailerLite double opt-in group configuration.**~~ **Confirmed set** on the group.
+   It lives in the MailerLite UI and nothing in CI can verify it, so it is worth
+   re-checking if the group is ever recreated — but it is not an open question.
 
 ### Resolved since the last revision
 
