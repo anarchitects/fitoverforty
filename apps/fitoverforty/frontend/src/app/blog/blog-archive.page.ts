@@ -11,7 +11,7 @@ import type { Loaded } from './loaded';
 import { LoadErrorComponent } from './load-error.component';
 import { PaginationComponent } from './pagination.component';
 import { PostSummaryListComponent } from './post-summary-list.component';
-import { NewsletterCtaComponent } from '../newsletter/newsletter-cta.component';
+import { NewsletterCtaComponent } from '@fitoverforty/newsletter-angular';
 
 @Component({
   selector: 'app-blog-archive-page',
@@ -37,7 +37,7 @@ import { NewsletterCtaComponent } from '../newsletter/newsletter-cta.component';
           <app-load-error />
         }
       }
-      <app-newsletter-cta />
+      <fitoverforty-newsletter-cta />
     </section>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -22,7 +22,10 @@
       "@fitoverforty/frontend-editorjs": [
         "libs/frontend/editorjs/src/index.ts"
       ],
-      "@fitoverforty/seo-angular": ["libs/seo/angular/src/index.ts"]
+      "@fitoverforty/seo-angular": ["libs/seo/angular/src/index.ts"],
+      "@fitoverforty/newsletter-angular": [
+        "libs/newsletter/angular/src/index.ts"
+      ]
     }
   },
   "exclude": ["node_modules", "tmp"]

@@ -22,7 +22,7 @@ type State = 'idle' | 'sending' | 'sent' | 'error';
  * if it ever grows a subscriber target.
  */
 @Component({
-  selector: 'app-newsletter-cta',
+  selector: 'fitoverforty-newsletter-cta',
   standalone: true,
   imports: [RouterLink],
   template: `
