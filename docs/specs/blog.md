@@ -256,15 +256,15 @@ Admin area at `/admin`, behind authentication.
   `isPlatformBrowser` guard, per epic #69.
 - **Tools**: header, list, quote, image, code, table, delimiter, link. Registered
   through one place, which is the shape epic #70 describes.
-- **Media**: uploads through an adapter interface (epic #72) so the storage target is a
-  configuration choice. Local disk in development; object storage in production — **the
-  bucket and credentials are an open question for Johan**, since nothing in this repo
-  provisions them.
+- **Media**: uploads through `MediaStoragePort` so the storage target is a configuration
+  choice. Local disk today, in every environment; object storage in production is a
+  provider swap in `MediaModule` — **the bucket and credentials remain an open question
+  for Johan**, since nothing in this repo provisions them.
 - **Workflow**: save draft, preview as rendered, publish, schedule, unpublish.
 - Preview renders through the same block renderer as the public site. Two renderers that
   drift is the classic failure here.
 
-## 10. Editor.js packages — deferred to Phase B
+## 10. Editor.js packages — app-local, and why
 
 Community epics #66–#74 define nine packages. **None are published; `packages/` in the
 community repo currently holds `better-auth`, `governance` and `nest` only.**
@@ -276,17 +276,23 @@ registry (#70), tool wrappers (#71), uploads (#72), custom tools (#73) — plus 
 typings (#66) and persistence patterns (#74). The single mention of rendering, in #67,
 is the editor rendering inside an Angular app.
 
-**Phase A therefore has no overlap with the epics at all.** Displaying stored blocks on
-a public page is this app's own concern, and the question of which repository owns the
-editor integration only becomes live at Phase B.
+**Phase A therefore had no overlap with the epics at all.** Displaying stored blocks on
+a public page is this app's own concern; the question of which repository owns the
+editor integration only became live at Phase B.
 
-When it does, the answer is: **build app-local behind the §4 contract, extract once
+The answer taken there was: **build app-local behind the §4 contract, extract once
 stable.** It is how `@anarchitects/nest-angular-ssr` and the forms packages came about,
 and `INTERACTIONS.md` in `anarchitecture-meta` explicitly warns against community
 becoming "an undocumented dumping ground" — extraction with a proven consumer is the
-guard against that. Concretely: keep the editor wrapper, tool registry and upload
-adapter in `libs/frontend/editorjs-*` with no fitoverforty-specific imports, so
-extraction is a move rather than a rewrite.
+guard against that.
+
+**Delivered that way.** `libs/frontend/editorjs` holds the SSR-safe wrapper and the tool
+registry (#21); uploads go through an `IMAGE_UPLOADER` token whose default,
+`REJECTING_IMAGE_UPLOADER`, refuses every file, so a host that forgets to bind one fails
+loudly instead of dropping images. The app binds `HttpImageUploader` on the admin routes
+(#22). The lib imports nothing fitoverforty-specific, so extraction remains a move
+rather than a rewrite — but it has not been extracted, and should not be until a second
+consumer exists.
 
 Two epics touch Phase A, and in both cases this app supplies rather than consumes: #66
 wants canonical typings and validation helpers, which §4 and §6 define concretely; #74
@@ -303,14 +309,17 @@ The direction is unresolved — Johan is reconsidering the `@anarchitects` UI pa
 weighing Tailwind v4 with those packages wrapping it for defaults and consistent
 configuration.
 
-**This does not block Phase A, because the block renderer commits to semantics rather
-than styling.** It emits `<h2>`, `<figure>`, `<blockquote>`, `<pre><code>`, `<ul>` and
-so on, with structural class hooks and no visual opinion. Semantic markup is the
+**This did not block either phase, because the block renderer commits to semantics
+rather than styling.** It emits `<h2>`, `<figure>`, `<blockquote>`, `<pre><code>`, `<ul>`
+and so on, with structural class hooks and no visual opinion. Semantic markup is the
 substrate under either outcome, so the styling decision collapses into one later pass
-instead of gating step 4.
+rather than gating any step.
 
-**Fallback if the decision has not landed by then:** use the existing three-tier custom
-property system. It is already wired, already themed, and already works.
+**The fallback is what shipped**, the decision not having landed: the existing
+three-tier custom property system, already wired and already themed. That is the state
+of the site today. Because the markup carries no visual opinion, adopting the other
+direction later stays a styling pass rather than a renderer rewrite — which was the
+point of deferring it this way.
 
 Note that `CLAUDE.md` currently states "No Tailwind, no SCSS" as fact. If Tailwind v4
 wins, that line and the styling section around it need updating in the same change.
@@ -432,10 +441,12 @@ Steps 1 and 2 turned out to be unblocked — no dependency on Johan, on the epic
 the styling decision — which is what let Phase A proceed at all. Step 3's SSR wiring ran
 alongside them, since it touched the build and the backend rather than the content model.
 
-Content during Phase A is seeded as `OutputData` JSON through a migration, exactly as
-the contact form config is seeded today. (A `db:seed` CLI was tried first and abandoned:
-the executor's dynamic `import()` makes the seed file ESM under Node 24.) It is a stopgap
-and reaches the same tables the admin will later write to, so nothing is thrown away.
+Content during Phase A was seeded as `OutputData` JSON through a migration, exactly as
+the contact form config still is. (A `db:seed` CLI was tried first and abandoned: the
+executor's dynamic `import()` makes the seed file ESM under Node 24.) The stopgap paid
+off as intended — it wrote to the same tables the admin now writes to, so nothing was
+thrown away when step 9 landed. The seeded posts are still live content, which is why
+that migration must never be edited casually: see the entity gotcha in `CLAUDE.md`.
 
 **Phase B — authoring.** Delivered; all five steps are on `main`.
 
@@ -481,16 +492,18 @@ Most of the previous revision's open items are resolved above. What remains:
 1. **UI direction (§11).** Tailwind v4 wrapped by `@anarchitects` packages, or the
    current three-tier token system. Mitigated — the semantic renderer defers it to a
    single styling pass, with the existing system as the fallback.
-2. **Media storage target and credentials.** Phase B only. Phase A ships hero images as
-   committed frontend assets; the `MediaStoragePort` gets a local-disk adapter and the
-   production provider is a configuration swap.
+2. **Media storage target and credentials.** Unchanged and now the live one: uploads work
+   against `LocalDiskMediaStorage`, which is fine for one machine and honest about it.
+   Pointing production at an object store is a provider swap in `MediaModule` behind
+   `MediaStoragePort` — no caller changes — but the bucket and credentials still need
+   whoever owns infrastructure.
 3. **MailerLite double opt-in group configuration.** Lives in the MailerLite UI, not in
    this repo, and nothing in CI can verify it. Needs whoever holds the account.
 
 ### Resolved since the last revision
 
-- **§10, app-local or community-first** — deferred to Phase B; no epic covers rendering,
-  so Phase A is unaffected.
+- **§10, app-local or community-first** — app-local, delivered as `libs/frontend/editorjs`
+  behind the §4 contract; extract only once a second consumer exists.
 - **#7's loose ends** — not a decision but scheduled work: Nx `dependsOn` for build
   ordering, a documented dev/prod topology, and a CI check that boots and asserts a
   rendered response.
