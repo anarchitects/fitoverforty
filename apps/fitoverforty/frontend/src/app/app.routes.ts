@@ -12,13 +12,13 @@ import {
   postResolver,
   tagPostsResolver,
   tagsResolver,
-} from './blog/blog.resolvers';
+} from '@fitoverforty/blog-angular-data-access';
 
 export const appRoutes: Route[] = [
   {
     path: '',
     pathMatch: 'full',
-    loadComponent: () => import('./blog/home.page').then((m) => m.HomePage),
+    loadComponent: () => import('@fitoverforty/blog-angular-feature/home.page').then((m) => m.HomePage),
     resolve: { latest: latestResolver },
     title: 'Fit Over Forty',
   },
@@ -26,14 +26,14 @@ export const appRoutes: Route[] = [
     path: 'blog',
     pathMatch: 'full',
     loadComponent: () =>
-      import('./blog/blog-archive.page').then((m) => m.BlogArchivePage),
+      import('@fitoverforty/blog-angular-feature/blog-archive.page').then((m) => m.BlogArchivePage),
     resolve: { posts: archiveResolver },
     title: 'Blog — Fit Over Forty',
   },
   {
     path: 'blog/page/:page',
     loadComponent: () =>
-      import('./blog/blog-archive.page').then((m) => m.BlogArchivePage),
+      import('@fitoverforty/blog-angular-feature/blog-archive.page').then((m) => m.BlogArchivePage),
     resolve: { posts: archiveResolver },
     title: 'Blog — Fit Over Forty',
   },
@@ -41,7 +41,7 @@ export const appRoutes: Route[] = [
   {
     path: 'blog/tags',
     loadComponent: () =>
-      import('./blog/tag-index.page').then((m) => m.TagIndexPage),
+      import('@fitoverforty/blog-angular-feature/tag-index.page').then((m) => m.TagIndexPage),
     resolve: { tags: tagsResolver },
     title: 'Tags — Fit Over Forty',
   },
@@ -49,19 +49,19 @@ export const appRoutes: Route[] = [
     path: 'blog/tag/:tag',
     pathMatch: 'full',
     loadComponent: () =>
-      import('./blog/tag-archive.page').then((m) => m.TagArchivePage),
+      import('@fitoverforty/blog-angular-feature/tag-archive.page').then((m) => m.TagArchivePage),
     resolve: { posts: tagPostsResolver },
   },
   {
     path: 'blog/tag/:tag/page/:page',
     loadComponent: () =>
-      import('./blog/tag-archive.page').then((m) => m.TagArchivePage),
+      import('@fitoverforty/blog-angular-feature/tag-archive.page').then((m) => m.TagArchivePage),
     resolve: { posts: tagPostsResolver },
   },
   {
     path: 'blog/:slug',
     loadComponent: () =>
-      import('./blog/post-detail.page').then((m) => m.PostDetailPage),
+      import('@fitoverforty/blog-angular-feature/post-detail.page').then((m) => m.PostDetailPage),
     resolve: { post: postResolver },
   },
   /**
@@ -148,7 +148,7 @@ export const appRoutes: Route[] = [
   {
     path: '**',
     loadComponent: () =>
-      import('./blog/not-found.page').then((m) => m.NotFoundPage),
+      import('@fitoverforty/blog-angular-feature/not-found.page').then((m) => m.NotFoundPage),
     title: 'Not found — Fit Over Forty',
   },
 ];

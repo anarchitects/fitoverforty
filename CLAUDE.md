@@ -295,6 +295,18 @@ Deliberately unfixed, and worth knowing before you trip over them or duplicate t
   `index.ts`; see issue #34. A consequence: `@nx/angular:library` refuses
   `--unitTestRunner=vitest-angular` on a non-buildable lib, so generate with `none` and
   copy the `@nx/vitest:test` target and `vite.config.mts` from an existing lib.
+- **A domain with routed pages splits into three projects**, as `blog` does:
+  `libs/blog/angular/{feature,ui,data-access}`. One project cannot be both
+  lazy-loaded and statically imported — `@nx/enforce-module-boundaries` rejects it, and
+  it is right to: pages are reached by lazy `import()`, while the renderer (the admin
+  editor previews with it) and the HTTP wiring (`app.config` needs it) are static. The
+  names are the bricks entry-point names, as separate Nx projects rather than ng-packagr
+  entry points; bricks nests projects this way too, under `libs/common/angular/*`.
+- **Lazy routes address a page module directly, never the barrel.** `app.routes.ts`
+  imports `@fitoverforty/blog-angular-feature/home.page` through a wildcard path alias.
+  A dynamic `import()` of a barrel pulls every page into one chunk, and a single static
+  import of it drags the whole lib into the initial bundle — measured at 23.7 kB raw /
+  6.1 kB transfer added to first load, with six per-route chunks collapsed into one.
 - Lib conventions otherwise unchanged: selector prefix `fitoverforty-`, standalone +
   `OnPush`, exported via `src/index.ts`. **Moving a component out of the app means
   renaming its selector** — lint enforces the prefix in libs but not in apps, so an

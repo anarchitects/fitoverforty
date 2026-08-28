@@ -7,14 +7,14 @@ import {
 } from '@angular/core';
 import type { Paged, PostSummary } from '@fitoverforty/content-model';
 import { SeoService } from '@fitoverforty/seo-angular';
-import type { Loaded } from './loaded';
-import { LoadErrorComponent } from './load-error.component';
-import { PaginationComponent } from './pagination.component';
-import { PostSummaryListComponent } from './post-summary-list.component';
+import type { Loaded } from '@fitoverforty/blog-angular-data-access';
+import { LoadErrorComponent } from '@fitoverforty/blog-angular-ui';
+import { PaginationComponent } from '@fitoverforty/blog-angular-ui';
+import { PostSummaryListComponent } from '@fitoverforty/blog-angular-ui';
 import { NewsletterCtaComponent } from '@fitoverforty/newsletter-angular';
 
 @Component({
-  selector: 'app-blog-archive-page',
+  selector: 'fitoverforty-blog-archive-page',
   standalone: true,
   imports: [
     PostSummaryListComponent,
@@ -27,14 +27,14 @@ import { NewsletterCtaComponent } from '@fitoverforty/newsletter-angular';
       <h1>Blog</h1>
       @if (posts(); as result) {
         @if (result.ok) {
-          <app-post-summary-list [posts]="result.data.items" />
-          <app-pagination
+          <fitoverforty-post-summary-list [posts]="result.data.items" />
+          <fitoverforty-pagination
             [page]="result.data.page"
             [totalPages]="result.data.totalPages"
             [basePath]="['/blog']"
           />
         } @else {
-          <app-load-error />
+          <fitoverforty-load-error />
         }
       }
       <fitoverforty-newsletter-cta />

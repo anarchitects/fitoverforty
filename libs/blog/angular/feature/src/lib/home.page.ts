@@ -8,13 +8,13 @@ import {
 import { RouterLink } from '@angular/router';
 import type { Paged, PostSummary } from '@fitoverforty/content-model';
 import { SeoService } from '@fitoverforty/seo-angular';
-import type { Loaded } from './loaded';
-import { LoadErrorComponent } from './load-error.component';
-import { PostSummaryListComponent } from './post-summary-list.component';
+import type { Loaded } from '@fitoverforty/blog-angular-data-access';
+import { LoadErrorComponent } from '@fitoverforty/blog-angular-ui';
+import { PostSummaryListComponent } from '@fitoverforty/blog-angular-ui';
 import { NewsletterCtaComponent } from '@fitoverforty/newsletter-angular';
 
 @Component({
-  selector: 'app-home-page',
+  selector: 'fitoverforty-home-page',
   standalone: true,
   imports: [
     PostSummaryListComponent,
@@ -31,12 +31,12 @@ import { NewsletterCtaComponent } from '@fitoverforty/newsletter-angular';
       <h2>Latest</h2>
       @if (latest(); as result) {
         @if (result.ok) {
-          <app-post-summary-list [posts]="result.data.items" />
+          <fitoverforty-post-summary-list [posts]="result.data.items" />
           @if (result.data.totalItems > result.data.items.length) {
             <p><a routerLink="/blog">All posts</a></p>
           }
         } @else {
-          <app-load-error />
+          <fitoverforty-load-error />
         }
       }
       <fitoverforty-newsletter-cta />
