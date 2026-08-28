@@ -10,6 +10,7 @@ import { SeedBlogContent1787754605505 } from '../tools/typeorm/migrations/178775
 import { CreateNewsletterSchema1787784560093 } from '../tools/typeorm/migrations/1787784560093-CreateNewsletterSchema';
 import { CreateAuthSchema1787822337235 } from '../tools/typeorm/migrations/1787822337235-CreateAuthSchema';
 import { LinkAuthorsToUsers1787840262133 } from '../tools/typeorm/migrations/1787840262133-LinkAuthorsToUsers';
+import { RecordConsentWithdrawal1787871010736 } from '../tools/typeorm/migrations/1787871010736-RecordConsentWithdrawal';
 import { NewsletterConsentEntity } from './newsletter/entities/newsletter-consent.entity';
 import {
   AuthAccountEntity,
@@ -63,6 +64,7 @@ export const AppDataSource = new DataSource({
     CreateNewsletterSchema1787784560093,
     CreateAuthSchema1787822337235,
     LinkAuthorsToUsers1787840262133,
+    RecordConsentWithdrawal1787871010736,
   ],
 });
 

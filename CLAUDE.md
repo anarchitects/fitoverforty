@@ -165,6 +165,22 @@ These cost real debugging time; none are inferable from the code.
   overrides `AUTH_INSTANCE` with a session; `signedInAs: null` overrides with no
   session, which is how a test asserts 401 rather than 500. Omitting the key leaves the
   stub in place.
+- **The newsletter webhook replaces Fastify's global JSON parser.** Signature
+  verification is over the raw bytes — `JSON.stringify(JSON.parse(x))` is not
+  `x`, so an HMAC over the reparsed object rejects every genuine delivery — and
+  Fastify parses JSON before any handler runs. `RawBodyParser` therefore calls
+  `removeContentTypeParser('application/json')` and installs its own, which
+  behaves identically but keeps the raw string on the request. Two consequences:
+  `addContentTypeParser` alone throws "already present" because Nest's adapter
+  registered one during bootstrap; and a bug there breaks **every** JSON route in
+  the app, which is why `newsletter-webhook.spec.ts` asserts that ordinary POSTs
+  still parse. It is wired from `NewsletterModule`, not `main.ts`, because
+  backend-e2e never compiles `main.ts` — the same trap that hid the
+  `@fastify/multipart` types in step 8, and signature verification is the last
+  thing that should be untestable. It is also deliberately *not* scoped to the
+  webhook's path: matching one meant hard-coding the `/api` global prefix, which
+  the e2e app does not set, so the check failed open there.
+
 - **A migration must never save through an entity.** Entities mean whatever HEAD
   says today; a migration has to mean the same thing forever. `SeedBlogContent`
   saved through `AuthorEntity`, so adding `authors.user_id` in a *later*

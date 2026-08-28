@@ -5,7 +5,11 @@ import { LoggingSubscriberAdapter } from './logging-subscriber.adapter';
 import { MailerLiteSubscriberAdapter } from './mailerlite-subscriber.adapter';
 import { NewsletterController } from './newsletter.controller';
 import { NewsletterService } from './newsletter.service';
+import { RawBodyParser } from './raw-body';
 import { SUBSCRIBER_PORT, type SubscriberPort } from './subscriber.port';
+import { NewsletterWebhookController } from './webhook.controller';
+import { WEBHOOK_SECRET } from './webhook.tokens';
+import { WithdrawalService } from './withdrawal.service';
 
 /**
  * Chooses the ESP adapter from the environment.
@@ -41,12 +45,36 @@ export function createSubscriberPort(): SubscriberPort {
   });
 }
 
+/**
+ * The webhook's signing secret, or null when it is not deployed.
+ *
+ * Null rather than throwing at boot, unlike the API key above. The webhook is
+ * an inbound endpoint MailerLite has to be pointed at from their UI, so an
+ * app can be correctly configured for sending and not yet receiving. The
+ * controller answers 503 in that state, which is honest and retryable; making
+ * the whole app refuse to start would be a worse trade.
+ */
+export function createWebhookSecret(): string | null {
+  const secret = process.env['MAILERLITE_WEBHOOK_SECRET'];
+  if (!secret) {
+    new Logger('NewsletterModule').warn(
+      'MAILERLITE_WEBHOOK_SECRET is unset: unsubscribes will not be mirrored ' +
+        'into the consent log, and the webhook will answer 503.',
+    );
+    return null;
+  }
+  return secret;
+}
+
 @Module({
   imports: [TypeOrmModule.forFeature([NewsletterConsentEntity])],
-  controllers: [NewsletterController],
+  controllers: [NewsletterController, NewsletterWebhookController],
   providers: [
     NewsletterService,
+    WithdrawalService,
+    RawBodyParser,
     { provide: SUBSCRIBER_PORT, useFactory: createSubscriberPort },
+    { provide: WEBHOOK_SECRET, useFactory: createWebhookSecret },
   ],
 })
 export class NewsletterModule {}
