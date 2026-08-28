@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
-import { AuthService } from './auth.service';
+import { AuthService } from '@fitoverforty/admin-angular-data-access';
 
 /**
  * The frame every signed-in admin screen renders inside.
@@ -10,7 +10,7 @@ import { AuthService } from './auth.service';
  * for screens that do not exist would be designing against guesses.
  */
 @Component({
-  selector: 'app-admin-shell',
+  selector: 'fitoverforty-admin-shell',
   standalone: true,
   imports: [RouterOutlet, RouterLink],
   template: `

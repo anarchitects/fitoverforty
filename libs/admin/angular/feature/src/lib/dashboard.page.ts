@@ -8,8 +8,8 @@ import {
 import { RouterLink } from '@angular/router';
 import type { AdminPostSummary } from '@fitoverforty/content-model';
 import { SeoService } from '@fitoverforty/seo-angular';
-import { AuthService } from './auth.service';
-import { PostsApi } from './posts.api';
+import { AuthService } from '@fitoverforty/admin-angular-data-access';
+import { PostsApi } from '@fitoverforty/admin-angular-data-access';
 
 /**
  * Every post, drafts included.
@@ -19,7 +19,7 @@ import { PostsApi } from './posts.api';
  * finish something.
  */
 @Component({
-  selector: 'app-admin-dashboard',
+  selector: 'fitoverforty-admin-dashboard',
   standalone: true,
   imports: [DatePipe, RouterLink],
   template: `

@@ -4,8 +4,11 @@ import {
 } from '@anarchitects/forms-angular/config';
 import { Route } from '@angular/router';
 import { IMAGE_UPLOADER } from '@fitoverforty/frontend-editorjs';
-import { adminGuard, signedOutGuard } from './admin/admin.guard';
-import { HttpImageUploader } from './admin/http-image-uploader';
+import {
+  adminGuard,
+  HttpImageUploader,
+  signedOutGuard,
+} from '@fitoverforty/admin-angular-data-access';
 import {
   archiveResolver,
   latestResolver,
@@ -76,7 +79,7 @@ export const appRoutes: Route[] = [
     path: 'admin/sign-in',
     canActivate: [signedOutGuard],
     loadComponent: () =>
-      import('./admin/sign-in.page').then((m) => m.SignInPage),
+      import('@fitoverforty/admin-angular-feature/sign-in.page').then((m) => m.SignInPage),
     title: 'Sign in — Fit Over Forty',
   },
   {
@@ -90,13 +93,13 @@ export const appRoutes: Route[] = [
      */
     providers: [{ provide: IMAGE_UPLOADER, useExisting: HttpImageUploader }],
     loadComponent: () =>
-      import('./admin/admin-shell.page').then((m) => m.AdminShellPage),
+      import('@fitoverforty/admin-angular-feature/admin-shell.page').then((m) => m.AdminShellPage),
     children: [
       {
         path: '',
         pathMatch: 'full',
         loadComponent: () =>
-          import('./admin/dashboard.page').then((m) => m.DashboardPage),
+          import('@fitoverforty/admin-angular-feature/dashboard.page').then((m) => m.DashboardPage),
         title: 'Posts — Fit Over Forty',
       },
       /**
@@ -106,13 +109,13 @@ export const appRoutes: Route[] = [
       {
         path: 'posts/new',
         loadComponent: () =>
-          import('./admin/post-editor.page').then((m) => m.PostEditorPage),
+          import('@fitoverforty/admin-angular-feature/post-editor.page').then((m) => m.PostEditorPage),
         title: 'New post — Fit Over Forty',
       },
       {
         path: 'posts/:id',
         loadComponent: () =>
-          import('./admin/post-editor.page').then((m) => m.PostEditorPage),
+          import('@fitoverforty/admin-angular-feature/post-editor.page').then((m) => m.PostEditorPage),
         title: 'Edit post — Fit Over Forty',
       },
     ],

@@ -6,10 +6,10 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SeoService } from '@fitoverforty/seo-angular';
-import { AuthService } from './auth.service';
+import { AuthService } from '@fitoverforty/admin-angular-data-access';
 
 @Component({
-  selector: 'app-admin-sign-in',
+  selector: 'fitoverforty-admin-sign-in',
   standalone: true,
   template: `
     <section class="anx-section admin-signin" aria-labelledby="signin-heading">
