@@ -13,7 +13,7 @@ import {
 import { bootstrapNestAngularSsr } from '@anarchitects/nest-angular-ssr';
 import multipart from '@fastify/multipart';
 import { AppModule } from './app/app.module';
-import { MAX_UPLOAD_BYTES } from './media/image-rules';
+import { MAX_UPLOAD_BYTES } from '@fitoverforty/media-nest';
 import { loadAngularAppEngine } from './ssr/angular-ssr.registration';
 
 /**

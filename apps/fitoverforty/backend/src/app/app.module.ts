@@ -12,7 +12,7 @@ import { AppDataSource } from '../data-source';
 import { BlogModule } from '@fitoverforty/blog-nest';
 import { NewsletterModule } from '@fitoverforty/newsletter-nest';
 import { AuthModule } from '@fitoverforty/auth-nest';
-import { MediaModule } from '../media/media.module';
+import { MediaModule } from '@fitoverforty/media-nest';
 
 @Module({
   imports: [
