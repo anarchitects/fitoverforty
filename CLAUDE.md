@@ -149,6 +149,19 @@ These cost real debugging time; none are inferable from the code.
 - **`PORT` collides.** `backend/src/main.ts` reads `process.env.PORT`. A launcher that
   exports `PORT=4200` for the frontend makes Nest try to bind 4200 and die with
   `EADDRINUSE`. `.claude/launch.json` wraps the dev server in `env -u PORT`.
+- **Absolute paths in the root `.env` do not survive moving the workspace**, and the
+  three that matter fail in two different ways. `WEB_SERVER_ENTRY` and
+  `WEB_BROWSER_ASSETS_DIR` are read by `registerSsr()`, which runs *before*
+  `app.listen()` in `main.ts` — so a stale path throws during bootstrap and the backend
+  never binds at all. The only visible symptom is `ECONNREFUSED` from the Vite proxy on
+  every `/api` call, which reads as "the backend is slow to start" and mentions neither
+  `.env` nor SSR; the real `Cannot find module` sits one line among hundreds of proxy
+  retries. `MAILER_TEMPLATE_DIR` is worse, because it is read by
+  `@anarchitects/common-nest-mailer` at send time — so the app boots clean and fails
+  only when someone submits the contact form, after the submission is persisted, per the
+  mailer gotcha above. Note `env.example` recommends an absolute path for it, which is
+  sound advice against a shifting working directory and precisely what breaks on a move.
+  Prefer relative paths, and re-check all three after relocating the repository.
 - **The root `tsconfig.json` exists for ts-node.** The `@anarchitects/nx-typeorm`
   executors spawn the TypeORM CLI from the workspace root; without a root tsconfig,
   ts-node falls back to `module: node16`, emits ESM, and every `db:*` target fails to
