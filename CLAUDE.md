@@ -296,8 +296,10 @@ Deliberately unfixed, and worth knowing before you trip over them or duplicate t
   `--unitTestRunner=vitest-angular` on a non-buildable lib, so generate with `none` and
   copy the `@nx/vitest:test` target and `vite.config.mts` from an existing lib.
 - **The frontend restructure is complete**, and the backend is under way. Every lib is
-  `libs/<domain>/<platform>[/<layer>]`. Only `media` is still in
-  `apps/fitoverforty/backend/src`, alongside the composition root (`app`, `ssr`).
+  `libs/<domain>/<platform>[/<layer>]`. **The restructure is finished.**
+  `apps/fitoverforty/backend/src` now holds only the composition root — `app`,
+  `data-source.ts`, `main.ts`, `ssr` — and no domain code or tests. If you are adding a
+  backend feature, it belongs in a `libs/<domain>/nest`, not here.
 - **A Nest lib needs `esModuleInterop` in its own tsconfig.** It is set on the backend app
   but not in `tsconfig.base.json`, so a domain that default-imports a CommonJS package —
   `sanitize-html` in `blog` — compiles in the app and fails in the lib with TS1259.
