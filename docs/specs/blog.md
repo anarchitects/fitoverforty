@@ -1,9 +1,10 @@
 # Spec — Blog v1
 
-Status: second revision. **Phase A and Phase B are delivered and merged.** The blog is
-authored, published and scheduled from `/admin`, and unsubscribes are mirrored back into
-the consent log. See §14 for the PR behind each step, and §16 for what is still open —
-all of it configuration held outside this repository.
+Status: second revision. **Phase A and Phase B are delivered and merged**, and the code
+has since moved to the Anarchitects domain layout (§14). The blog is authored, published
+and scheduled from `/admin`, and unsubscribes are mirrored back into the consent log. See
+§14 for the PR behind each step, and §16 for what is still open — all of it configuration
+or upstream releases held outside this repository.
 Supersedes the dated baseline note that fed it. That note was deleted once this spec
 landed; its durable items moved to `CLAUDE.md`.
 
@@ -72,8 +73,10 @@ closed out before §8 is built on top.
 Unchanged from the reviewed draft except where noted. The rendering layer must not know
 where a post came from.
 
-New lib `libs/shared/content-model` (`@fitoverforty/content-model`) — framework-free
-types, imported by the backend, the frontend and any future package extraction.
+New lib `libs/blog/ts` (`@fitoverforty/blog-ts`) — framework-free types, imported by the
+backend, the frontend and any future package extraction. It was `libs/shared/content-model`
+until the libs restructure (#40); the contents are unchanged, and it is still the one
+library both sides of the app depend on.
 
 ```ts
 export type Iso8601 = string;
@@ -286,7 +289,7 @@ and `INTERACTIONS.md` in `anarchitecture-meta` explicitly warns against communit
 becoming "an undocumented dumping ground" — extraction with a proven consumer is the
 guard against that.
 
-**Delivered that way.** `libs/frontend/editorjs` holds the SSR-safe wrapper and the tool
+**Delivered that way.** `libs/editorjs/angular` holds the SSR-safe wrapper and the tool
 registry (#21); uploads go through an `IMAGE_UPLOADER` token whose default,
 `REJECTING_IMAGE_UPLOADER`, refuses every file, so a host that forgets to bind one fails
 loudly instead of dropping images. The app binds `HttpImageUploader` on the admin routes
@@ -324,8 +327,9 @@ point of deferring it this way.
 Note that `CLAUDE.md` currently states "No Tailwind, no SCSS" as fact. If Tailwind v4
 wins, that line and the styling section around it need updating in the same change.
 
-`libs/frontend/blog` remains the home for post cards, archive layout, prose typography,
-tag chips and pagination, following the existing header/footer conventions.
+`libs/blog/angular/ui` is the home for post cards, archive layout, prose typography, tag
+chips, pagination and the block renderer. The page chrome it sits inside lives in
+`libs/common/angular/ui`.
 
 ## 12. SEO, feed and newsletter
 
@@ -436,7 +440,7 @@ is a complete public blog with no authoring UI**:
 
 **Phase A — the public site.** Delivered; all five steps are on `main`.
 
-1. `content-model` lib; `blog` schema, entities and migrations. — #12
+1. `content-model` lib — now `libs/blog/ts`; `blog` schema, entities and migrations. — #12
 2. Backend read API and the DB-backed `ContentSource`; sanitisation and validation on
    write, exercised by a seed path. — #15
 3. Block renderer, routes, SSR wiring, 404 handling, CI SSR assertion. — #14, #16
@@ -482,6 +486,41 @@ Phase A is publishable on its own. Phase B is what makes it pleasant. Splitting 
 means the blog is not gated on nine community epics, and §10's recommendation is what
 keeps Phase B extractable afterwards.
 
+### After both phases: the libs restructure
+
+Both phases were built with domain code inside `apps/`. The 28 August review asked for
+the Anarchitects layering instead, and #35–#44 moved all ten domains out. It changed no
+behaviour, so it sits here rather than as a phase of its own — but the layout every
+section above describes is now this:
+
+```
+libs/admin/angular/{data-access,feature}     libs/blog/nest
+libs/auth/nest                               libs/blog/ts
+libs/blog/angular/{data-access,feature,ui}   libs/common/angular/ui
+libs/editorjs/angular                        libs/legal/angular
+libs/media/nest                              libs/newsletter/{angular,nest}
+libs/seo/angular
+```
+
+`apps/fitoverforty/backend/src` keeps only the composition root — `app`, `data-source.ts`,
+`main.ts`, `ssr` — and the frontend app keeps `app.routes.ts` and `app.config.ts`. A new
+backend feature belongs in a `libs/<domain>/nest`, not in the app.
+
+Three things settled during it that this spec depends on:
+
+- **Layered entry points are separate Nx projects, not ng-packagr entry points.** The
+  bricks names (`feature`, `ui`, `data-access`) are used, but as projects — issue #34.
+  These libraries are not buildable or publishable, because this app publishes nothing.
+- **A domain splits by how it is imported, not by how big it is.** `seo`, `newsletter`
+  and `legal` are one project each; `admin` needs two and `blog` three, because a project
+  cannot be both lazily routed and statically imported.
+- **`MediaEntity` stays in `blog/nest`.** The table is `blog.media` and both
+  `PostEntity.hero` and `AuthorEntity.avatar` reference it, so the media domain owns the
+  storage of an image rather than the row describing it.
+
+The frontend domains also gained 56 tests they did not have — the code moved was mostly
+untested, and §13's list had described intent rather than coverage for them.
+
 ## 15. Out of scope
 
 Full-text search, comments, related posts, author profile pages, series, i18n,
@@ -506,10 +545,17 @@ Most of the previous revision's open items are resolved above. What remains:
 3. ~~**MailerLite double opt-in group configuration.**~~ **Confirmed set** on the group.
    It lives in the MailerLite UI and nothing in CI can verify it, so it is worth
    re-checking if the group is ever recreated — but it is not an open question.
+4. **Better Auth is pinned below the version the adapter now supports.**
+   `@anarchitects/better-auth-typeorm-adapter@0.2.0` handles Better Auth 1.7's
+   `accounts.issuer`, but requires `typeorm@^1.0.0`, and both `@anarchitects/forms-nest`
+   and `@anarchitects/nx-typeorm` still declare `typeorm@^0.3.x`. So the app stays on
+   `better-auth@~1.6.30` with the adapter at 0.1.1 and `accounts.issuer` nullable. Waiting
+   on those two packages, not on anything here — see issue #30 and
+   `anarchitecture-community#509`. When it unblocks, `issuer` goes back to NOT NULL.
 
 ### Resolved since the last revision
 
-- **§10, app-local or community-first** — app-local, delivered as `libs/frontend/editorjs`
+- **§10, app-local or community-first** — app-local, delivered as `libs/editorjs/angular`
   behind the §4 contract; extract only once a second consumer exists.
 - **#7's loose ends** — not a decision but scheduled work: Nx `dependsOn` for build
   ordering, a documented dev/prod topology, and a CI check that boots and asserts a
