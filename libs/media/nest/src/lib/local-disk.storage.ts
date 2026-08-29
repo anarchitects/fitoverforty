@@ -16,8 +16,13 @@ export const DEFAULT_MEDIA_ROOT = '.data/media';
 
 export function mediaRoot(): string {
   const configured = process.env['MEDIA_ROOT'] ?? DEFAULT_MEDIA_ROOT;
+  // `resolve` on both branches, not just the relative one. It normalises away
+  // a trailing slash, which `pathFor`'s `startsWith(root + sep)` check would
+  // otherwise turn into a `//` that no key can match — rejecting every upload
+  // and every read with "escapes the root", which reads like an attack rather
+  // than the config typo it is.
   return isAbsolute(configured)
-    ? configured
+    ? resolve(configured)
     : resolve(process.cwd(), configured);
 }
 

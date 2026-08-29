@@ -266,5 +266,40 @@ describe('newsletter unsubscribe webhook', () => {
       expect(response.statusCode).toBe(200);
       expect(JSON.parse(response.payload).version).toEqual(expect.any(String));
     });
+
+    /**
+     * Nest's adapter builds its JSON parser from Fastify's
+     * `getDefaultJsonParser`, which wraps `secure-json-parse` and rejects these
+     * payloads. Replacing that parser with a bare `JSON.parse` silently dropped
+     * the protection from every JSON route in the app — it stayed dropped
+     * through a full PR review, because nothing failed.
+     *
+     * These assert the replacement still delegates. They are deliberately on a
+     * route that is *not* the webhook: the point is the blast radius of an
+     * un-path-scoped parser, not the webhook's own behaviour.
+     */
+    it.each([
+      ['__proto__', '"__proto__":{"polluted":true}'],
+      ['constructor.prototype', '"constructor":{"prototype":{"polluted":true}}'],
+    ])('rejects a payload poisoning %s', async (name, poison) => {
+      // Every other field is valid on purpose. An incomplete body would be
+      // rejected by `parseSubscribeBody` and the test would pass whether or not
+      // the parser is hardened — which is exactly what it did on the first
+      // attempt, and what the mutation check caught.
+      const email = `${PREFIX}poison-${name.replace(/\W+/g, '')}@example.test`;
+      const payload = `{"email":"${email}","consent":true,${poison}}`;
+
+      const response = await app.inject({
+        method: 'POST',
+        url: '/newsletter/subscribe',
+        headers: { 'content-type': 'application/json' },
+        payload,
+      });
+
+      // Without the secure parser this is a 202 and the row is written.
+      expect(response.statusCode).toBe(400);
+      expect(await rowsFor(email)).toHaveLength(0);
+      expect(({} as Record<string, unknown>)['polluted']).toBeUndefined();
+    });
   });
 });
