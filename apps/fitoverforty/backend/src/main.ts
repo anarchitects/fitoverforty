@@ -4,6 +4,8 @@
 // nest-angular-ssr fixtures, which import this at their server entry.
 import '@angular/compiler';
 
+import { existsSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import {
@@ -25,6 +27,37 @@ import { loadAngularAppEngine } from './ssr/angular-ssr.registration';
  * which builds AppModule directly under ts-jest, free of the ESM-only SSR
  * package and the Angular runtime.
  */
+/**
+ * Fails a misconfigured SSR path here, rather than several frames deeper.
+ *
+ * Setting the variable is what asks for SSR, so a path that does not resolve
+ * is a configuration error and stays fatal: in development the Vite dev server
+ * renders the frontend regardless, so degrading silently would hide it, and in
+ * production this process *is* the web server, where coming up "healthy" while
+ * serving no HTML is worse than refusing to start.
+ *
+ * What was wrong was the diagnosis, not the severity. The failure used to
+ * surface as `Cannot find module` from inside a dynamic ESM import, naming
+ * neither the variable nor `.env` - and because this runs before `listen`, the
+ * only symptom was every /api call answering ECONNREFUSED, which reads as a
+ * slow start. A stale absolute path left behind by a moved checkout is the way
+ * this happens; see CLAUDE.md.
+ */
+function assertSsrPath(variable: string, value: string): void {
+  if (existsSync(value)) {
+    return;
+  }
+
+  throw new Error(
+    `${variable} is set to "${value}", which does not exist (resolved to ` +
+      `${resolve(value)}). SSR is requested by setting it, so this is a ` +
+      `configuration error rather than a reason to serve API-only. Fix the ` +
+      `path in the workspace-root .env, or unset both WEB_SERVER_ENTRY and ` +
+      `WEB_BROWSER_ASSETS_DIR to run API-only deliberately. Relative paths ` +
+      `resolve against the working directory (${process.cwd()}).`,
+  );
+}
+
 async function registerSsr(app: NestFastifyApplication): Promise<boolean> {
   const serverEntry = process.env.WEB_SERVER_ENTRY;
   const browserAssetsDir = process.env.WEB_BROWSER_ASSETS_DIR;
@@ -32,6 +65,9 @@ async function registerSsr(app: NestFastifyApplication): Promise<boolean> {
   if (!serverEntry || !browserAssetsDir) {
     return false;
   }
+
+  assertSsrPath('WEB_SERVER_ENTRY', serverEntry);
+  assertSsrPath('WEB_BROWSER_ASSETS_DIR', browserAssetsDir);
 
   await bootstrapNestAngularSsr(app, {
     integration: {
