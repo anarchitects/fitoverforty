@@ -46,7 +46,6 @@ export async function createFastifyTestApp(
   // Migrations are applied once by global-setup, before any worker starts.
   // eslint-disable-next-line @nx/enforce-module-boundaries
   const { AppModule } = await import('../../../backend/src/app/app.module');
-  // eslint-disable-next-line @nx/enforce-module-boundaries
   const { AUTH_INSTANCE } = await import('@fitoverforty/auth-nest');
 
   let builder: TestingModuleBuilder = Test.createTestingModule({
