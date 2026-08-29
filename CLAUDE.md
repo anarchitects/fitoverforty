@@ -139,6 +139,25 @@ Two things that cost time otherwise:
   holds only `better-auth`, `governance` and `nest`. Check npm before designing against
   an `@anarchitects/*` name that only appears in an issue.
 
+## Reference material
+
+Johan supplied **Manfred Steyer's _Modern Angular_ (v2.0.0, June 2026)** as the guide he
+has his AI follow when building Angular apps. It sits **outside every repository**, at
+`../supplemental-documents/reference/`, next to `modern-angular-index.md`.
+
+Read the index first, not the PDF. The book is 467 pages, `Read` takes at most 20 at a
+time, and **PDF page = printed page + 12** — the index carries both numbers per chapter
+plus a table mapping the sections that bear on this app (vertical slicing and Sheriff in
+ch. 8, Nx module boundaries in ch. 14, SSR and hydration in ch. 17, Vitest in ch. 7).
+
+Two caveats. The book targets **Angular 22** and this app is on **21.2**; Steyer flags
+Angular-22-only features in the text, so check for that note before adopting a pattern.
+And it is a purchased commercial ebook — it stays out of git, and its text does not get
+copied into repo documentation. Cite chapter and page.
+
+`../supplemental-documents/fitoverforty/` holds the meeting notes that produced the
+current work, on the same footing: shared context, deliberately untracked.
+
 ## Gotchas
 
 These cost real debugging time; none are inferable from the code.
