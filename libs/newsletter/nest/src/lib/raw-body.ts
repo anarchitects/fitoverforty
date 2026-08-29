@@ -50,6 +50,24 @@ export class RawBodyParser implements OnModuleInit {
      */
     instance.removeContentTypeParser('application/json');
 
+    /**
+     * Fastify's own parser, not `JSON.parse`.
+     *
+     * `getDefaultJsonParser` wraps `secure-json-parse`, which rejects
+     * `__proto__` and `constructor.prototype` in the payload. Nest opts into
+     * that deliberately — its adapter builds the parser as
+     * `getDefaultJsonParser(onProtoPoisoning || 'error', onConstructorPoisoning
+     * || 'error')` — so reimplementing this with a bare `JSON.parse` quietly
+     * dropped the protection from *every* JSON route in the app, authenticated
+     * or not. Delegating keeps it, and keeps this parser honest about being
+     * "the same behaviour plus the raw string".
+     */
+    const { onProtoPoisoning, onConstructorPoisoning } = instance.initialConfig;
+    const parseJson = instance.getDefaultJsonParser(
+      onProtoPoisoning ?? 'error',
+      onConstructorPoisoning ?? 'error',
+    );
+
     instance.addContentTypeParser(
       'application/json',
       { parseAs: 'string' },
@@ -57,15 +75,18 @@ export class RawBodyParser implements OnModuleInit {
         const raw = body as string;
         (request as RequestWithRawBody).rawBody = raw;
 
-        // Matches Fastify's own parser: an empty body is `undefined`, not a
-        // parse error, or a POST with no content would start failing.
+        /**
+         * A deliberate divergence from Fastify, which answers 400
+         * `FST_ERR_CTP_EMPTY_JSON_BODY` here. `POST /admin/posts/:id/publish`
+         * treats a missing body as "publish this, now" — see
+         * `parsePublishBody` — so an empty body has to reach the handler
+         * rather than die at the parser.
+         *
+         * This comment previously claimed to match Fastify. It did not.
+         */
         if (raw === '') return done(null, undefined);
 
-        try {
-          done(null, JSON.parse(raw));
-        } catch (error) {
-          done(error as Error, undefined);
-        }
+        parseJson(request, raw, done);
       },
     );
   }
