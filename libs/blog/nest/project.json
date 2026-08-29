@@ -1,0 +1,20 @@
+{
+  "name": "fitoverforty-blog-nest",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/blog/nest/src",
+  "projectType": "library",
+  "tags": [],
+  "// targets": "to see all targets run: nx show project fitoverforty-blog-nest --web",
+  "targets": {
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": [
+        "{workspaceRoot}/coverage/{projectRoot}"
+      ],
+      "options": {
+        "jestConfig": "libs/blog/nest/jest.config.cts",
+        "passWithNoTests": true
+      }
+    }
+  }
+}

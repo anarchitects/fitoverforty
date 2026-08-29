@@ -24,7 +24,7 @@ import {
   MediaEntity,
   PostEntity,
   TagEntity,
-} from './blog/entities';
+} from '@fitoverforty/blog-nest';
 import { DataSource } from 'typeorm';
 import type { LoggerOptions } from 'typeorm';
 

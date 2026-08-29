@@ -45,7 +45,8 @@
       ],
       "@fitoverforty/seo-angular": ["libs/seo/angular/src/index.ts"],
       "@fitoverforty/newsletter-nest": ["libs/newsletter/nest/src/index.ts"],
-      "@fitoverforty/auth-nest": ["libs/auth/nest/src/index.ts"]
+      "@fitoverforty/auth-nest": ["libs/auth/nest/src/index.ts"],
+      "@fitoverforty/blog-nest": ["libs/blog/nest/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
