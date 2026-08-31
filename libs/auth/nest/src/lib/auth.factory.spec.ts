@@ -14,10 +14,13 @@ function optionsOf(auth: unknown): Record<string, never> {
 }
 
 describe('createAuth', () => {
-  const original = process.env['BETTER_AUTH_SECRET'];
+  const originalSecret = process.env['BETTER_AUTH_SECRET'];
+  const originalSiteUrl = process.env['SITE_URL'];
 
   afterEach(() => {
-    process.env['BETTER_AUTH_SECRET'] = original;
+    process.env['BETTER_AUTH_SECRET'] = originalSecret;
+    if (originalSiteUrl === undefined) delete process.env['SITE_URL'];
+    else process.env['SITE_URL'] = originalSiteUrl;
   });
 
   it('refuses to build without a secret', () => {
@@ -54,10 +57,28 @@ describe('createAuth', () => {
     expect(optionsOf(createAuth(dataSource))['basePath']).toBe('/api/auth');
   });
 
-  it('trusts the configured site origin', () => {
+  it('refuses to build without a site URL', () => {
+    delete process.env['SITE_URL'];
+    expect(() => createAuth(dataSource)).toThrow(/SITE_URL/);
+  });
+
+  it('trusts the configured site origin, and its trailing slash is ignored', () => {
     process.env['SITE_URL'] = 'https://fitoverforty.co.uk/';
     const options = optionsOf(createAuth(dataSource));
-    expect(options['trustedOrigins']).toContain('https://fitoverforty.co.uk');
-    delete process.env['SITE_URL'];
+    expect(options['trustedOrigins']).toEqual(['https://fitoverforty.co.uk']);
+    expect(options['baseURL']).toBe('https://fitoverforty.co.uk');
+  });
+
+  /**
+   * The regression this guards. `trustedOrigins` used to seed
+   * `http://localhost:4200` unconditionally and merely *add* SITE_URL, so a
+   * deployed instance kept trusting localhost as an origin allowed to drive
+   * the admin login. The previous test asserted with `toContain`, which passed
+   * either way and so guarded nothing.
+   */
+  it('does not trust localhost once a site origin is configured', () => {
+    process.env['SITE_URL'] = 'https://fitoverforty.co.uk';
+    const options = optionsOf(createAuth(dataSource));
+    expect(options['trustedOrigins']).not.toContain('http://localhost:4200');
   });
 });
