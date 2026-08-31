@@ -213,11 +213,18 @@ These cost real debugging time; none are inferable from the code.
   server, so the compose file has no production role to protect.
 - **`gh pr edit` fails** on the installed `gh` (deprecated Projects-classic GraphQL).
   Use `gh api -X PATCH repos/<owner>/<repo>/pulls/<n> -F body=@file` instead.
-- **`BETTER_AUTH_SECRET` is required or the backend will not boot.** Unlike `MAILER_*`
-  there is no placeholder default, on purpose: a known signing secret means anyone who
-  can read this repository can mint an admin session. Anything that boots the backend
-  needs one — your root `.env`, CI's workflow env, and the SSR check's spawn env all set
-  it separately.
+- **`BETTER_AUTH_SECRET` and `SITE_URL` are both required or the backend will not boot.**
+  Unlike `MAILER_*` neither has a placeholder default, on purpose. A known signing secret
+  means anyone who can read this repository can mint an admin session. `SITE_URL` is the
+  *sole* entry in Better Auth's `trustedOrigins` and the base for session cookies, so a
+  development default would leave a deployed instance trusting `http://localhost:4200` to
+  drive the admin login for ever — which is exactly what it did until the unconditional
+  seed was removed. Anything that boots the backend needs both: your root `.env`, CI's
+  workflow env, the SSR check's spawn env, and `apps/fitoverforty/test-stubs/env.cjs` for
+  the Jest suites, all set them separately. Note the *frontend's* `SITE_ORIGIN` and
+  `blog-nest`'s `siteOrigin()` still fall back to the request when it is unset — they run
+  in places where it legitimately can be — so the requirement is the auth path's, not a
+  workspace-wide invariant.
 - **Better Auth's tables use camelCase column names, and must.**
   `@anarchitects/better-auth-typeorm-adapter` resolves joined rows by TypeORM property
   name; a column renamed with `name: 'provider_id'` is silently dropped from the joined

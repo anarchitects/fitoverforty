@@ -41,6 +41,10 @@ jobs:
       # here rather than kept as a secret: a repository secret would imply it
       # protects something.
       BETTER_AUTH_SECRET: ci-only-secret-not-used-for-any-real-session-0123
+      # Also required, and for a related reason: SITE_URL is the only origin
+      # trusted to drive the auth endpoints, so it has no development default.
+      # frontend-e2e serves the app from the Angular dev server on 4200.
+      SITE_URL: http://localhost:4200
     steps:
       - uses: actions/checkout@v6
         with:

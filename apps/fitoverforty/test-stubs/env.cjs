@@ -9,3 +9,15 @@
  */
 process.env.BETTER_AUTH_SECRET ??=
   'test-only-secret-not-used-outside-jest-0123456789';
+
+/**
+ * `createAuth` also refuses to build without `SITE_URL`, because that value is
+ * the sole trusted origin for the auth endpoints and the base for session
+ * cookies — a development default in the production code would put localhost
+ * on a deployed instance's trusted list for ever.
+ *
+ * Supplied here for the same reason as the secret. `setupFiles` runs once per
+ * test file, so a suite that deletes this to exercise the refusal does not
+ * leave the next one unable to boot.
+ */
+process.env.SITE_URL ??= 'http://localhost:4200';

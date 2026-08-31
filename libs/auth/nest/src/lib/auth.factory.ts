@@ -40,17 +40,31 @@ function requireSecret(): string {
 }
 
 /**
- * Origins allowed to drive the auth endpoints.
+ * Reads the site's public origin, refusing to start without one.
  *
- * Better Auth rejects cross-origin sign-in attempts from anywhere not listed,
- * which is what stops another site from driving the admin login with a
- * victim's cookies.
+ * Required rather than defaulted, for the same reason as the secret above.
+ * This value is the only entry in `trustedOrigins`, so a development default
+ * would mean a deployed instance permanently trusting `http://localhost:4200`
+ * as an origin allowed to drive the admin login — which is what it used to do,
+ * because setting `SITE_URL` *added* the real origin without ever removing the
+ * placeholder. Anything answering on the victim's own machine could then reach
+ * these endpoints with their cookies attached.
+ *
+ * It is also `baseURL`, so an unset value previously meant a deployment
+ * minting session cookies and redirect targets against a localhost base while
+ * appearing to boot cleanly. Failing here makes that an outage instead of a
+ * silent misconfiguration.
  */
-function trustedOrigins(): string[] {
-  const configured = process.env['SITE_URL'];
-  const origins = new Set<string>(['http://localhost:4200']);
-  if (configured) origins.add(configured.replace(/\/+$/, ''));
-  return [...origins];
+function requireSiteUrl(): string {
+  const url = process.env['SITE_URL'];
+  if (!url) {
+    throw new Error(
+      'SITE_URL must be set to the origin this site is served from ' +
+        '(http://localhost:4200 in development). It is the only trusted ' +
+        'origin for the auth endpoints and the base for session cookies.',
+    );
+  }
+  return url.replace(/\/+$/, '');
 }
 
 /**
@@ -74,12 +88,19 @@ export function createAuth(
   dataSource: DataSource,
   options: CreateAuthOptions = {},
 ) {
+  const siteUrl = requireSiteUrl();
   return betterAuth({
     appName: 'fitoverforty',
-    baseURL: process.env['SITE_URL'] ?? 'http://localhost:4200',
+    baseURL: siteUrl,
     basePath: AUTH_BASE_PATH,
     secret: requireSecret(),
-    trustedOrigins: trustedOrigins(),
+    /**
+     * Exactly one origin. Better Auth rejects cross-origin sign-in attempts
+     * from anywhere not listed, which is what stops another site from driving
+     * the admin login with a victim's cookies — so every extra entry is
+     * another site allowed to try.
+     */
+    trustedOrigins: [siteUrl],
     database: createBetterAuthTypeormAdapter({
       dataSource,
       models: {
