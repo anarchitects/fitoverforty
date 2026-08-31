@@ -1,5 +1,59 @@
 /* Global styles and design system theme */
 @import './styles/themes.css';
+/**
+ * `tailwindcss/index.css`, not `tailwindcss`.
+ *
+ * Angular's esbuild resolves CSS `@import` *before* PostCSS runs, so the bare
+ * specifier never reaches Tailwind's plugin - and it cannot be resolved by
+ * esbuild either, because the package exposes `.` only under the `style`
+ * condition, which Angular's CSS pipeline does not enable. The failure is
+ * `Could not resolve "tailwindcss"`, which reads like a missing dependency
+ * rather than a condition mismatch. The subpath is exported unconditionally.
+ */
+@import 'tailwindcss/index.css';
+@import './styles/blog.css';
+@import './styles/admin.css';
+
+/**
+ * Tailwind's automatic content detection walks out from this file, which only
+ * reaches the application. Every component that emits a class lives in `libs`,
+ * so without this the utilities they use are never generated and the failure is
+ * silent - the class is in the DOM and no rule exists for it.
+ */
+@source '../../../../libs';
+
+/**
+ * Tailwind's theme, expressed entirely in terms of the existing three-tier
+ * tokens rather than beside them. `bg-surface` resolves to
+ * `--anx-sys-color-surface`, so a utility and a hand-written `.anx-*` rule
+ * cannot disagree, and the repository rule that colours live only in
+ * `themes.css` still holds.
+ *
+ * `inline` is load-bearing, not stylistic. Without it Tailwind emits
+ * `var(--color-surface)` and the variable resolves where it was *defined* - at
+ * `:root` - so every utility would freeze on the light theme. With it Tailwind
+ * emits `var(--anx-sys-color-surface)` directly, resolved at the point of use,
+ * which is inside `.anx-root[data-anx-surface='dark']` when that theme is
+ * active. Dropping `inline` breaks theme switching and nothing fails loudly.
+ */
+@theme inline {
+  --color-surface: var(--anx-sys-color-surface);
+  --color-surface-muted: var(--anx-sys-color-surface-muted);
+  --color-text: var(--anx-sys-color-text);
+  --color-text-muted: var(--anx-sys-color-text-muted);
+  --color-accent: var(--anx-sys-color-accent);
+  --color-accent-contrast: var(--anx-sys-color-accent-contrast);
+  --color-border: var(--anx-sys-color-border);
+  --color-success: var(--anx-sys-color-success);
+  --color-warning: var(--anx-sys-color-warning);
+  --color-danger: var(--anx-sys-color-danger);
+  --color-info: var(--anx-sys-color-info);
+
+  --font-sans: 'Manrope', 'Segoe UI', sans-serif;
+  --font-serif: 'Bitter', Georgia, serif;
+
+  --shadow-surface: var(--anx-sys-shadow-surface);
+}
 
 /* Fit Over Forty theme - layout token overrides */
 .anx-root[data-anx-theme='fitoverforty'] {
