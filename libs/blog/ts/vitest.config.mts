@@ -14,6 +14,7 @@ export default defineConfig(() => ({
     include: ['{src,tests}/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     reporters: ['default'],
     coverage: {
+      include: ['src/**/*.ts'],
       reportsDirectory: '../../../coverage/libs/blog/ts',
       provider: 'v8' as const,
     },

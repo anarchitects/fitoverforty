@@ -67,3 +67,7 @@ blob-report/
 # Uploaded media in development. Deliberately outside dist/ so a rebuild
 # does not delete what authors have uploaded.
 .data
+
+.nx/self-healing
+
+.nx/migrate-runs

@@ -11,6 +11,7 @@ import {
 import {
   provideClientHydration,
   withEventReplay,
+  withNoIncrementalHydration,
 } from '@angular/platform-browser';
 import { provideDesignSystemConfig } from '@anarchitects/common-angular-design/config';
 import { provideAnxDefaultLayouts } from '@anarchitects/common-angular-ui-layouts/defaults';
@@ -27,7 +28,7 @@ export const appConfig: ApplicationConfig = {
     // Without this Angular throws away the server-rendered DOM and renders
     // again from scratch, which also means no HTTP transfer cache and every
     // request the server already made being repeated by the browser.
-    provideClientHydration(withEventReplay()),
+    provideClientHydration(withEventReplay(), withNoIncrementalHydration()),
     provideRouter(appRoutes, withComponentInputBinding()),
     provideHttpClient(withFetch(), withInterceptors([apiBaseUrlInterceptor])),
     HttpContentSource,

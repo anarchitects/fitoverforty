@@ -21,6 +21,7 @@ export default defineConfig(() => ({
     setupFiles: ['src/test-setup.ts'],
     reporters: ['default'],
     coverage: {
+      include: ['src/**/*.ts'],
       reportsDirectory: '../../../../coverage/libs/blog/angular/ui',
       provider: 'v8' as const,
     },
