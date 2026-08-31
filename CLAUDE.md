@@ -81,10 +81,11 @@ design system, UI primitives, layouts and the entire forms stack come from npm; 
 little domain code is local. Read those package READMEs before wiring anything — see the
 Bricks overlay rules in `AGENTS.md` and `.github/copilot-instructions.md`.
 
-- **Frontend** (`apps/fitoverforty/frontend`) — Angular 21, standalone, client-rendered.
+- **Frontend** (`apps/fitoverforty/frontend`) — Angular 22, standalone, client-rendered.
 - **Backend** (`apps/fitoverforty/backend`) — NestJS 11 on **Fastify** (not Express,
   despite `platform-express` also being installed), bundled by webpack to CommonJS.
-- **Libs** (`libs/frontend/{header,footer}`) — presentational only, Vitest.
+- **Libs** (`libs/<domain>/<platform>[/<layer>]`) — see Conventions; Vitest for the
+  Angular and TypeScript ones, Jest for the Nest ones.
 
 ### The contact form is configuration, not code
 
@@ -150,10 +151,12 @@ time, and **PDF page = printed page + 12** — the index carries both numbers pe
 plus a table mapping the sections that bear on this app (vertical slicing and Sheriff in
 ch. 8, Nx module boundaries in ch. 14, SSR and hydration in ch. 17, Vitest in ch. 7).
 
-Two caveats. The book targets **Angular 22** and this app is on **21.2**; Steyer flags
-Angular-22-only features in the text, so check for that note before adopting a pattern.
-And it is a purchased commercial ebook — it stays out of git, and its text does not get
-copied into repo documentation. Cite chapter and page.
+The book targets **Angular 22**, and so does this app since the Nx 23 migration — the
+version caveat that used to sit here is gone, and Steyer's Angular-22-only notes now
+apply directly rather than needing to be read around.
+
+One caveat remains: it is a purchased commercial ebook. It stays out of git, and its
+text does not get copied into repo documentation. Cite chapter and page.
 
 `../supplemental-documents/fitoverforty/` holds the meeting notes that produced the
 current work, on the same footing: shared context, deliberately untracked.
@@ -304,12 +307,15 @@ These cost real debugging time; none are inferable from the code.
 
 ## Known rough edges
 
-Deliberately unfixed, and worth knowing before you trip over them or duplicate the work.
+Not defects, but worth knowing before you trip over them or duplicate the work.
 
-- **Nx Cloud is provisioned but wired to nothing.** Workspace
-  `69c55480ee9de4adf5c7a1d0` was created in March; `nx.json` has no `nxCloudId`, so no
-  target reads or writes the remote cache. If you connect it, reuse that ID — running
-  `nx connect` creates a second workspace rather than adopting the existing one.
+- **Nx Cloud is connected, so a green run may not have run anything.** `nx.json` carries
+  `nxCloudId: 69c55480ee9de4adf5c7a1d0` — the workspace created in March, reused rather
+  than letting `nx connect` mint a second one. Every cacheable target now reads and
+  writes the remote cache, which means a passing `nx run-many` locally can be entirely
+  cache hits from CI. That is the point of it, but it makes "I ran the tests" a weaker
+  claim than it was: use `--skipNxCache` when you need to know the code actually
+  executed, as the Nx 23 migration's own validation did.
 
 ## Conventions
 
