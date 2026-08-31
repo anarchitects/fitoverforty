@@ -469,6 +469,480 @@
       "subject": "fix(security): restore Fastify's poisoning-safe JSON parser (#53)"
     },
     "targetVersion": "latest",
-    "confirmedPackageUpdates": true
+    "confirmedPackageUpdates": true,
+    "runningMigrations": [],
+    "completedMigrations": {
+      "22-7-0-add-polygraph-to-git-ignore": {
+        "type": "successful",
+        "name": "22-7-0-add-polygraph-to-git-ignore",
+        "changedFiles": [],
+        "ref": "6865517826e08f4a0909f5a9ab50563d9d07472e",
+        "nextSteps": []
+      },
+      "22-7-0-add-self-healing-to-gitignore": {
+        "type": "successful",
+        "name": "22-7-0-add-self-healing-to-gitignore",
+        "changedFiles": [
+          {
+            "path": ".gitignore",
+            "type": "UPDATE"
+          },
+          {
+            "path": ".prettierignore",
+            "type": "UPDATE"
+          }
+        ],
+        "ref": "6865517826e08f4a0909f5a9ab50563d9d07472e",
+        "nextSteps": []
+      },
+      "23-0-0-consolidate-release-tag-config": {
+        "type": "successful",
+        "name": "23-0-0-consolidate-release-tag-config",
+        "changedFiles": [],
+        "ref": "6865517826e08f4a0909f5a9ab50563d9d07472e",
+        "nextSteps": []
+      },
+      "23-0-0-add-migrate-runs-to-git-ignore": {
+        "type": "successful",
+        "name": "23-0-0-add-migrate-runs-to-git-ignore",
+        "changedFiles": [
+          {
+            "path": ".gitignore",
+            "type": "UPDATE"
+          }
+        ],
+        "ref": "6865517826e08f4a0909f5a9ab50563d9d07472e",
+        "nextSteps": []
+      },
+      "update-23-0-0-migrate-create-nodes-v2-import": {
+        "type": "successful",
+        "name": "update-23-0-0-migrate-create-nodes-v2-import",
+        "changedFiles": [],
+        "ref": "6865517826e08f4a0909f5a9ab50563d9d07472e",
+        "nextSteps": []
+      },
+      "23-0-0-move-typescript-compilation-import": {
+        "type": "successful",
+        "name": "23-0-0-move-typescript-compilation-import",
+        "changedFiles": [],
+        "ref": "6865517826e08f4a0909f5a9ab50563d9d07472e",
+        "nextSteps": []
+      },
+      "update-devkit-deep-imports": {
+        "type": "successful",
+        "name": "update-devkit-deep-imports",
+        "changedFiles": [],
+        "ref": "6865517826e08f4a0909f5a9ab50563d9d07472e",
+        "nextSteps": []
+      },
+      "update-23-0-0-rename-create-nodes-v2-types": {
+        "type": "successful",
+        "name": "update-23-0-0-rename-create-nodes-v2-types",
+        "changedFiles": [],
+        "ref": "6865517826e08f4a0909f5a9ab50563d9d07472e",
+        "nextSteps": []
+      },
+      "update-snapshot-guide-link": {
+        "type": "successful",
+        "name": "update-snapshot-guide-link",
+        "changedFiles": [],
+        "ref": "6865517826e08f4a0909f5a9ab50563d9d07472e",
+        "nextSteps": []
+      },
+      "rewrite-jest-internal-subpath-imports": {
+        "type": "successful",
+        "name": "rewrite-jest-internal-subpath-imports",
+        "changedFiles": [],
+        "ref": "6865517826e08f4a0909f5a9ab50563d9d07472e",
+        "nextSteps": []
+      },
+      "rewrite-jest-project-generator": {
+        "type": "successful",
+        "name": "rewrite-jest-project-generator",
+        "changedFiles": [],
+        "ref": "6865517826e08f4a0909f5a9ab50563d9d07472e",
+        "nextSteps": []
+      },
+      "migrate-jest-executor-setup-file": {
+        "type": "successful",
+        "name": "migrate-jest-executor-setup-file",
+        "changedFiles": [],
+        "ref": "6865517826e08f4a0909f5a9ab50563d9d07472e",
+        "nextSteps": []
+      },
+      "migrate-jest-configuration-skip-setup-file": {
+        "type": "successful",
+        "name": "migrate-jest-configuration-skip-setup-file",
+        "changedFiles": [],
+        "ref": "6865517826e08f4a0909f5a9ab50563d9d07472e",
+        "nextSteps": []
+      },
+      "set-ts-jest-isolated-modules": {
+        "type": "successful",
+        "name": "set-ts-jest-isolated-modules",
+        "changedFiles": [],
+        "ref": "6865517826e08f4a0909f5a9ab50563d9d07472e",
+        "nextSteps": []
+      },
+      "rewrite-node-internal-subpath-imports": {
+        "type": "successful",
+        "name": "rewrite-node-internal-subpath-imports",
+        "changedFiles": [],
+        "ref": "6865517826e08f4a0909f5a9ab50563d9d07472e",
+        "nextSteps": []
+      },
+      "update-executor-lint-inputs": {
+        "type": "successful",
+        "name": "update-executor-lint-inputs",
+        "changedFiles": [
+          {
+            "path": "nx.json",
+            "type": "UPDATE"
+          }
+        ],
+        "ref": "6865517826e08f4a0909f5a9ab50563d9d07472e",
+        "nextSteps": []
+      },
+      "rewrite-eslint-internal-subpath-imports": {
+        "type": "successful",
+        "name": "rewrite-eslint-internal-subpath-imports",
+        "changedFiles": [],
+        "ref": "6865517826e08f4a0909f5a9ab50563d9d07472e",
+        "nextSteps": []
+      },
+      "update-23-1-0-convert-to-flat-config": {
+        "type": "successful",
+        "name": "update-23-1-0-convert-to-flat-config",
+        "changedFiles": [],
+        "ref": "6865517826e08f4a0909f5a9ab50563d9d07472e",
+        "nextSteps": []
+      },
+      "update-23-1-0-remove-removed-typescript-eslint-extension-rules": {
+        "type": "successful",
+        "name": "update-23-1-0-remove-removed-typescript-eslint-extension-rules",
+        "changedFiles": [],
+        "ref": "6865517826e08f4a0909f5a9ab50563d9d07472e",
+        "nextSteps": []
+      },
+      "update-23-1-0-migrate-ban-types-rule": {
+        "type": "successful",
+        "name": "update-23-1-0-migrate-ban-types-rule",
+        "changedFiles": [],
+        "ref": "6865517826e08f4a0909f5a9ab50563d9d07472e",
+        "nextSteps": []
+      },
+      "23-0-0-rewrite-internal-subpath-imports": {
+        "type": "successful",
+        "name": "23-0-0-rewrite-internal-subpath-imports",
+        "changedFiles": [],
+        "ref": "6865517826e08f4a0909f5a9ab50563d9d07472e",
+        "nextSteps": []
+      },
+      "23-1-0-add-ignore-deprecations-for-ts6": {
+        "type": "successful",
+        "name": "23-1-0-add-ignore-deprecations-for-ts6",
+        "changedFiles": [
+          {
+            "path": "apps/fitoverforty/backend/tsconfig.json",
+            "type": "UPDATE"
+          },
+          {
+            "path": "apps/fitoverforty/backend-e2e/tsconfig.json",
+            "type": "UPDATE"
+          },
+          {
+            "path": "apps/fitoverforty/frontend/tsconfig.json",
+            "type": "UPDATE"
+          },
+          {
+            "path": "apps/fitoverforty/frontend-e2e/tsconfig.json",
+            "type": "UPDATE"
+          },
+          {
+            "path": "libs/admin/angular/data-access/tsconfig.json",
+            "type": "UPDATE"
+          },
+          {
+            "path": "libs/admin/angular/feature/tsconfig.json",
+            "type": "UPDATE"
+          },
+          {
+            "path": "libs/auth/nest/tsconfig.json",
+            "type": "UPDATE"
+          },
+          {
+            "path": "libs/blog/angular/data-access/tsconfig.json",
+            "type": "UPDATE"
+          },
+          {
+            "path": "libs/blog/angular/feature/tsconfig.json",
+            "type": "UPDATE"
+          },
+          {
+            "path": "libs/blog/angular/ui/tsconfig.json",
+            "type": "UPDATE"
+          },
+          {
+            "path": "libs/blog/nest/tsconfig.json",
+            "type": "UPDATE"
+          },
+          {
+            "path": "libs/blog/ts/tsconfig.json",
+            "type": "UPDATE"
+          },
+          {
+            "path": "libs/common/angular/ui/tsconfig.json",
+            "type": "UPDATE"
+          },
+          {
+            "path": "libs/editorjs/angular/tsconfig.json",
+            "type": "UPDATE"
+          },
+          {
+            "path": "libs/legal/angular/tsconfig.json",
+            "type": "UPDATE"
+          },
+          {
+            "path": "libs/media/nest/tsconfig.json",
+            "type": "UPDATE"
+          },
+          {
+            "path": "libs/newsletter/angular/tsconfig.json",
+            "type": "UPDATE"
+          },
+          {
+            "path": "libs/newsletter/nest/tsconfig.json",
+            "type": "UPDATE"
+          },
+          {
+            "path": "libs/seo/angular/tsconfig.json",
+            "type": "UPDATE"
+          },
+          {
+            "path": "tsconfig.base.json",
+            "type": "UPDATE"
+          },
+          {
+            "path": "tsconfig.json",
+            "type": "UPDATE"
+          }
+        ],
+        "ref": "6865517826e08f4a0909f5a9ab50563d9d07472e",
+        "nextSteps": []
+      },
+      "23-1-0-set-tsconfig-root-dir-for-ts6": {
+        "type": "successful",
+        "name": "23-1-0-set-tsconfig-root-dir-for-ts6",
+        "changedFiles": [],
+        "ref": "6865517826e08f4a0909f5a9ab50563d9d07472e",
+        "nextSteps": []
+      },
+      "ensure-vitest-package-migration-23": {
+        "type": "successful",
+        "name": "ensure-vitest-package-migration-23",
+        "changedFiles": [],
+        "ref": "6865517826e08f4a0909f5a9ab50563d9d07472e",
+        "nextSteps": []
+      },
+      "rename-rollup-options-to-rolldown-options": {
+        "type": "successful",
+        "name": "rename-rollup-options-to-rolldown-options",
+        "changedFiles": [],
+        "ref": "6865517826e08f4a0909f5a9ab50563d9d07472e",
+        "nextSteps": []
+      },
+      "create-ai-instructions-for-vite-8": {
+        "type": "successful",
+        "name": "create-ai-instructions-for-vite-8",
+        "changedFiles": [],
+        "ref": "6865517826e08f4a0909f5a9ab50563d9d07472e",
+        "nextSteps": []
+      },
+      "migrate-to-vitest-3": {
+        "type": "successful",
+        "name": "migrate-to-vitest-3",
+        "changedFiles": [],
+        "ref": "6865517826e08f4a0909f5a9ab50563d9d07472e",
+        "nextSteps": []
+      },
+      "migrate-to-vitest-4": {
+        "type": "successful",
+        "name": "migrate-to-vitest-4",
+        "changedFiles": [
+          {
+            "path": "vitest.config.ts",
+            "type": "CREATE"
+          },
+          {
+            "path": "vitest.workspace.ts",
+            "type": "DELETE"
+          }
+        ],
+        "ref": "6865517826e08f4a0909f5a9ab50563d9d07472e",
+        "nextSteps": [
+          "If your CI provider stores Vitest env vars in its dashboard (GitHub Actions repo/org secrets, GitLab CI/CD variables, Vercel/Netlify env vars, etc.), rename `VITEST_MAX_THREADS` and `VITEST_MAX_FORKS` to `VITEST_MAX_WORKERS`, and `VITE_NODE_DEPS_MODULE_DIRECTORIES` to `VITEST_MODULE_DIRECTORIES`. The pre-pass only handles in-repo files."
+        ]
+      },
+      "update-23-0-0-update-with-module-federation-import": {
+        "type": "successful",
+        "name": "update-23-0-0-update-with-module-federation-import",
+        "changedFiles": [],
+        "ref": "6865517826e08f4a0909f5a9ab50563d9d07472e",
+        "nextSteps": []
+      },
+      "update-23-0-0-migrate-ngrx-generator-defaults": {
+        "type": "successful",
+        "name": "update-23-0-0-migrate-ngrx-generator-defaults",
+        "changedFiles": [],
+        "ref": "6865517826e08f4a0909f5a9ab50563d9d07472e",
+        "nextSteps": []
+      },
+      "rewrite-angular-internal-subpath-imports": {
+        "type": "successful",
+        "name": "rewrite-angular-internal-subpath-imports",
+        "changedFiles": [],
+        "ref": "6865517826e08f4a0909f5a9ab50563d9d07472e",
+        "nextSteps": []
+      },
+      "update-23-1-0-rename-ssr-experimental-platform": {
+        "type": "successful",
+        "name": "update-23-1-0-rename-ssr-experimental-platform",
+        "changedFiles": [],
+        "ref": "6865517826e08f4a0909f5a9ab50563d9d07472e",
+        "nextSteps": []
+      },
+      "update-23-1-0-add-istanbul-instrumenter": {
+        "type": "successful",
+        "name": "update-23-1-0-add-istanbul-instrumenter",
+        "changedFiles": [],
+        "ref": "6865517826e08f4a0909f5a9ab50563d9d07472e",
+        "nextSteps": []
+      },
+      "update-23-1-0-add-trust-proxy-headers": {
+        "type": "successful",
+        "name": "update-23-1-0-add-trust-proxy-headers",
+        "changedFiles": [
+          {
+            "path": "apps/fitoverforty/frontend/src/server.ts",
+            "type": "UPDATE"
+          }
+        ],
+        "ref": "6865517826e08f4a0909f5a9ab50563d9d07472e",
+        "nextSteps": []
+      },
+      "update-23-1-0-add-angular-build": {
+        "type": "successful",
+        "name": "update-23-1-0-add-angular-build",
+        "changedFiles": [],
+        "ref": "6865517826e08f4a0909f5a9ab50563d9d07472e",
+        "nextSteps": []
+      },
+      "update-23-1-0-remove-conflicting-extended-diagnostics": {
+        "type": "successful",
+        "name": "update-23-1-0-remove-conflicting-extended-diagnostics",
+        "changedFiles": [],
+        "ref": "6865517826e08f4a0909f5a9ab50563d9d07472e",
+        "nextSteps": []
+      },
+      "update-23-1-0-add-optional-webpack-packages": {
+        "type": "successful",
+        "name": "update-23-1-0-add-optional-webpack-packages",
+        "changedFiles": [],
+        "ref": "6865517826e08f4a0909f5a9ab50563d9d07472e",
+        "nextSteps": []
+      },
+      "update-23-0-0-remove-nx-tsconfig-paths-webpack-plugin-import": {
+        "type": "successful",
+        "name": "update-23-0-0-remove-nx-tsconfig-paths-webpack-plugin-import",
+        "changedFiles": [],
+        "ref": "6865517826e08f4a0909f5a9ab50563d9d07472e",
+        "nextSteps": []
+      },
+      "rewrite-webpack-internal-subpath-imports": {
+        "type": "successful",
+        "name": "rewrite-webpack-internal-subpath-imports",
+        "changedFiles": [],
+        "ref": "6865517826e08f4a0909f5a9ab50563d9d07472e",
+        "nextSteps": []
+      },
+      "rewrite-web-internal-subpath-imports": {
+        "type": "successful",
+        "name": "rewrite-web-internal-subpath-imports",
+        "changedFiles": [],
+        "ref": "6865517826e08f4a0909f5a9ab50563d9d07472e",
+        "nextSteps": []
+      },
+      "change-detection-eager": {
+        "type": "successful",
+        "name": "change-detection-eager",
+        "changedFiles": [
+          {
+            "path": "apps/fitoverforty/frontend/src/app/app.ts",
+            "type": "UPDATE"
+          }
+        ],
+        "ref": "6865517826e08f4a0909f5a9ab50563d9d07472e",
+        "nextSteps": []
+      },
+      "http-xhr-backend": {
+        "type": "successful",
+        "name": "http-xhr-backend",
+        "changedFiles": [],
+        "ref": "6865517826e08f4a0909f5a9ab50563d9d07472e",
+        "nextSteps": []
+      },
+      "strict-templates-default": {
+        "type": "successful",
+        "name": "strict-templates-default",
+        "changedFiles": [],
+        "ref": "6865517826e08f4a0909f5a9ab50563d9d07472e",
+        "nextSteps": []
+      },
+      "can-match-snapshot-required": {
+        "type": "successful",
+        "name": "can-match-snapshot-required",
+        "changedFiles": [],
+        "ref": "6865517826e08f4a0909f5a9ab50563d9d07472e",
+        "nextSteps": []
+      },
+      "incremental-hydration": {
+        "type": "successful",
+        "name": "incremental-hydration",
+        "changedFiles": [
+          {
+            "path": "apps/fitoverforty/frontend/src/app/app.config.ts",
+            "type": "UPDATE"
+          }
+        ],
+        "ref": "6865517826e08f4a0909f5a9ab50563d9d07472e",
+        "nextSteps": []
+      },
+      "strict-safe-navigation-narrow": {
+        "type": "successful",
+        "name": "strict-safe-navigation-narrow",
+        "changedFiles": [
+          {
+            "path": "apps/fitoverforty/frontend/tsconfig.app.json",
+            "type": "UPDATE"
+          }
+        ],
+        "ref": "6865517826e08f4a0909f5a9ab50563d9d07472e",
+        "nextSteps": []
+      },
+      "model-output": {
+        "type": "successful",
+        "name": "model-output",
+        "changedFiles": [],
+        "ref": "6865517826e08f4a0909f5a9ab50563d9d07472e",
+        "nextSteps": []
+      },
+      "safe-optional-chaining": {
+        "type": "successful",
+        "name": "safe-optional-chaining",
+        "changedFiles": [],
+        "ref": "6865517826e08f4a0909f5a9ab50563d9d07472e",
+        "nextSteps": []
+      }
+    }
   }
 }

@@ -17,6 +17,10 @@ const allowedHosts = (process.env['WEB_ALLOWED_HOSTS'] ?? 'localhost,127.0.0.1')
   .map((host) => host.trim())
   .filter(Boolean);
 
-export const angularAppEngine = new AngularNodeAppEngine({ allowedHosts });
+export const angularAppEngine = new AngularNodeAppEngine({
+  // TODO: This is a security-sensitive option. Remove if not needed. For more information, see https://angular.dev/best-practices/security#configuring-trusted-proxy-headers
+  trustProxyHeaders: ['x-forwarded-host', 'x-forwarded-proto'],
+  allowedHosts,
+});
 
 export default angularAppEngine;

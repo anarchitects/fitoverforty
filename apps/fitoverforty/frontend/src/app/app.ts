@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import {
   FooterComponent,
@@ -6,13 +6,10 @@ import {
 } from '@fitoverforty/common-angular-ui';
 
 @Component({
-  imports: [
-    RouterOutlet,
-    HeaderComponent,
-    FooterComponent,
-  ],
+  imports: [RouterOutlet, HeaderComponent, FooterComponent],
   selector: 'app-root',
   templateUrl: './app.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './app.css',
 })
 export class App {

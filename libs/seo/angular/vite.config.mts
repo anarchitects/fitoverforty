@@ -17,6 +17,7 @@ export default defineConfig(() => ({
     setupFiles: ['src/test-setup.ts'],
     reporters: ['default'],
     coverage: {
+      include: ['src/**/*.ts'],
       reportsDirectory: '../../../coverage/libs/seo/angular',
       provider: 'v8' as const,
     },
