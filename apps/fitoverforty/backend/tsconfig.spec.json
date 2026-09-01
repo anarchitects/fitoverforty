@@ -11,8 +11,7 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "target": "es2021",
-    "strictNullChecks": true,
-    "noImplicitAny": true,
+    "strict": true,
     "allowJs": true
   },
   "include": [

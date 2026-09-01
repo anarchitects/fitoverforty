@@ -49,10 +49,8 @@
       "@fitoverforty/blog-nest": ["libs/blog/nest/src/index.ts"],
       "@fitoverforty/media-nest": ["libs/media/nest/src/index.ts"]
     },
-    "strict": false,
     "noUncheckedSideEffectImports": false,
     "types": ["*"],
-    "esModuleInterop": false,
     "ignoreDeprecations": "6.0"
   },
   "exclude": ["node_modules", "tmp"]

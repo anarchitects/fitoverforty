@@ -8,9 +8,7 @@
     "emitDecoratorMetadata": true,
     "target": "es2021",
     "moduleResolution": "node",
-    "strictNullChecks": true,
-    "noImplicitAny": true,
-    "strictBindCallApply": true,
+    "strict": true,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true
   },
