@@ -432,6 +432,11 @@ Not defects, but worth knowing before you trip over them or duplicate the work.
   A dynamic `import()` of a barrel pulls every page into one chunk, and a single static
   import of it drags the whole lib into the initial bundle — measured at 23.7 kB raw /
   6.1 kB transfer added to first load, with six per-route chunks collapsed into one.
+- **`OnPush` is enforced everywhere by lint**, apps included, via
+  `@angular-eslint/prefer-on-push-component-change-detection`. The Angular 22 preset
+  enables it; the Nx 23 migration disabled it in the frontend and set the root component
+  to `Eager` to preserve the old default, and #59 reversed both. So a new component with
+  no `changeDetection` fails lint rather than quietly defaulting.
 - Lib conventions otherwise unchanged: selector prefix `fitoverforty-`, standalone +
   `OnPush`, exported via `src/index.ts`. **Moving a component out of the app means
   renaming its selector** — lint enforces the prefix in libs but not in apps, so an

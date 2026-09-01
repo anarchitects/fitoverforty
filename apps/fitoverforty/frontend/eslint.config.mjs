@@ -8,9 +8,6 @@ export default [
   {
     files: ['**/*.ts'],
     rules: {
-      // Newly enabled by the Angular ESLint preset; Angular 22's migration
-      // explicitly preserves the former eager change-detection default.
-      '@angular-eslint/prefer-on-push-component-change-detection': 'off',
       '@angular-eslint/directive-selector': [
         'error',
         {
