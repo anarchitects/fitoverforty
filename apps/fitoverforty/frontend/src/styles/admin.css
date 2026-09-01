@@ -78,3 +78,168 @@
     color-mix(in srgb, var(--anx-sys-color-danger) 35%, transparent);
   border-radius: 3px;
 }
+
+/* --- Form controls, buttons and tables ----------------------------------- */
+
+/**
+ * The admin pages use bare `input`, `textarea`, `button`, `table` and `a`
+ * elements, and their component styles set layout only - widths, gaps, block
+ * spacing - on the assumption that browser defaults would draw them. Preflight
+ * removes those defaults, so the sign-in page rendered with two invisible
+ * inputs and a submit button that looked like a line of text.
+ *
+ * Scoped to the two admin roots. `.admin-shell` wraps the authenticated pages
+ * (the dashboard's own root carries no admin class, only `.anx-section`);
+ * `.admin-signin` is separate because it renders outside the shell.
+ *
+ * Same vocabulary as the newsletter card and the contact form, so the admin
+ * does not become a third visual language.
+ */
+
+.anx-root :is(.admin-shell, .admin-signin) :is(input, textarea, select) {
+  padding: 0.5rem 0.7rem;
+  font: inherit;
+  color: var(--anx-sys-color-text);
+  background: var(--anx-sys-color-surface);
+  border: 1px solid var(--anx-sys-color-border);
+  border-radius: 3px;
+}
+
+.anx-root
+  :is(.admin-shell, .admin-signin)
+  :is(input, textarea, select):focus-visible {
+  outline: 2px solid var(--anx-sys-color-accent);
+  outline-offset: 1px;
+}
+
+.anx-root
+  :is(.admin-shell, .admin-signin)
+  :is(input, textarea)[aria-invalid='true'] {
+  border-color: var(--anx-sys-color-danger);
+}
+
+.anx-root :is(.admin-shell, .admin-signin) textarea {
+  resize: vertical;
+}
+
+/**
+ * Buttons are quiet by default. The editor puts save, publish, schedule and
+ * unpublish next to each other and none of them is obviously the primary one;
+ * four solid accent buttons in a row would say they are all urgent.
+ */
+.anx-root :is(.admin-shell, .admin-signin) button {
+  padding: 0.45rem 1rem;
+  font: inherit;
+  font-weight: 600;
+  color: var(--anx-sys-color-text);
+  background: var(--anx-sys-color-surface);
+  border: 1px solid var(--anx-sys-color-border);
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.anx-root :is(.admin-shell, .admin-signin) button:hover:not(:disabled) {
+  color: var(--anx-sys-color-accent);
+  border-color: var(--anx-sys-color-accent);
+}
+
+.anx-root :is(.admin-shell, .admin-signin) button:disabled {
+  color: var(--anx-sys-color-disabled-fg);
+  background: var(--anx-sys-color-disabled-surface);
+  border-color: var(--anx-sys-color-disabled-border);
+  cursor: not-allowed;
+}
+
+/* Sign-in has exactly one action, so it can be the loud one. */
+.anx-root .admin-signin button:not(:disabled) {
+  color: var(--anx-sys-color-accent-contrast);
+  background: var(--anx-sys-color-accent);
+  border-color: var(--anx-sys-color-accent);
+}
+
+.anx-root .admin-signin button:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--anx-sys-color-accent) 85%, #000 15%);
+  color: var(--anx-sys-color-accent-contrast);
+}
+
+/**
+ * The Write/Preview pair marks the *current* mode with `disabled`, so here a
+ * disabled button means "you are on this one", not "you cannot use this". The
+ * generic disabled treatment above would grey out the tab you are looking at.
+ *
+ * Styling it as selected keeps that readable. It does not fix the underlying
+ * semantics - a disabled button is removed from the tab order and announced as
+ * unavailable rather than selected - which needs `aria-pressed` instead and is
+ * raised separately.
+ */
+.anx-root .admin-mode button:disabled {
+  color: var(--anx-sys-color-accent-contrast);
+  background: var(--anx-sys-color-accent);
+  border-color: var(--anx-sys-color-accent);
+  cursor: default;
+}
+
+.anx-root :is(.admin-shell, .admin-signin) a {
+  color: var(--anx-sys-color-accent);
+  text-underline-offset: 0.15em;
+}
+
+/* --- The posts table ----------------------------------------------------- */
+
+.anx-root .admin-posts {
+  inline-size: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.anx-root .admin-posts :is(th, td) {
+  padding: 0.5rem 0.75rem;
+  text-align: start;
+  border-block-end: 1px solid
+    color-mix(in srgb, var(--anx-sys-color-text-muted) 20%, transparent);
+}
+
+.anx-root .admin-posts th {
+  font-weight: 600;
+  color: var(--anx-sys-color-text-muted);
+  border-block-end-color: color-mix(
+    in srgb,
+    var(--anx-sys-color-text-muted) 40%,
+    transparent
+  );
+}
+
+/* --- Sign-in panel ------------------------------------------------------- */
+
+.anx-root .admin-signin h1 {
+  margin: 0 0 1.25rem;
+  font-family: 'Bitter', Georgia, serif;
+  font-size: clamp(1.5rem, 2.4vw, 1.9rem);
+  font-weight: 600;
+  color: var(--anx-sys-color-accent);
+}
+
+/* Matches the newsletter card and the contact form panel. */
+.anx-root .admin-signin {
+  /*
+   * Centred explicitly. `.anx-main > *` sets `margin-inline: auto`, but the
+   * card's own `max-inline-size: 28rem` makes it narrower than the column it
+   * sits in, and the computed margin came out 0 - so it hugged the left edge
+   * of a wide page, which reads as a layout bug rather than a design.
+   */
+  margin-inline: auto;
+  margin-block-start: 1.5rem;
+  padding: 1.5rem;
+  border: 1px solid
+    color-mix(in srgb, var(--anx-sys-color-accent) 30%, transparent);
+  border-radius: 4px;
+  background: color-mix(
+    in srgb,
+    var(--anx-sys-color-surface-muted) 55%,
+    transparent
+  );
+}
+
+.anx-root .admin-signin .admin-note {
+  margin-block-start: 1rem;
+}
