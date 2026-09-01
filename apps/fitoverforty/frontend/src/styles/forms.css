@@ -1,0 +1,226 @@
+/**
+ * The contact form, which is `@anarchitects/forms-angular` rendering a
+ * database row rather than markup in this repository.
+ *
+ * **Every selector starts at `.anx-root`, and has to.** The design-system
+ * packages ship their own global rules - `.anx-root .anx-action`,
+ * `.anx-root .anx-surface` - as component styles inside the JS bundles rather
+ * than as `.css` files, so grepping the packages for stylesheets finds nothing
+ * and suggests there is nothing to override. Those rules have two classes of
+ * specificity. A selector like `anarchitects-forms-feature-form .anx-surface`
+ * has one class and two elements, which loses, and the symptom is a rule that
+ * is present in the stylesheet and visibly does nothing. Leading with
+ * `.anx-root` buys the extra class and wins.
+ *
+ * Because there is no template to edit, everything here targets the classes the
+ * package emits. Scoped under `.anx-root anarchitects-forms-feature-form` so it themes
+ * the contact page rather than any future form the package renders elsewhere.
+ *
+ * The point of this file is that the form should look like the rest of the
+ * site. It is deliberately written to the same vocabulary as the newsletter
+ * card in `blog.css` - same panel treatment, same field shape, same button -
+ * because they sit one page apart and previously looked like two products.
+ *
+ * Colours from `--anx-sys-*` only. Logical properties throughout.
+ */
+
+/* --- Page heading ------------------------------------------------------- */
+
+/**
+ * The form's `h1`. Preflight removes the browser default and the package ships
+ * no CSS, so without this it renders at body size in the body font - which is
+ * exactly how it looked: a 15px "Contact Us" above a full-width form.
+ */
+.anx-root anarchitects-forms-feature-form .anx-forms-ui-form__title {
+  margin: 0;
+  font-family: 'Bitter', Georgia, serif;
+  font-size: clamp(1.75rem, 3vw, 2.35rem);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+  color: var(--anx-sys-color-accent);
+  text-wrap: balance;
+}
+
+.anx-root anarchitects-forms-feature-form .anx-forms-ui-form__caption {
+  margin-block: 0.5em 0;
+  line-height: 1.7;
+  color: var(--anx-sys-color-text-muted);
+}
+
+.anx-root anarchitects-forms-feature-form .anx-forms-ui-form__header {
+  gap: 0.25rem;
+  margin-block-end: 1.75rem;
+}
+
+/**
+ * The renderer emits a second, empty header. It collapses to zero height so it
+ * is invisible either way, but the margin above would still apply and open a
+ * gap that looks like a mistake.
+ */
+.anx-root anarchitects-forms-feature-form .anx-forms-ui-form__header:empty {
+  margin: 0;
+}
+
+/* --- The panel ---------------------------------------------------------- */
+
+/* Same treatment as `.blog-newsletter`, so the two read as one family. */
+.anx-root anarchitects-forms-feature-form .anx-layout-host__surface {
+  padding: 1.5rem;
+  border-radius: 4px;
+  background: color-mix(
+    in srgb,
+    var(--anx-sys-color-surface-muted) 55%,
+    transparent
+  );
+  box-shadow: none;
+}
+
+/**
+ * The border is a separate rule, and the `[data-anx-surface]` in it is
+ * deliberate rather than decorative.
+ *
+ * The design system makes `.anx-surface` borderless in the `plain` variant -
+ * `.anx-root[data-anx-surface='plain'] .anx-surface { border-color: transparent }`
+ * - which is three classes of specificity and beats the shorthand above, so the
+ * border set there is silently discarded. Matching the attribute selector and
+ * adding the element takes this to four and wins.
+ *
+ * This is overriding a considered decision in the package, not an oversight:
+ * `plain` means no chrome. It is done anyway so the form reads as a sibling of
+ * the newsletter card one page away, and it is isolated here so that if the
+ * packages ever wrap Tailwind (#52) this is the one rule to reconsider.
+ */
+.anx-root[data-anx-surface]
+  anarchitects-forms-feature-form
+  .anx-layout-host__surface {
+  border: 1px solid
+    color-mix(in srgb, var(--anx-sys-color-accent) 30%, transparent);
+}
+
+/* --- Fields ------------------------------------------------------------- */
+
+.anx-root anarchitects-forms-feature-form .anx-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-block-end: 1.1rem;
+}
+
+.anx-root anarchitects-forms-feature-form .anx-field:last-child {
+  margin-block-end: 0;
+}
+
+.anx-root anarchitects-forms-feature-form .anx-field__label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--anx-sys-color-text);
+}
+
+/* The required marker, muted rather than alarming - nothing has failed yet. */
+.anx-root anarchitects-forms-feature-form .anx-field__required {
+  color: var(--anx-sys-color-text-muted);
+}
+
+.anx-root anarchitects-forms-feature-form input[anarchitectsUiInput],
+.anx-root anarchitects-forms-feature-form textarea[anarchitectsUiTextarea],
+.anx-root anarchitects-forms-feature-form select[anarchitectsUiSelect] {
+  padding: 0.5rem 0.7rem;
+  font: inherit;
+  font-weight: 400;
+  color: var(--anx-sys-color-text);
+  background: var(--anx-sys-color-surface);
+  border: 1px solid var(--anx-sys-color-border);
+  border-radius: 3px;
+}
+
+.anx-root
+  anarchitects-forms-feature-form
+  input[anarchitectsUiInput]:focus-visible,
+.anx-root
+  anarchitects-forms-feature-form
+  textarea[anarchitectsUiTextarea]:focus-visible,
+.anx-root
+  anarchitects-forms-feature-form
+  select[anarchitectsUiSelect]:focus-visible {
+  outline: 2px solid var(--anx-sys-color-accent);
+  outline-offset: 1px;
+}
+
+.anx-root anarchitects-forms-feature-form textarea[anarchitectsUiTextarea] {
+  min-block-size: 8rem;
+  resize: vertical;
+}
+
+.anx-root anarchitects-forms-feature-form ::placeholder {
+  color: var(--anx-sys-color-text-muted);
+  opacity: 0.75;
+}
+
+/* --- Submit ------------------------------------------------------------- */
+
+/**
+ * The button is two elements: the `anarchitects-ui-button` host carries the
+ * package's own background, and the `button.anx-button__control` inside it
+ * carries the label. Styling only the control - which is what this file used to
+ * do - left the host's green painted around a pale disabled control, so the
+ * disabled state rendered as a green ring with a grey button inside it.
+ *
+ * The host is therefore reset to a bare wrapper and the control carries the
+ * whole appearance.
+ */
+.anx-root anarchitects-forms-feature-form anarchitects-ui-button.anx-button {
+  display: inline-flex;
+  padding: 0;
+  background: none;
+  border: 0;
+  box-shadow: none;
+}
+
+.anx-root anarchitects-forms-feature-form .anx-button__control {
+  min-inline-size: 9.5rem;
+  padding: 0.5rem 1.4rem;
+  font: inherit;
+  font-weight: 600;
+  color: var(--anx-sys-color-accent-contrast);
+  background: var(--anx-sys-color-accent);
+  border: 1px solid var(--anx-sys-color-accent);
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.anx-root
+  anarchitects-forms-feature-form
+  .anx-button__control:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--anx-sys-color-accent) 85%, #000 15%);
+}
+
+.anx-root anarchitects-forms-feature-form .anx-button__control:focus-visible {
+  outline: 2px solid var(--anx-sys-color-accent);
+  outline-offset: 2px;
+}
+
+/**
+ * `opacity: 1` and an explicit cursor, because the package dims the control
+ * rather than recolouring it - and a dimmed green on a tinted panel reads as a
+ * rendering fault rather than a disabled control.
+ */
+.anx-root
+  anarchitects-forms-feature-form
+  anarchitects-ui-button[data-disabled='true']
+  .anx-button__control,
+.anx-root anarchitects-forms-feature-form .anx-button__control:disabled {
+  color: var(--anx-sys-color-disabled-fg);
+  background: var(--anx-sys-color-disabled-surface);
+  border-color: var(--anx-sys-color-disabled-border);
+  opacity: 1;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* --- Actions row -------------------------------------------------------- */
+
+.anx-root anarchitects-forms-feature-form .anx-default-layout__actions {
+  margin-block-start: 1.5rem;
+}
