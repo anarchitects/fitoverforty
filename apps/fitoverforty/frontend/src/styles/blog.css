@@ -1,0 +1,557 @@
+/**
+ * Blog content styling.
+ *
+ * Every class here is emitted by a component in `libs/blog/angular/**` and,
+ * until now, matched no rule anywhere - the posts rendered with browser
+ * defaults. Tailwind's preflight removes even those, so this file is what makes
+ * the blog legible rather than an enhancement on top of something working.
+ *
+ * Colours come from `--anx-sys-*` only, per the repository rule that no colour
+ * is written outside `themes.css`. Logical properties throughout, to match the
+ * rest of the stylesheet.
+ *
+ * The reading measure is not set here: `.anx-main > *` in `styles.css` already
+ * constrains every top-level block to `min(100%, 44rem)` and centres it.
+ */
+
+/* --- Prose -------------------------------------------------------------- */
+
+.blog-paragraph {
+  margin-block: 0 1.15em;
+  line-height: 1.7;
+  color: var(--anx-sys-color-text);
+}
+
+.blog-heading {
+  font-family: 'Bitter', Georgia, serif;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: 0.01em;
+  color: var(--anx-sys-color-accent);
+  /* Generous above, tight below: a heading belongs to what follows it. */
+  margin-block: 2em 0.6em;
+  scroll-margin-block-start: 2rem;
+}
+
+h2.blog-heading {
+  font-size: clamp(1.5rem, 2.2vw, 1.875rem);
+}
+
+h3.blog-heading {
+  font-size: clamp(1.2rem, 1.6vw, 1.4rem);
+  color: var(--anx-sys-color-text);
+}
+
+/* The first heading in a post should not push off the header above it. */
+.blog-post .blog-heading:first-child {
+  margin-block-start: 0;
+}
+
+.blog-paragraph a,
+.blog-list a,
+.blog-quote a {
+  color: var(--anx-sys-color-accent);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+  text-decoration-thickness: 0.06em;
+}
+
+.blog-paragraph a:hover,
+.blog-list a:hover,
+.blog-quote a:hover {
+  text-decoration-thickness: 0.12em;
+}
+
+/* --- Lists -------------------------------------------------------------- */
+
+/**
+ * Markers are restored explicitly. Preflight strips them, and these lists are
+ * the one place in the app where a bullet carries meaning rather than
+ * decoration.
+ */
+.blog-list {
+  margin-block: 0 1.15em;
+  padding-inline-start: 1.5em;
+  line-height: 1.7;
+  color: var(--anx-sys-color-text);
+}
+
+ul.blog-list {
+  list-style: disc;
+}
+
+ol.blog-list {
+  list-style: decimal;
+}
+
+.blog-list li {
+  margin-block-end: 0.35em;
+}
+
+.blog-list li::marker {
+  color: var(--anx-sys-color-accent);
+}
+
+/* Nested lists sit closer, and change marker so depth reads at a glance. */
+.blog-list .blog-list {
+  margin-block: 0.35em 0;
+}
+
+ul.blog-list ul.blog-list {
+  list-style: circle;
+}
+
+/* --- Quote, figure, rule ------------------------------------------------ */
+
+.blog-quote {
+  margin-block: 1.75em;
+  margin-inline: 0;
+  padding-inline-start: 1.15rem;
+  border-inline-start: 3px solid
+    color-mix(in srgb, var(--anx-sys-color-accent) 60%, transparent);
+}
+
+.blog-quote blockquote {
+  margin: 0;
+  font-family: 'Bitter', Georgia, serif;
+  font-size: 1.1rem;
+  line-height: 1.55;
+  color: var(--anx-sys-color-text);
+}
+
+.blog-quote figcaption,
+.blog-figure figcaption {
+  margin-block-start: 0.5em;
+  font-size: 0.875rem;
+  color: var(--anx-sys-color-text-muted);
+}
+
+.blog-figure {
+  margin-block: 1.75em;
+  margin-inline: 0;
+}
+
+.blog-figure img {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+  border-radius: 2px;
+}
+
+.blog-delimiter {
+  margin-block: 2.5em;
+  margin-inline: auto;
+  inline-size: 6rem;
+  border: 0;
+  border-block-start: 1px solid
+    color-mix(in srgb, var(--anx-sys-color-text-muted) 45%, transparent);
+}
+
+/* --- Code --------------------------------------------------------------- */
+
+.blog-code {
+  margin-block: 1.5em;
+  padding: 1rem 1.15rem;
+  overflow-x: auto;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  background: color-mix(
+    in srgb,
+    var(--anx-sys-color-surface-muted) 70%,
+    var(--anx-sys-color-surface) 30%
+  );
+  border: 1px solid
+    color-mix(in srgb, var(--anx-sys-color-text-muted) 22%, transparent);
+  border-radius: 3px;
+  color: var(--anx-sys-color-text);
+}
+
+.blog-code code {
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  white-space: pre;
+}
+
+/* --- Table -------------------------------------------------------------- */
+
+/* The scroll container, not the table, so a wide table never widens the page. */
+.blog-table-scroll {
+  margin-block: 1.5em;
+  overflow-x: auto;
+}
+
+.blog-table {
+  inline-size: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.blog-table th,
+.blog-table td {
+  padding: 0.5rem 0.75rem;
+  text-align: start;
+  border: 1px solid
+    color-mix(in srgb, var(--anx-sys-color-text-muted) 25%, transparent);
+}
+
+.blog-table th {
+  font-weight: 600;
+  background: color-mix(
+    in srgb,
+    var(--anx-sys-color-surface-muted) 60%,
+    transparent
+  );
+}
+
+/* --- Post header and listing -------------------------------------------- */
+
+.blog-post-header {
+  margin-block-end: 2rem;
+}
+
+.blog-post-meta {
+  margin-block: 0.4em 0;
+  font-size: 0.875rem;
+  color: var(--anx-sys-color-text-muted);
+}
+
+.blog-post-description {
+  margin-block: 0.6em 0;
+  line-height: 1.6;
+  color: var(--anx-sys-color-text);
+}
+
+.blog-post-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+.blog-post-card {
+  padding-block-end: 1.75rem;
+  border-block-end: 1px solid
+    color-mix(in srgb, var(--anx-sys-color-text-muted) 20%, transparent);
+}
+
+.blog-post-card:last-child {
+  padding-block-end: 0;
+  border-block-end: 0;
+}
+
+.blog-post-card h2 {
+  margin: 0;
+  font-family: 'Bitter', Georgia, serif;
+  font-size: clamp(1.35rem, 2vw, 1.6rem);
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.blog-post-card h2 a {
+  color: var(--anx-sys-color-accent);
+  text-decoration: none;
+}
+
+.blog-post-card h2 a:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+/* --- Tags --------------------------------------------------------------- */
+
+.blog-tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-block: 0.75em 0;
+  padding: 0;
+  list-style: none;
+}
+
+.blog-tag-list a {
+  display: inline-block;
+  padding: 0.15rem 0.6rem;
+  font-size: 0.8rem;
+  text-decoration: none;
+  color: var(--anx-sys-color-text-muted);
+  border: 1px solid
+    color-mix(in srgb, var(--anx-sys-color-text-muted) 30%, transparent);
+  border-radius: 999px;
+}
+
+.blog-tag-list a:hover {
+  color: var(--anx-sys-color-accent);
+  border-color: color-mix(
+    in srgb,
+    var(--anx-sys-color-accent) 55%,
+    transparent
+  );
+}
+
+.blog-tag-count {
+  font-size: 0.8rem;
+  color: var(--anx-sys-color-text-muted);
+}
+
+/* --- Pagination --------------------------------------------------------- */
+
+.blog-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-block-start: 2.5rem;
+  padding-block-start: 1.25rem;
+  border-block-start: 1px solid
+    color-mix(in srgb, var(--anx-sys-color-text-muted) 20%, transparent);
+  font-size: 0.9rem;
+}
+
+.blog-pagination a {
+  color: var(--anx-sys-color-accent);
+  text-decoration: none;
+}
+
+.blog-pagination a:hover {
+  text-decoration: underline;
+}
+
+.blog-pagination span {
+  color: var(--anx-sys-color-text-muted);
+}
+
+/* --- Empty, error and unknown states ------------------------------------ */
+
+.blog-empty,
+.blog-load-error,
+.blog-unknown-block {
+  margin-block: 1.5em;
+  padding: 0.9rem 1.15rem;
+  border-radius: 3px;
+  font-size: 0.95rem;
+}
+
+.blog-empty {
+  color: var(--anx-sys-color-text-muted);
+  background: color-mix(
+    in srgb,
+    var(--anx-sys-color-surface-muted) 55%,
+    transparent
+  );
+}
+
+.blog-load-error {
+  color: var(--anx-sys-color-danger);
+  background: var(--anx-sys-color-danger-surface);
+  border: 1px solid
+    color-mix(in srgb, var(--anx-sys-color-danger) 35%, transparent);
+}
+
+/**
+ * A block type the renderer does not know. Visible on purpose: silently
+ * dropping content an author wrote is worse than showing that something is
+ * missing.
+ */
+.blog-unknown-block {
+  color: var(--anx-sys-color-warning);
+  background: var(--anx-sys-color-warning-surface);
+  border: 1px solid
+    color-mix(in srgb, var(--anx-sys-color-warning) 35%, transparent);
+}
+
+/* --- Page-level spacing ------------------------------------------------- */
+
+.blog-home-intro {
+  margin-block-end: 2rem;
+  line-height: 1.7;
+  color: var(--anx-sys-color-text-muted);
+}
+
+.blog-tag-index ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* --- Post header -------------------------------------------------------- */
+
+/**
+ * The post title. It carries no class of its own, and preflight removes the
+ * browser's default `h1` sizing, so without this rule the title renders at body
+ * size - which is how it looked the moment Tailwind was added.
+ */
+.blog-post-header h1 {
+  margin: 0;
+  font-family: 'Bitter', Georgia, serif;
+  font-size: clamp(1.9rem, 3.2vw, 2.6rem);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: 0.01em;
+  color: var(--anx-sys-color-accent);
+  text-wrap: balance;
+}
+
+/* --- Page wrappers ------------------------------------------------------ */
+
+/**
+ * Page-level headings across the blog surfaces. Same reason as the post title:
+ * these are bare `h1`/`h2` elements that relied on browser defaults.
+ */
+.blog-home h1,
+.blog-archive h1,
+.blog-tag-archive h1,
+.blog-tag-index h1,
+.blog-not-found h1,
+.blog-legal h1 {
+  margin-block: 0 0.5em;
+  font-family: 'Bitter', Georgia, serif;
+  font-size: clamp(1.75rem, 3vw, 2.35rem);
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--anx-sys-color-accent);
+  text-wrap: balance;
+}
+
+.blog-legal h2 {
+  margin-block: 1.75em 0.5em;
+  font-family: 'Bitter', Georgia, serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--anx-sys-color-text);
+}
+
+.blog-legal p,
+.blog-not-found p {
+  margin-block: 0 1.15em;
+  line-height: 1.7;
+  color: var(--anx-sys-color-text);
+}
+
+.blog-legal a,
+.blog-not-found a {
+  color: var(--anx-sys-color-accent);
+  text-underline-offset: 0.15em;
+}
+
+/* --- Newsletter call to action ------------------------------------------ */
+
+.blog-newsletter {
+  margin-block-start: 3rem;
+  padding: 1.5rem;
+  border: 1px solid
+    color-mix(in srgb, var(--anx-sys-color-accent) 30%, transparent);
+  border-radius: 4px;
+  background: color-mix(
+    in srgb,
+    var(--anx-sys-color-surface-muted) 55%,
+    transparent
+  );
+}
+
+.blog-newsletter h2 {
+  margin: 0 0 0.35em;
+  font-family: 'Bitter', Georgia, serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--anx-sys-color-accent);
+}
+
+.blog-newsletter form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.blog-newsletter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--anx-sys-color-text);
+}
+
+.blog-newsletter-field input {
+  padding: 0.5rem 0.7rem;
+  font: inherit;
+  font-weight: 400;
+  color: var(--anx-sys-color-text);
+  background: var(--anx-sys-color-surface);
+  border: 1px solid var(--anx-sys-color-border);
+  border-radius: 3px;
+}
+
+.blog-newsletter-field input:focus-visible {
+  outline: 2px solid var(--anx-sys-color-accent);
+  outline-offset: 1px;
+}
+
+/* Checkbox and its wording sit on one line, wording free to wrap beside it. */
+.blog-newsletter-consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--anx-sys-color-text);
+}
+
+.blog-newsletter-consent input {
+  flex: none;
+  /* Aligns the box with the first line of wording rather than the block. */
+  margin-block-start: 0.2em;
+  inline-size: 1rem;
+  block-size: 1rem;
+  accent-color: var(--anx-sys-color-accent);
+}
+
+.blog-newsletter-privacy {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--anx-sys-color-text-muted);
+}
+
+.blog-newsletter-privacy a {
+  color: var(--anx-sys-color-accent);
+  text-underline-offset: 0.15em;
+}
+
+.blog-newsletter button {
+  align-self: flex-start;
+  padding: 0.5rem 1.4rem;
+  font: inherit;
+  font-weight: 600;
+  color: var(--anx-sys-color-accent-contrast);
+  background: var(--anx-sys-color-accent);
+  border: 1px solid var(--anx-sys-color-accent);
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.blog-newsletter button:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--anx-sys-color-accent) 85%, #000 15%);
+}
+
+.blog-newsletter button:disabled {
+  color: var(--anx-sys-color-disabled-fg);
+  background: var(--anx-sys-color-disabled-surface);
+  border-color: var(--anx-sys-color-disabled-border);
+  cursor: not-allowed;
+}
+
+.blog-newsletter-done {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--anx-sys-color-success);
+}
+
+.blog-newsletter-error {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--anx-sys-color-danger);
+}

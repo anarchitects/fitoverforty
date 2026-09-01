@@ -101,11 +101,20 @@ will appear to show a broken database.
 
 ### Styling
 
-No Tailwind, no SCSS. A three-tier CSS custom property system: `--anx-ref-*` raw palette
-→ `--anx-sys-*` semantic tokens → `.anx-*` class hooks. Themes switch on
-`.anx-root[data-anx-theme][data-anx-surface]`, driven by `provideDesignSystemConfig()`.
-CSS logical properties throughout. Never hardcode a colour outside
-`frontend/src/styles/themes.css`.
+**Tailwind v4 over a three-tier token system, not instead of it.** No SCSS. The tiers are
+unchanged: `--anx-ref-*` raw palette → `--anx-sys-*` semantic tokens → `.anx-*` class
+hooks, switching on `.anx-root[data-anx-theme][data-anx-surface]` from
+`provideDesignSystemConfig()`. CSS logical properties throughout. Never hardcode a colour
+outside `frontend/src/styles/themes.css`.
+
+Tailwind's theme is defined **entirely in terms of those tokens** in
+`frontend/src/styles.css`, so `bg-surface` and a hand-written `.anx-*` rule cannot
+disagree. Adopted per Johan's answer on #52: the `@anarchitects` UI packages do not wrap
+Tailwind yet, so this app takes it directly and migrates when they ship.
+
+Semantic classes stay where they are. `.blog-*` and `.admin-*` are written out in
+`styles/blog.css` and `styles/admin.css` rather than being replaced by utility soup in
+templates — utilities are for new work, not for rewriting what already reads well.
 
 ## Related repositories
 
@@ -272,6 +281,35 @@ These cost real debugging time; none are inferable from the code.
   thing that should be untestable. It is also deliberately *not* scoped to the
   webhook's path: matching one meant hard-coding the `/api` global prefix, which
   the e2e app does not set, so the check failed open there.
+
+- **Four things about the Tailwind wiring are non-obvious, and three fail silently.**
+  - **`.postcssrc.json` lives at the workspace root, not the project root.** Angular
+    searches `[projectRoot, workspaceRoot]`, but `frontend/project.json` declares no
+    `root`, so the project-level lookup never resolves and a config placed beside the app
+    is simply ignored — with no warning, and the build failing as though Tailwind were
+    not installed. Verified by putting a bogus plugin name in each location: only the
+    workspace-root file produced `Cannot find module`.
+  - **`@import 'tailwindcss/index.css'`, never `@import 'tailwindcss'`.** Angular's
+    esbuild resolves CSS `@import` *before* PostCSS runs, so the bare specifier never
+    reaches Tailwind's plugin — and esbuild cannot resolve it either, because the package
+    exports `.` only under the `style` condition. The error is
+    `Could not resolve "tailwindcss"`, which reads like a missing dependency.
+  - **`@source '../../../../libs'` is required.** Automatic content detection walks out
+    from the CSS file and therefore only ever sees the app. Every component that emits a
+    class lives in `libs`, so without it their utilities are never generated: the class
+    is in the DOM and no rule exists. Nothing errors.
+  - **`@theme inline` is load-bearing, not a style preference.** Plain `@theme` emits
+    `var(--color-surface)`, which resolves where it was *defined* — at `:root` — freezing
+    every utility on the light theme. `inline` emits `var(--anx-sys-color-surface)`,
+    resolved at the point of use, inside whichever `data-anx-surface` is active. Dropping
+    it breaks theme switching and nothing fails.
+
+- **Tailwind's preflight removes what the blog was relying on.** Before Tailwind, no rule
+  anywhere matched the 31 `blog-*` classes the renderer emits — posts rendered on browser
+  defaults. Preflight strips those too (list markers, heading sizes), so adding Tailwind
+  without writing `styles/blog.css` in the same change makes the blog *worse*, not
+  better. If a heading or list ever looks flattened, check for a class with no rule rather
+  than assuming a cascade problem.
 
 - **The TypeORM CLI ignores the data source's `logging` setting.** The app logs
   `['error', 'warn', 'migration']` — successful queries are silent, failing ones

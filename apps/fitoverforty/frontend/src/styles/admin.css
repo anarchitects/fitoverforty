@@ -1,0 +1,80 @@
+/**
+ * Admin surfaces.
+ *
+ * Most of the admin UI styles itself, in each component's own `styles` block.
+ * What lives here is only the handful of wrappers and status paragraphs that
+ * had no rule anywhere and relied on browser defaults - which Tailwind's
+ * preflight removes. Without these the editor loses its spacing and every
+ * heading collapses to body size.
+ *
+ * Colours from `--anx-sys-*` only, logical properties throughout, as elsewhere.
+ */
+
+.admin-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding-block: 1.5rem;
+}
+
+.admin-shell h1,
+.admin-editor h1 {
+  margin: 0;
+  font-family: 'Bitter', Georgia, serif;
+  font-size: clamp(1.5rem, 2.4vw, 1.9rem);
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--anx-sys-color-accent);
+}
+
+.admin-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.admin-new {
+  align-self: flex-start;
+  padding: 0.45rem 1.1rem;
+  font: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--anx-sys-color-accent-contrast);
+  background: var(--anx-sys-color-accent);
+  border-radius: 3px;
+}
+
+.admin-new:hover {
+  background: color-mix(in srgb, var(--anx-sys-color-accent) 85%, #000 15%);
+}
+
+/* --- Status, notes and errors ------------------------------------------- */
+
+/**
+ * Three levels, deliberately distinct: a note is guidance, a state is the
+ * app reporting what it is doing, an error is something that went wrong.
+ * They were previously indistinguishable from body text.
+ */
+.admin-note {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--anx-sys-color-text-muted);
+}
+
+.admin-state {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--anx-sys-color-text-muted);
+}
+
+.admin-error {
+  margin: 0;
+  padding: 0.7rem 0.9rem;
+  font-size: 0.9rem;
+  color: var(--anx-sys-color-danger);
+  background: var(--anx-sys-color-danger-surface);
+  border: 1px solid
+    color-mix(in srgb, var(--anx-sys-color-danger) 35%, transparent);
+  border-radius: 3px;
+}
