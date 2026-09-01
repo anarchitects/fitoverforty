@@ -391,6 +391,34 @@ Not defects, but worth knowing before you trip over them or duplicate the work.
   claim than it was: use `--skipNxCache` when you need to know the code actually
   executed, as the Nx 23 migration's own validation did.
 
+## Performance
+
+Measured on `main` at `49f348a` (1 September 2026), production build. Numbers are
+raw / estimated transfer.
+
+| | raw | transfer |
+| --- | ---: | ---: |
+| **Initial total** | 420.17 kB | **110.90 kB** |
+| of which the global stylesheet | 35.59 kB | 5.63 kB |
+| largest initial chunk (Angular core) | 225.59 kB | 66.23 kB |
+| `editorjs` (lazy, admin only) | 242.96 kB | 53.22 kB |
+
+**A blog reader downloads about 111 kB.** Per-route chunks are tiny — `home-page`
+754 bytes, `blog-archive-page` 749, `post-detail-page` 1.22 kB — which is the
+lazy-route decision in Conventions doing its job. **An admin pays roughly 90 kB
+more** for Editor.js and its tools, and nobody else pays any of it.
+
+`production` budgets are set just above these figures rather than at Angular's
+defaults, which were 500 kb / 1 mb on `initial` and would never have fired. There
+is a named budget on the `styles` bundle specifically, because Tailwind is the
+thing most likely to grow quietly. Verified they enforce: dropping the styles
+error budget to 10 kb fails the build with `styles exceeded maximum budget`.
+
+**`main-*.css` in `browser/` is not a second download.** It is a ~45 kB
+near-duplicate of the global stylesheet, referenced only by the server manifest
+and by no HTML. `index.csr.html` loads `styles-*.css` alone. It looks alarming in
+the build table and in a directory listing; it costs a visitor nothing.
+
 ## Conventions
 
 - Angular v21 suffix-less naming in apps (`app.ts`, `app.config.ts`); libs use the older
