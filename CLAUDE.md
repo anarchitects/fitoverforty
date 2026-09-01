@@ -116,6 +116,20 @@ Semantic classes stay where they are. `.blog-*` and `.admin-*` are written out i
 `styles/blog.css` and `styles/admin.css` rather than being replaced by utility soup in
 templates — utilities are for new work, not for rewriting what already reads well.
 
+**The `@anarchitects` packages do ship CSS, and it is easy to conclude they do not.**
+There is no `.css` file anywhere in any of them — the styles are Angular component styles
+compiled into the JS bundles, so searching the packages for stylesheets finds nothing.
+They include *global* rules such as `.anx-root .anx-action` and
+`.anx-root[data-anx-surface='plain'] .anx-surface`, at two and three classes of
+specificity respectively.
+
+That is why `styles/forms.css` leads every selector with `.anx-root`. A selector like
+`anarchitects-forms-feature-form .anx-surface` is one class and two elements, loses to the
+package's own rule, and fails in the worst way available: the rule is present in the
+stylesheet, matches the element, and visibly does nothing. If a rule against an
+`@anarchitects` component appears to be ignored, count specificity before assuming the
+selector is wrong.
+
 ## Related repositories
 
 This app **consumes** the Anarchitects ecosystem but is not a member of it — it appears

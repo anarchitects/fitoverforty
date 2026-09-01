@@ -13,6 +13,7 @@
 @import 'tailwindcss/index.css';
 @import './styles/blog.css';
 @import './styles/admin.css';
+@import './styles/forms.css';
 
 /**
  * Tailwind's automatic content detection walks out from this file, which only
@@ -162,56 +163,4 @@ app-root > .anx-region.anx-stack {
 .anx-text {
   color: var(--anx-sys-color-text);
   line-height: 1.6;
-}
-
-/* Contact form theming (forms-angular integration) */
-anarchitects-forms-feature-form .anx-layout-host__surface {
-  padding: clamp(1rem, 1.6vw, 1.5rem);
-  border: 1px solid
-    color-mix(in srgb, var(--anx-sys-color-text-muted) 22%, transparent);
-  background: color-mix(
-    in srgb,
-    var(--anx-sys-color-surface) 94%,
-    var(--anx-sys-color-accent) 6%
-  );
-  box-shadow: var(--anx-sys-shadow-surface);
-}
-
-anarchitects-forms-feature-form .anx-forms-ui-form__header {
-  gap: 0.25rem;
-  margin-block-end: 0.25rem;
-}
-
-anarchitects-forms-feature-form .anx-field__label {
-  font-size: 0.95rem;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-}
-
-anarchitects-forms-feature-form input[anarchitectsUiInput],
-anarchitects-forms-feature-form textarea[anarchitectsUiTextarea],
-anarchitects-forms-feature-form select[anarchitectsUiSelect] {
-  font-size: 0.98rem;
-}
-
-anarchitects-forms-feature-form textarea[anarchitectsUiTextarea] {
-  min-block-size: 8rem;
-}
-
-anarchitects-forms-feature-form anarchitects-ui-button {
-  min-inline-size: 9.5rem;
-}
-
-anarchitects-forms-feature-form
-  anarchitects-ui-button[data-disabled='true']
-  .anx-button__control,
-anarchitects-forms-feature-form
-  anarchitects-ui-button
-  .anx-button__control:disabled {
-  background: var(--anx-sys-color-disabled-surface);
-  border-color: var(--anx-sys-color-disabled-border);
-  color: var(--anx-sys-color-disabled-fg);
-  opacity: 1;
-  cursor: not-allowed;
-  box-shadow: none;
 }
