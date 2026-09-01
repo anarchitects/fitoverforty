@@ -158,6 +158,80 @@
   opacity: 0.75;
 }
 
+/* --- Invalid fields ------------------------------------------------------ */
+
+/**
+ * The package renders the message and sets `aria-invalid` on the control, but
+ * styles neither: the message came out at 12px in the danger colour with the
+ * field itself unchanged, so the only signal that something was wrong was one
+ * small line of text below an input that looked exactly as it had before.
+ *
+ * `aria-invalid` is the hook rather than a class, because it is the attribute
+ * that is actually correct at the time - it is set by the package's own
+ * validation, so the visual state cannot drift from the announced one.
+ */
+/**
+ * Each control type is named, rather than a bare `[aria-invalid='true']`.
+ *
+ * The base field rule above is
+ * `.anx-root … input[anarchitectsUiInput]` - one class, two elements and an
+ * attribute. A bare attribute selector here is one element short of that, so it
+ * loses to the very rule it is meant to override and the border never changes.
+ * Found by measuring: the marker below appeared, the border did not.
+ */
+.anx-root
+  anarchitects-forms-feature-form
+  input[anarchitectsUiInput][aria-invalid='true'],
+.anx-root
+  anarchitects-forms-feature-form
+  textarea[anarchitectsUiTextarea][aria-invalid='true'],
+.anx-root
+  anarchitects-forms-feature-form
+  select[anarchitectsUiSelect][aria-invalid='true'] {
+  border-color: var(--anx-sys-color-danger);
+}
+
+.anx-root anarchitects-forms-feature-form [aria-invalid='true']:focus-visible {
+  outline-color: var(--anx-sys-color-danger);
+}
+
+/**
+ * `[data-anx-slot='error']`, not `.anx-field__error`.
+ *
+ * The class is on a `div` that is `display: none` and always empty. The message
+ * you can actually see is an unclassed `span` carrying only the slot attribute,
+ * rendered in a different part of the field. Styling the class looks right and
+ * changes nothing on screen - checked by measuring rather than by reading the
+ * markup, because both elements exist and only one of them is the message.
+ *
+ * The attribute matches both; the hidden one stays hidden.
+ */
+.anx-root anarchitects-forms-feature-form [data-anx-slot='error'] {
+  display: block;
+  margin-block-start: 0.35rem;
+  /* Near body size: this is the one thing on the page that must be read. */
+  font-size: 0.95rem;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--anx-sys-color-danger);
+}
+
+/**
+ * Colour is not the only signal. A reader who cannot distinguish the red
+ * border still gets the marker, which is what WCAG 1.4.1 is about.
+ */
+.anx-root
+  anarchitects-forms-feature-form
+  [data-anx-slot='error']:not(:empty)::before {
+  content: '! ';
+  font-weight: 700;
+}
+
+.anx-root anarchitects-forms-feature-form .anx-field__hint {
+  font-size: 0.8rem;
+  color: var(--anx-sys-color-text-muted);
+}
+
 /* --- Submit ------------------------------------------------------------- */
 
 /**
