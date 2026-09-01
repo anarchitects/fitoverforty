@@ -73,6 +73,45 @@ test.describe('admin authentication', () => {
     await expect(page.getByRole('alert')).toContainText('do not match');
   });
 
+  /**
+   * That the sign-in form is actually visible.
+   *
+   * This reads like a test of nothing until you know what it caught. The admin
+   * pages use bare `input` and `button` elements and their component styles set
+   * layout only, on the assumption that browser defaults would draw them.
+   * Tailwind's preflight removes those defaults, so this page rendered with two
+   * invisible inputs and a submit button that looked like a line of text -
+   * while every existing test passed, because the elements were all present,
+   * labelled and operable. Only the appearance was gone.
+   *
+   * Sign-in is also the only admin surface any test can reach: the suites here
+   * deliberately never authenticate, so nothing else in the admin area is
+   * covered this way.
+   */
+  test('the sign-in controls are actually drawn', async ({ page }) => {
+    await openSignIn(page, '/admin/sign-in');
+
+    const email = page.getByLabel('Email address');
+    const button = page.getByRole('button', { name: 'Sign in' });
+
+    // A border that is neither absent nor transparent.
+    const border = await email.evaluate((el) => {
+      const cs = getComputedStyle(el);
+      return {
+        width: parseFloat(cs.borderTopWidth),
+        color: cs.borderTopColor,
+      };
+    });
+    expect(border.width).toBeGreaterThan(0);
+    expect(border.color).not.toMatch(/rgba\(0, 0, 0, 0\)|transparent/);
+
+    // The submit button must not read as plain text.
+    const bg = await button.evaluate(
+      (el) => getComputedStyle(el).backgroundColor,
+    );
+    expect(bg).not.toMatch(/rgba\(0, 0, 0, 0\)|transparent/);
+  });
+
   test('failure does not say whether the account exists', async ({ page }) => {
     await openSignIn(page, '/admin/sign-in');
 
