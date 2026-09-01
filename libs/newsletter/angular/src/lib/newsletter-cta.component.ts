@@ -59,6 +59,9 @@ type State = 'idle' | 'sending' | 'sent' | 'error';
               [value]="email()"
               (input)="email.set(asValue($event))"
               [attr.aria-invalid]="state() === 'error' ? 'true' : null"
+              [attr.aria-describedby]="
+                state() === 'error' ? 'newsletter-error' : null
+              "
             />
           </label>
 
@@ -106,7 +109,16 @@ type State = 'idle' | 'sending' | 'sent' | 'error';
           </button>
 
           @if (message(); as text) {
-            <p class="blog-newsletter-error" role="alert">{{ text }}</p>
+            <!--
+              role=alert announces the message when it appears;
+              aria-describedby on the input is what makes it reachable
+              afterwards, when someone tabs back to the field to fix it. The
+              two do different jobs and both are needed - with only the alert,
+              returning to the field says "invalid" and nothing more.
+            -->
+            <p id="newsletter-error" class="blog-newsletter-error" role="alert">
+              {{ text }}
+            </p>
           }
         </form>
       }

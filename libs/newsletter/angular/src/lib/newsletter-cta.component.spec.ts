@@ -153,6 +153,39 @@ describe('NewsletterCtaComponent', () => {
       expect(text()).toContain('did not look right');
     });
 
+    /**
+     * role=alert announces the message when it appears. aria-describedby is
+     * what makes it reachable afterwards, when someone tabs back to the field
+     * to correct it - without it, returning to the input says "invalid" and
+     * nothing about why. Both are needed, and the link has to resolve to a
+     * real element or it silently describes nothing.
+     */
+    it('points the input at the error message it just showed', async () => {
+      const input = el<HTMLInputElement>('#newsletter-email');
+      expect(input.getAttribute('aria-describedby')).toBeNull();
+
+      fill('#newsletter-email', 'not-an-address');
+      tickConsent();
+      subscribe();
+      await fixture.whenStable();
+      http
+        .expectOne(SUBSCRIBE)
+        .flush(null, { status: 400, statusText: 'Bad Request' });
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      const describedBy = el<HTMLInputElement>(
+        '#newsletter-email',
+      ).getAttribute('aria-describedby');
+      expect(describedBy).toBe('newsletter-error');
+
+      const described = fixture.nativeElement.querySelector(
+        `#${describedBy}`,
+      ) as HTMLElement | null;
+      expect(described).not.toBeNull();
+      expect(described?.textContent).toContain('did not look right');
+    });
+
     it('keeps the form so the address is not lost on a server error', async () => {
       fill('#newsletter-email', 'reader@example.test');
       tickConsent();
