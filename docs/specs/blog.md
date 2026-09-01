@@ -534,9 +534,15 @@ Revision history is the one most likely to be regretted — `body_schema_version
 
 Most of the previous revision's open items are resolved above. What remains:
 
-1. **UI direction (§11).** Tailwind v4 wrapped by `@anarchitects` packages, or the
-   current three-tier token system. Mitigated — the semantic renderer defers it to a
-   single styling pass, with the existing system as the fallback.
+1. ~~**UI direction (§11).**~~ **Decided and delivered.** Johan's answer on issue #52 was
+   to adopt Tailwind v4 directly and migrate when the `@anarchitects` UI packages wrap it,
+   since none of them does yet. Tailwind now sits *over* the three-tier token system
+   rather than replacing it: its theme is defined entirely in terms of the existing
+   `--anx-sys-*` tokens, so a utility and a hand-written `.anx-*` rule cannot disagree.
+   The semantic classes the renderer emits are written out in `styles/blog.css` — before
+   this, nothing anywhere matched them and posts rendered on browser defaults. Light and
+   dark switch on `data-anx-theme`. See `CLAUDE.md` for the four parts of the wiring that
+   fail silently.
 2. **Media storage target and credentials.** Unchanged and now the live one: uploads work
    against `LocalDiskMediaStorage`, which is fine for one machine and honest about it.
    Pointing production at an object store is a provider swap in `MediaModule` behind
