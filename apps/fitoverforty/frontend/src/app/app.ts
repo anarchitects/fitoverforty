@@ -9,7 +9,7 @@ import {
   imports: [RouterOutlet, HeaderComponent, FooterComponent],
   selector: 'app-root',
   templateUrl: './app.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './app.css',
 })
 export class App {
