@@ -179,7 +179,16 @@
   cursor: default;
 }
 
-.anx-root :is(.admin-shell, .admin-signin) a {
+/**
+ * `:not(.admin-new)` is load-bearing.
+ *
+ * `.admin-new` is a link shaped like a button - accent background, contrast
+ * text. This rule is one element more specific than it, so without the
+ * exclusion it repaints that text accent-coloured on an accent background and
+ * "New post" becomes an empty green rectangle. It looked like a rendering
+ * fault, not a colour bug, and no test could see it.
+ */
+.anx-root :is(.admin-shell, .admin-signin) a:not(.admin-new) {
   color: var(--anx-sys-color-accent);
   text-underline-offset: 0.15em;
 }
