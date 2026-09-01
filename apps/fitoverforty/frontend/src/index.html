@@ -16,6 +16,37 @@
       rel="stylesheet"
     />
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <!--
+      Applies the theme before first paint.
+
+      Inline and synchronous on purpose: anything deferred - a script file, or
+      waiting for Angular - paints the light theme first and then repaints, so a
+      dark-theme reader gets a white flash on every navigation. This is the one
+      case where a blocking inline script is the accessible option.
+
+      It writes `data-anx-theme` before the design system's own DOM sync runs;
+      that sync only sets the attribute when it is absent, so this wins without
+      fighting it. Wrapped in try/catch because reading localStorage throws
+      outright in some privacy configurations, and a failure here must not stop
+      the page rendering.
+    -->
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem('fitoverforty-theme');
+          var dark =
+            stored === 'fitoverforty-dark' ||
+            (stored === null &&
+              window.matchMedia('(prefers-color-scheme: dark)').matches);
+          document.documentElement.setAttribute(
+            'data-anx-theme',
+            dark ? 'fitoverforty-dark' : 'fitoverforty',
+          );
+        } catch (e) {
+          document.documentElement.setAttribute('data-anx-theme', 'fitoverforty');
+        }
+      })();
+    </script>
   </head>
   <body>
     <app-root></app-root>

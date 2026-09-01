@@ -116,6 +116,21 @@ Semantic classes stay where they are. `.blog-*` and `.admin-*` are written out i
 `styles/blog.css` and `styles/admin.css` rather than being replaced by utility soup in
 templates — utilities are for new work, not for rewriting what already reads well.
 
+**Light and dark switch on `data-anx-theme`, never on `data-anx-surface`.** The design
+system defines `surface` as `['plain', 'card']` and means *chrome* by it — `plain` is
+what makes `.anx-surface` borderless, which `styles/forms.css` has to work around.
+`theme` is free-form (the package ships no `ANX_THEMES`). The theme blocks were
+originally keyed on `[data-anx-surface='plain']` and `[data-anx-surface='dark']`, which
+conflated the two axes: going dark also moved the app to a surface value the package does
+not define, silently changing borders as a side effect of changing colour. A unit test
+asserts `ThemeService` never writes `data-anx-surface`.
+
+An inline script in `index.html` applies the theme before first paint. It has to be
+inline and synchronous — anything deferred paints light first and flashes. SSR always
+renders the light attribute, because the server cannot know the preference; the script
+corrects it during head parsing, before the body renders. The design system's own DOM
+sync only writes the attribute when it is absent, so the script wins without fighting it.
+
 **The `@anarchitects` packages do ship CSS, and it is easy to conclude they do not.**
 There is no `.css` file anywhere in any of them — the styles are Angular component styles
 compiled into the JS bundles, so searching the packages for stylesheets finds nothing.

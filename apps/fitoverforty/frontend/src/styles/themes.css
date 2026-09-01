@@ -1,5 +1,20 @@
-/* Fit Over Forty - Editorial light theme (default) */
-.anx-root[data-anx-theme='fitoverforty'][data-anx-surface='plain'] {
+/**
+ * Fit Over Forty - Editorial light theme (default).
+ *
+ * Keyed on `data-anx-theme` alone, deliberately.
+ *
+ * `data-anx-surface` is NOT the colour-scheme axis. The design system defines
+ * it as `['plain', 'card']` and it means *chrome* - `plain` is what makes
+ * `.anx-surface` borderless, which `styles/forms.css` has to work around. These
+ * blocks were originally keyed on `[data-anx-surface='plain']` and
+ * `[data-anx-surface='dark']`, which conflated the two: switching to dark also
+ * moved the app to a surface value the package does not define, silently
+ * changing border behaviour as a side effect of changing colour.
+ *
+ * `theme` is free-form - the package ships no `ANX_THEMES` and defaults it to
+ * `'default'` - so it is the axis that can legitimately carry this.
+ */
+.anx-root[data-anx-theme='fitoverforty'] {
   /* Neutrals: warm paper and ink tones */
   --anx-ref-color-neutral-0: #f3f1eb;
   --anx-ref-color-neutral-50: #ece8de;
@@ -84,12 +99,14 @@
   --anx-sys-color-accent-contrast: var(--anx-ref-color-neutral-0);
 
   /* Success tokens */
-  --anx-sys-color-success: var(--anx-ref-color-success-600);
+  /* 700, not 600: 600 measures 3.98:1 on the newsletter panel, under AA. */
+  --anx-sys-color-success: var(--anx-ref-color-success-700);
   --anx-sys-color-success-surface: var(--anx-ref-color-success-100);
   --anx-sys-color-success-contrast: var(--anx-ref-color-neutral-0);
 
   /* Warning tokens (app-specific) */
-  --anx-sys-color-warning: var(--anx-ref-color-warning-500);
+  /* 700, not 500: 500 measures 2.55:1 on warning-surface — a clear failure. */
+  --anx-sys-color-warning: var(--anx-ref-color-warning-700);
   --anx-sys-color-warning-surface: var(--anx-ref-color-warning-100);
   --anx-sys-color-warning-contrast: var(--anx-ref-color-neutral-0);
 
@@ -112,8 +129,14 @@
   --anx-sys-shadow-surface: 0 18px 42px rgba(29, 26, 21, 0.12);
 }
 
-/* Fit Over Forty - Dark theme (surface='dark') */
-.anx-root[data-anx-theme='fitoverforty'][data-anx-surface='dark'] {
+/**
+ * Fit Over Forty - Dark theme.
+ *
+ * Self-contained: it redefines every `--anx-sys-*` token and every
+ * `--anx-ref-*` it references, because only one theme block matches at a time
+ * and there is no cascade between them to fall back on.
+ */
+.anx-root[data-anx-theme='fitoverforty-dark'] {
   --anx-ref-color-neutral-0: #121511;
   --anx-ref-color-neutral-50: #171b16;
   --anx-ref-color-neutral-100: #1f241d;
@@ -174,7 +197,13 @@
   --anx-sys-color-warning-contrast: var(--anx-ref-color-neutral-0);
 
   /* Danger tokens */
-  --anx-sys-color-danger: var(--anx-ref-color-error-600);
+  /*
+   * 900, not 600. In this palette the scale is inverted - 0 is darkest - so
+   * 900 is the light end and the right direction for text on a dark tinted
+   * background. 600 measures 4.07:1 on danger-surface, just under AA, and
+   * the dark palette has no step between 600 and 900 to reach for.
+   */
+  --anx-sys-color-danger: var(--anx-ref-color-error-900);
   --anx-sys-color-danger-surface: var(--anx-ref-color-error-100);
   --anx-sys-color-danger-contrast: var(--anx-ref-color-neutral-0);
 

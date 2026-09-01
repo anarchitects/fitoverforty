@@ -1,6 +1,18 @@
+<!--
+  The skip link is first in the DOM on purpose: it is only useful if it is the
+  very first thing a keyboard user reaches, before the header and the theme
+  toggle. It is invisible until focused.
+-->
+<a class="anx-skip-link" href="#main-content">Skip to content</a>
 <div class="anx-region anx-stack">
   <fitoverforty-header></fitoverforty-header>
-  <main class="anx-main anx-scroll-region">
+  <!--
+    tabindex="-1" so the skip link can actually move focus here. Without it the
+    browser scrolls to the target but leaves focus on the link, so the next Tab
+    goes back into the header - which is the bug that makes skip links look
+    like they work while doing nothing.
+  -->
+  <main id="main-content" tabindex="-1" class="anx-main anx-scroll-region">
     <router-outlet></router-outlet>
   </main>
   <fitoverforty-footer></fitoverforty-footer>
