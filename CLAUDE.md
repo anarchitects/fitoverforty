@@ -397,9 +397,6 @@ Not defects, but worth knowing before you trip over them or duplicate the work.
   `apps/fitoverforty/backend/src` now holds only the composition root — `app`,
   `data-source.ts`, `main.ts`, `ssr` — and no domain code or tests. If you are adding a
   backend feature, it belongs in a `libs/<domain>/nest`, not here.
-- **A Nest lib needs `esModuleInterop` in its own tsconfig.** It is set on the backend app
-  but not in `tsconfig.base.json`, so a domain that default-imports a CommonJS package —
-  `sanitize-html` in `blog` — compiles in the app and fails in the lib with TS1259.
 - **A Nest lib gets its Jest config by hand**, not from the generator: `@nx/nest:library`
   with a unit test runner writes a root `jest.preset.js` and `jest.config.ts` this
   workspace does not use. Generate with `--unitTestRunner=none` and copy
