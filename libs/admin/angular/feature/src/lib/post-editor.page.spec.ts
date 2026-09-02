@@ -9,12 +9,19 @@ import type { AdminPost } from '@fitoverforty/blog-ts';
 import { PostEditorPage } from './post-editor.page';
 
 /**
- * The class, not the template.
+ * Mostly the class, not the template.
  *
- * Rendering it would mount the Editor.js wrapper, which dynamically imports a
- * browser-only library — and none of what is worth asserting here is in the
- * markup. What matters is the order of the requests: that publishing saves
- * first, and that the server's answer is what the form ends up holding.
+ * What matters for the request tests is the order of the calls: that
+ * publishing saves first, and that the server's answer is what the form ends
+ * up holding. None of that is in the markup, so those tests construct the page
+ * directly.
+ *
+ * This file used to say rendering was not possible, because it would mount the
+ * Editor.js wrapper and its dynamically imported browser-only library. That is
+ * not true — `createComponent` works fine here, the dynamic import simply does
+ * not block the first render. The mode-toggle block below relies on that, and
+ * the note is corrected rather than removed because it is the reason the
+ * template went uncovered.
  */
 function makePost(over: Partial<AdminPost> = {}): AdminPost {
   return {
@@ -99,9 +106,9 @@ describe('PostEditorPage', () => {
     page.description.set('New post.');
 
     const pending = page.saveDraft();
-    http.expectOne({ method: 'POST', url: '/api/admin/posts' }).flush(
-      makePost({ id: 'created-1', slug: 'new' }),
-    );
+    http
+      .expectOne({ method: 'POST', url: '/api/admin/posts' })
+      .flush(makePost({ id: 'created-1', slug: 'new' }));
     await pending;
 
     // The URL has to carry the id from here on, or a reload would make a
@@ -146,9 +153,9 @@ describe('PostEditorPage', () => {
     page.scheduleAt.set('2026-09-01T09:00');
     const pending = page.schedule();
 
-    http.expectOne({ method: 'PATCH', url: '/api/admin/posts/post-1' }).flush(
-      makePost(),
-    );
+    http
+      .expectOne({ method: 'PATCH', url: '/api/admin/posts/post-1' })
+      .flush(makePost());
     await settle();
 
     const publish = http.expectOne({
@@ -172,10 +179,15 @@ describe('PostEditorPage', () => {
     await settle();
 
     const pending = page.publishNow();
-    http.expectOne({ method: 'PATCH', url: '/api/admin/posts/post-1' }).flush(
-      { message: 'The hero image needs alt text before this post can be published.' },
-      { status: 400, statusText: 'Bad Request' },
-    );
+    http
+      .expectOne({ method: 'PATCH', url: '/api/admin/posts/post-1' })
+      .flush(
+        {
+          message:
+            'The hero image needs alt text before this post can be published.',
+        },
+        { status: 400, statusText: 'Bad Request' },
+      );
     await pending;
 
     expect(page.status()).toEqual({
@@ -192,15 +204,99 @@ describe('PostEditorPage', () => {
     await settle();
 
     const pending = page.publishNow();
-    http
-      .expectOne({ method: 'PATCH', url: '/api/admin/posts/post-1' })
-      .flush({ message: 'Another post already uses that slug.' }, {
+    http.expectOne({ method: 'PATCH', url: '/api/admin/posts/post-1' }).flush(
+      { message: 'Another post already uses that slug.' },
+      {
         status: 409,
         statusText: 'Conflict',
-      });
+      },
+    );
     await pending;
 
     // http.verify() in afterEach is what asserts no publish went out.
     expect(page.post()?.status).toBe('draft');
+  });
+
+  /**
+   * The editor-mode toggle.
+   *
+   * It used to mark the current mode by disabling its button. That reads as a
+   * reasonable way to show which one is active and is wrong twice: a disabled
+   * button is out of the tab order, so a keyboard user can never reach the
+   * mode they are in, and it is announced as *unavailable* rather than
+   * *selected* — close to the opposite of what is true.
+   *
+   * These assert the attribute assistive technology actually reads, and that
+   * both buttons stay reachable. The styling in `admin.css` keys off the same
+   * attribute, so the visual and announced states cannot drift apart.
+   */
+  describe('the editor mode toggle', () => {
+    function render() {
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [
+          provideHttpClient(),
+          provideHttpClientTesting(),
+          { provide: Router, useValue: { navigate: vi.fn() } },
+          {
+            provide: ActivatedRoute,
+            useValue: { snapshot: { paramMap: convertToParamMap({}) } },
+          },
+        ],
+      });
+      const fixture = TestBed.createComponent(PostEditorPage);
+      fixture.detectChanges();
+      return fixture;
+    }
+
+    const buttons = (fixture: { nativeElement: HTMLElement }) =>
+      Array.from(
+        fixture.nativeElement.querySelectorAll<HTMLButtonElement>(
+          '.admin-mode button',
+        ),
+      );
+
+    it('reports the current mode with aria-pressed', () => {
+      const fixture = render();
+      const [write, preview] = buttons(fixture);
+
+      expect(write.getAttribute('aria-pressed')).toBe('true');
+      expect(preview.getAttribute('aria-pressed')).toBe('false');
+    });
+
+    it('moves the pressed state when the mode changes', () => {
+      const fixture = render();
+      const [write, preview] = buttons(fixture);
+
+      preview.click();
+      fixture.detectChanges();
+
+      expect(write.getAttribute('aria-pressed')).toBe('false');
+      expect(preview.getAttribute('aria-pressed')).toBe('true');
+    });
+
+    /**
+     * The regression this exists for. A disabled button cannot be focused, so
+     * disabling the selected one removes the current mode from the tab order
+     * entirely.
+     */
+    it('keeps both buttons reachable, including the selected one', () => {
+      const fixture = render();
+
+      for (const button of buttons(fixture)) {
+        expect(button.disabled).toBe(false);
+      }
+    });
+
+    it('is a no-op when the already-selected mode is clicked', () => {
+      const fixture = render();
+      const [write, preview] = buttons(fixture);
+
+      write.click();
+      fixture.detectChanges();
+
+      expect(write.getAttribute('aria-pressed')).toBe('true');
+      expect(preview.getAttribute('aria-pressed')).toBe('false');
+    });
   });
 });
