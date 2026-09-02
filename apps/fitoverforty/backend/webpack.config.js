@@ -15,10 +15,35 @@ module.exports = {
       compiler: 'tsc',
       main: './src/main.ts',
       tsConfig: './tsconfig.app.json',
-      assets: ['./src/assets'],
+      assets: [
+        './src/assets',
+        // Yarn Berry defaults to Plug'n'Play, and the artefact's package.json
+        // carries `packageManager: yarn@4.x`, so a bare `yarn install` beside
+        // main.js produces .pnp.cjs and no node_modules - after which plain
+        // `node main.js` cannot resolve its first require. The workspace root
+        // sets node-modules in its own .yarnrc.yml; the artefact is a separate
+        // install root and inherits nothing, so it has to carry its own.
+        {
+          input: 'apps/fitoverforty/backend/deploy',
+          glob: '.yarnrc.yml',
+          output: '.',
+        },
+      ],
       optimization: false,
       outputHashing: 'none',
       generatePackageJson: true,
+      // Packages that are require()d at runtime rather than imported, so
+      // webpack never sees them and generatePackageJson never lists them.
+      // Both fail only once the built artefact runs somewhere that is not the
+      // workspace, which is why neither showed up before deployment scoping:
+      //
+      //   pg          - TypeORM loads the driver by name. Without it the
+      //                 process dies at boot with
+      //                 "Postgres package has not been found installed".
+      //   nodemailer  - a non-optional peer of @nestjs-modules/mailer. In the
+      //                 workspace it resolves only because mailparser hoists a
+      //                 copy, which is luck rather than a promise.
+      runtimeDependencies: ['pg', 'nodemailer'],
       sourceMap: true,
     }),
   ],

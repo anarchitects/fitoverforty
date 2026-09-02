@@ -3791,6 +3791,7 @@ __metadata:
     image-size: "npm:^2.0.2"
     jest: "npm:30.3.0"
     jsdom: "npm:^27.1.0"
+    nodemailer: "npm:^8.0.4"
     nx: "npm:23.1.2"
     pg: "npm:^8.20.0"
     postcss: "npm:^8.5.26"
@@ -16818,6 +16819,13 @@ __metadata:
   version: 7.0.13
   resolution: "nodemailer@npm:7.0.13"
   checksum: 10c0/b26aa5b9fa4a033bbc1e1c16ef75ee2a9c8641fd290c00a8361d6a251b3c1b8bad545a23efa627f59cb266340a448891ea8aa49d8a9307c767b8505219d95079
+  languageName: node
+  linkType: hard
+
+"nodemailer@npm:^8.0.4":
+  version: 8.0.11
+  resolution: "nodemailer@npm:8.0.11"
+  checksum: 10c0/19229216c63a32eae59d7b39f3dffeba20be317f2335d08d86fb70bd01845a1bf108fecd019c0e90ef186e3d9177cf478192b333cf38620ad0f8c7a6e1e5ae05
   languageName: node
   linkType: hard
 
