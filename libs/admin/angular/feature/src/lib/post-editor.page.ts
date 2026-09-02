@@ -58,7 +58,11 @@ const EMPTY: EditorOutput = { blocks: [] };
       </div>
 
       @if (status(); as state) {
-        <p class="admin-status" [class.is-error]="state.kind === 'error'" role="status">
+        <p
+          class="admin-status"
+          [class.is-error]="state.kind === 'error'"
+          role="status"
+        >
           {{ state.text }}
         </p>
       }
@@ -87,24 +91,40 @@ const EMPTY: EditorOutput = { blocks: [] };
 
         <label>
           <span>Slug</span>
-          <input name="slug" [(ngModel)]="slug" placeholder="derived from the title" />
+          <input
+            name="slug"
+            [(ngModel)]="slug"
+            placeholder="derived from the title"
+          />
           @if (post()?.status === 'published') {
             <small>
-              This post is published. Changing the slug changes its URL, and
-              any link already shared will stop working.
+              This post is published. Changing the slug changes its URL, and any
+              link already shared will stop working.
             </small>
           }
         </label>
 
         <label>
           <span>Description</span>
-          <textarea name="description" [(ngModel)]="description" maxlength="160" rows="2"></textarea>
-          <small>{{ description().length }}/160 — used as the meta description and in the feed.</small>
+          <textarea
+            name="description"
+            [(ngModel)]="description"
+            maxlength="160"
+            rows="2"
+          ></textarea>
+          <small
+            >{{ description().length }}/160 — used as the meta description and
+            in the feed.</small
+          >
         </label>
 
         <label>
           <span>Tags</span>
-          <input name="tags" [(ngModel)]="tagText" placeholder="Strength, Recovery" />
+          <input
+            name="tags"
+            [(ngModel)]="tagText"
+            placeholder="Strength, Recovery"
+          />
           <small>Comma separated. At most eight.</small>
         </label>
       </div>
@@ -132,11 +152,31 @@ const EMPTY: EditorOutput = { blocks: [] };
         }
       </fieldset>
 
+      <!--
+        aria-pressed, not disabled.
+
+        Disabling the current mode's button looks like a way to show which one
+        is active, and it is wrong twice over: a disabled button is removed
+        from the tab order, so a keyboard user can never reach the mode they
+        are in, and it is announced as unavailable rather than selected, which
+        is close to the opposite of what is true.
+
+        Both buttons stay enabled. Clicking the one already selected is a
+        harmless no-op.
+      -->
       <div class="admin-mode" role="group" aria-label="Editor mode">
-        <button type="button" [disabled]="mode() === 'write'" (click)="mode.set('write')">
+        <button
+          type="button"
+          [attr.aria-pressed]="mode() === 'write'"
+          (click)="mode.set('write')"
+        >
           Write
         </button>
-        <button type="button" [disabled]="mode() === 'preview'" (click)="mode.set('preview')">
+        <button
+          type="button"
+          [attr.aria-pressed]="mode() === 'preview'"
+          (click)="mode.set('preview')"
+        >
           Preview
         </button>
       </div>
@@ -162,7 +202,10 @@ const EMPTY: EditorOutput = { blocks: [] };
             renderer does not handle should be loud to the person who just
             added it, and invisible to a reader.
           -->
-          <fitoverforty-block-renderer [blocks]="body() ?? empty" [showUnknown]="true" />
+          <fitoverforty-block-renderer
+            [blocks]="body() ?? empty"
+            [showUnknown]="true"
+          />
         </article>
       }
 
@@ -172,13 +215,25 @@ const EMPTY: EditorOutput = { blocks: [] };
         </button>
 
         <button type="button" (click)="publishNow()" [disabled]="busy()">
-          {{ post()?.status === 'published' ? 'Save and republish' : 'Publish now' }}
+          {{
+            post()?.status === 'published'
+              ? 'Save and republish'
+              : 'Publish now'
+          }}
         </button>
 
         <label class="admin-schedule">
           <span>Schedule for</span>
-          <input type="datetime-local" name="scheduleAt" [(ngModel)]="scheduleAt" />
-          <button type="button" (click)="schedule()" [disabled]="busy() || !scheduleAt()">
+          <input
+            type="datetime-local"
+            name="scheduleAt"
+            [(ngModel)]="scheduleAt"
+          />
+          <button
+            type="button"
+            (click)="schedule()"
+            [disabled]="busy() || !scheduleAt()"
+          >
             Schedule
           </button>
         </label>

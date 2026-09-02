@@ -163,16 +163,14 @@
 }
 
 /**
- * The Write/Preview pair marks the *current* mode with `disabled`, so here a
- * disabled button means "you are on this one", not "you cannot use this". The
- * generic disabled treatment above would grey out the tab you are looking at.
+ * The selected editor mode, keyed on the attribute that states it.
  *
- * Styling it as selected keeps that readable. It does not fix the underlying
- * semantics - a disabled button is removed from the tab order and announced as
- * unavailable rather than selected - which needs `aria-pressed` instead and is
- * raised separately.
+ * This pair used to mark the current mode with `disabled`, which took it out
+ * of the tab order and announced it as unavailable rather than selected. It
+ * now uses `aria-pressed`, so the styling follows the same attribute assistive
+ * technology reads - the visual and announced states cannot drift apart.
  */
-.anx-root .admin-mode button:disabled {
+.anx-root .admin-mode button[aria-pressed='true'] {
   color: var(--anx-sys-color-accent-contrast);
   background: var(--anx-sys-color-accent);
   border-color: var(--anx-sys-color-accent);
