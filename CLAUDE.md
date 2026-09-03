@@ -74,6 +74,10 @@ is where `ConfigModule` reads from, not the backend directory.
 
 Mailpit's web UI is at http://localhost:8025.
 
+Deploying is a different exercise with different failure modes — `deploy/README.md`
+has the artefact layout, the pm2 and Nginx configuration, and the four environment
+variables that decide whether a deployed site answers at all.
+
 ## Architecture
 
 An Nx monorepo whose app is a thin host over published `@anarchitects/*` packages. The
@@ -378,6 +382,42 @@ These cost real debugging time; none are inferable from the code.
   instead; see `apps/fitoverforty/test-stubs/README.md`. Node 24 loads them fine via
   `require(esm)`, which is why the built server works and why real sign-in is covered by
   Playwright rather than Jest.
+
+- **Four things about the deployable artefact fail only outside the workspace.** All
+  four were found by laying the built output out the way a server will, in
+  `deploy/README.md`; none of them can go wrong while `nx serve` is what runs the app.
+  - **`nx run fitoverforty-backend:build` *is* the artefact.** `generatePackageJson: true`
+    already emits `package.json` and a pruned `yarn.lock` beside `main.js`. There used to
+    be `prune-lockfile`, `copy-workspace-modules` and `prune` targets as well; Nx 23's
+    `@nx/js:prune-lockfile` reads a project-root `package.json` that has never existed
+    here, so they had been failing since the migration, and nothing noticed because they
+    only ever rewrote files the build had already written.
+  - **`pg` and `nodemailer` are named in `runtimeDependencies`** in the backend's
+    `webpack.config.js`, because both are `require`d by name at runtime rather than
+    imported, so webpack never sees them. Without `pg` the process dies at boot with
+    "Postgres package has not been found installed"; `nodemailer` is a non-optional peer
+    that resolves in the workspace only because `mailparser` hoists a copy. Anything else
+    loaded dynamically has to be added there too — the generated dependency list cannot
+    infer it.
+  - **The artefact ships its own `.yarnrc.yml`.** Yarn Berry defaults to Plug'n'Play and
+    the generated `package.json` carries `packageManager: yarn@4.x`, so a bare
+    `yarn install` beside `main.js` writes `.pnp.cjs` and no `node_modules` — after which
+    `node main.js` fails on its first `require`, naming `tslib` rather than anything to
+    do with linking. A separate install root inherits nothing from the workspace root.
+  - **SSR addresses the API on loopback, never the incoming request's origin.** Behind
+    Nginx that origin is the public one, so rendering a page fetches the app's own API
+    out across the network and back in through the proxy. Against a hostname the box
+    cannot resolve it fails outright — pages render, every one answers 503, and the log
+    says `ENOTFOUND`. `apiBaseUrlInterceptor` uses `http://127.0.0.1:` plus `PORT`, with
+    `API_ORIGIN` as the override for a genuinely split deployment.
+
+- **`WEB_ALLOWED_HOSTS` defaults to a value that takes a deployed site down.** It is
+  `localhost,127.0.0.1`, and Angular's SSR engine answers **400 to every page** whose
+  `Host` is not in the list. Behind a proxy that is the public hostname, so leaving it
+  unset is not a degraded mode — it is the whole site returning
+  `Header "host" ... is not allowed`. It pairs with Nginx's `default_server` block, which
+  is what stops an arbitrary `Host` reaching the app at all; neither makes the other
+  redundant.
 
 ## Known rough edges
 
