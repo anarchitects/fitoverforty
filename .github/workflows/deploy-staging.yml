@@ -1,0 +1,256 @@
+name: Deploy staging
+
+# Manual only. A blog does not need every merge on test.fitoverforty.blog, and
+# a deploy that runs itself is a deploy nobody is watching when the smoke check
+# fails. Add a `push` trigger here if that stops being true.
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Branch, tag or SHA to deploy'
+        required: false
+        default: 'main'
+
+permissions:
+  contents: read
+
+# Two deploys interleaving would rsync one revision's files over another's and
+# then reload pm2 somewhere in between. Queue them instead, and never cancel a
+# running one — it may be half way through replacing the artefact.
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: false
+
+env:
+  DEPLOY_ROOT: /var/www/fitoverforty-test
+  PM2_APP: fitoverforty-backend-test
+  # WEB_ALLOWED_HOSTS on staging is test.fitoverforty.blog, so a smoke request
+  # to the loopback port must still carry the public Host header. The allowlist
+  # lives in Angular's SSR engine, so it is the *page* request that gets a 400
+  # without it — API routes answer normally, which is why the check below tests
+  # a rendered page and not just the API.
+  PUBLIC_HOST: test.fitoverforty.blog
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: staging
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.ref }}
+          filter: tree:0
+          fetch-depth: 0
+
+      - run: corepack enable
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: 'yarn'
+
+      - run: yarn install --immutable
+
+      - name: Build both applications
+        run: yarn nx run-many -t build -p fitoverforty-frontend fitoverforty-backend
+
+      # The backend build is the artefact — there is no separate prune step, and
+      # the pieces below are the ones whose absence only shows up on the server.
+      # Checking here turns "the site is down" into "the build did not produce
+      # what the deploy expects".
+      - name: Verify the artefact is complete
+        run: |
+          set -euo pipefail
+          backend=dist/apps/fitoverforty/backend
+          frontend=dist/apps/fitoverforty/frontend
+          for f in "$backend/main.js" "$backend/migrate.js" "$backend/package.json" \
+                   "$backend/yarn.lock" "$backend/.yarnrc.yml" \
+                   "$frontend/server/server.mjs" "$frontend/browser/index.csr.html"; do
+            test -f "$f" || { echo "missing: $f"; exit 1; }
+          done
+          test -d "$backend/assets/email-templates" \
+            || { echo "missing: $backend/assets/email-templates"; exit 1; }
+          # pg and nodemailer are require()d by name at runtime, so webpack never
+          # sees them and they reach the artefact only via runtimeDependencies in
+          # webpack.config.js. Without pg the server dies at boot.
+          node -e "
+            const deps = require('./$backend/package.json').dependencies ?? {};
+            for (const name of ['pg', 'nodemailer']) {
+              if (!deps[name]) { console.error('missing runtime dependency: ' + name); process.exit(1); }
+            }
+          "
+
+      - name: Configure SSH
+        env:
+          SSH_KEY: ${{ secrets.STAGING_SSH_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.STAGING_SSH_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          # Pinned from a secret rather than StrictHostKeyChecking=no. Turning
+          # the check off would let anything answering that address receive the
+          # deploy key.
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Prepare the remote directories
+        env:
+          SSH_HOST: ${{ secrets.STAGING_SSH_HOST }}
+          SSH_USER: ${{ secrets.STAGING_SSH_USER }}
+        run: |
+          set -euo pipefail
+          ssh -i ~/.ssh/deploy_key "$SSH_USER@$SSH_HOST" \
+            "mkdir -p '$DEPLOY_ROOT/backend' '$DEPLOY_ROOT/frontend'"
+
+      # --delete keeps the artefact honest: a file removed from the build should
+      # disappear from the server. The exclusions are the server-owned state it
+      # must not take with it.
+      #
+      #   .env         runtime configuration and every secret staging has
+      #   node_modules installed on the server from the pruned lockfile
+      #   .yarn        the install's own cache
+      #   .data        MEDIA_ROOT's default, in case the .env does not override it
+      - name: Deploy the backend artefact
+        env:
+          SSH_HOST: ${{ secrets.STAGING_SSH_HOST }}
+          SSH_USER: ${{ secrets.STAGING_SSH_USER }}
+        run: |
+          set -euo pipefail
+          rsync -az --delete \
+            --exclude='.env' \
+            --exclude='node_modules/' \
+            --exclude='.yarn/' \
+            --exclude='.data/' \
+            -e "ssh -i ~/.ssh/deploy_key" \
+            dist/apps/fitoverforty/backend/ \
+            "$SSH_USER@$SSH_HOST:$DEPLOY_ROOT/backend/"
+
+      - name: Deploy the frontend build
+        env:
+          SSH_HOST: ${{ secrets.STAGING_SSH_HOST }}
+          SSH_USER: ${{ secrets.STAGING_SSH_USER }}
+        run: |
+          set -euo pipefail
+          rsync -az --delete \
+            -e "ssh -i ~/.ssh/deploy_key" \
+            dist/apps/fitoverforty/frontend/ \
+            "$SSH_USER@$SSH_HOST:$DEPLOY_ROOT/frontend/"
+
+      # Process definition stays in the repository; secrets stay in the server's
+      # .env. Each environment gets its own copy of the same committed file and
+      # is started with --only, so a staging deploy cannot alter production's
+      # process configuration.
+      - name: Deploy the pm2 process definition
+        env:
+          SSH_HOST: ${{ secrets.STAGING_SSH_HOST }}
+          SSH_USER: ${{ secrets.STAGING_SSH_USER }}
+        run: |
+          set -euo pipefail
+          rsync -az -e "ssh -i ~/.ssh/deploy_key" \
+            deploy/pm2/ecosystem.config.cjs \
+            "$SSH_USER@$SSH_HOST:$DEPLOY_ROOT/ecosystem.config.cjs"
+
+      - name: Install backend runtime dependencies
+        env:
+          SSH_HOST: ${{ secrets.STAGING_SSH_HOST }}
+          SSH_USER: ${{ secrets.STAGING_SSH_USER }}
+        run: |
+          set -euo pipefail
+          # --immutable: the lockfile ships with the artefact, so an install that
+          # wants to change it means the artefact is not what was built.
+          ssh -i ~/.ssh/deploy_key "$SSH_USER@$SSH_HOST" \
+            "cd '$DEPLOY_ROOT/backend' && corepack yarn install --immutable"
+
+      # Before pm2 is reloaded, deliberately. New code against an old schema
+      # boots cleanly and then fails on its first query, which is a much worse
+      # failure than a deploy that stops here.
+      - name: Run migrations
+        env:
+          SSH_HOST: ${{ secrets.STAGING_SSH_HOST }}
+          SSH_USER: ${{ secrets.STAGING_SSH_USER }}
+        run: |
+          set -euo pipefail
+          ssh -i ~/.ssh/deploy_key "$SSH_USER@$SSH_HOST" \
+            "cd '$DEPLOY_ROOT/backend' && node migrate.js"
+
+      - name: Reload or start the process
+        env:
+          SSH_HOST: ${{ secrets.STAGING_SSH_HOST }}
+          SSH_USER: ${{ secrets.STAGING_SSH_USER }}
+        run: |
+          set -euo pipefail
+          # The heredoc is quoted and the values are passed as arguments, so
+          # nothing in the script below is expanded by the runner's shell.
+          # Escaping `$` by hand instead works right up until one is missed, and
+          # the failure then is a remote command that silently uses an empty
+          # variable.
+          ssh -i ~/.ssh/deploy_key "$SSH_USER@$SSH_HOST" \
+            bash -euo pipefail -s -- "$DEPLOY_ROOT" "$PM2_APP" <<'EOF'
+          deploy_root=$1
+          app=$2
+
+          # `pm2 describe` decides between reload and start. Starting a name
+          # that is already running would leave two processes on the same port,
+          # and the deploy would report success while the new one died of
+          # EADDRINUSE.
+          if pm2 describe "$app" > /dev/null 2>&1; then
+            pm2 reload "$app" --update-env
+          else
+            pm2 start "$deploy_root/ecosystem.config.cjs" --only "$app"
+          fi
+
+          pm2 save
+          EOF
+
+      # The check runs on the server against the loopback port rather than from
+      # the runner against the public name, so it tests the deploy rather than
+      # DNS and TLS.
+      #
+      # Verified against the built artefact before this workflow was committed:
+      # it passes with the right Host, fails with exit 1 on the wrong one, and
+      # retries while the process is still booting.
+      - name: Smoke check
+        env:
+          SSH_HOST: ${{ secrets.STAGING_SSH_HOST }}
+          SSH_USER: ${{ secrets.STAGING_SSH_USER }}
+        run: |
+          set -euo pipefail
+          ssh -i ~/.ssh/deploy_key "$SSH_USER@$SSH_HOST" \
+            bash -euo pipefail -s -- "$DEPLOY_ROOT" "$PM2_APP" "$PUBLIC_HOST" <<'EOF'
+          deploy_root=$1
+          app=$2
+          public_host=$3
+
+          port=$(grep -E '^PORT=' "$deploy_root/backend/.env" \
+            | head -n1 | cut -d= -f2 | tr -d '"'"'"'[:space:]')
+          base="http://127.0.0.1:${port:-3000}"
+
+          for attempt in $(seq 1 20); do
+            if curl -fsS -o /dev/null -H "Host: $public_host" "$base/api/blog/posts"; then
+              break
+            fi
+            if [ "$attempt" = 20 ]; then
+              echo "backend did not answer on $base after 20 attempts"
+              pm2 logs "$app" --lines 60 --nostream || true
+              exit 1
+            fi
+            sleep 3
+          done
+
+          # A 200 from the API only proves Nest and Postgres. This proves the
+          # Angular SSR engine loaded the frontend bundle and rendered a page,
+          # which is separately configured and can be wrong on its own.
+          if curl -fsS -H "Host: $public_host" "$base/" \
+            | grep -q 'ng-server-context="ssr"'; then
+            echo 'SSR rendered'
+          else
+            echo 'home page did not come back server-rendered'
+            exit 1
+          fi
+
+          pm2 describe "$app" | grep -E 'status' || true
+          EOF

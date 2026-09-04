@@ -13,13 +13,15 @@ what #65 is still about.
 ## One artefact, two directories
 
 ```
-/srv/fitoverforty/current/
-  server/            # dist/apps/fitoverforty/backend  — main.js, package.json,
-                     #   yarn.lock, .yarnrc.yml, assets/, plus .env and
-                     #   node_modules created on the server
-  web/
-    browser/         # dist/apps/fitoverforty/frontend/browser
-    server/          # dist/apps/fitoverforty/frontend/server
+/var/www/fitoverforty-test/          # and /var/www/fitoverforty for production
+  ecosystem.config.cjs               # this repo's pm2 file, synced by the deploy
+  backend/                           # dist/apps/fitoverforty/backend — main.js,
+                                     #   migrate.js, package.json, yarn.lock,
+                                     #   .yarnrc.yml, assets/, plus .env and
+                                     #   node_modules created on the server
+  frontend/
+    browser/                         # dist/apps/fitoverforty/frontend/browser
+    server/                          # dist/apps/fitoverforty/frontend/server
 ```
 
 The Node process serves both the rendered pages and the API, so there is one
@@ -74,32 +76,79 @@ documents every variable; four of them decide whether the site works at all.
 | `BETTER_AUTH_SECRET` | No default either. `openssl rand -base64 32`.                                                                                                                               |
 | `API_ORIGIN`         | Optional, and only needed if the API is a different process. Leave it unset here: the renderer talks to itself on loopback.                                                 |
 
-`WEB_SERVER_ENTRY` and `WEB_BROWSER_ASSETS_DIR` may be relative (`../web/server/server.mjs`,
-`../web/browser`) because pm2 pins the working directory — see the `cwd` comment
-in `pm2/ecosystem.config.cjs`. `MAILER_TEMPLATE_DIR` is `./assets/email-templates`
-inside the artefact.
+`WEB_SERVER_ENTRY` and `WEB_BROWSER_ASSETS_DIR` may be relative
+(`../frontend/server/server.mjs`, `../frontend/browser`) because pm2 pins the
+working directory — see the `cwd` comment in `pm2/ecosystem.config.cjs`.
+`MAILER_TEMPLATE_DIR` is `./assets/email-templates` inside the artefact.
+
+**Set `MEDIA_ROOT` to a path outside the deployment directory.** It defaults to
+`.data/media`, which resolves against the working directory — that is, inside
+the artefact the deploy replaces, so every uploaded image would disappear on the
+next deploy. Something like `/var/lib/fitoverforty-test/media`. The deploy
+excludes `.data/` from its `rsync --delete` as a second line of defence, but the
+variable is the actual fix.
 
 ## Migrate
 
-Migrations run from the workspace, not the artefact — the TypeORM CLI needs the
-source data source and the root `tsconfig.json`.
+The artefact ships `migrate.js` beside `main.js` for exactly this, because a
+deployed backend has no other way to reach its migrations: the classes are
+bundled — `data-source.ts` imports them statically — but nothing in `main.js`
+runs them, and the TypeORM CLI needs the workspace, the source data source and
+the root `tsconfig.json`, none of which are on the server.
 
 ```bash
-corepack yarn nx run fitoverforty-backend:db:migrate:run
+cd /var/www/fitoverforty-test/backend
+node migrate.js
 ```
 
-Point `TYPEORM_*` at the deployed database when running it. Verified against a
-freshly created, empty database: the full set applies in one transaction with no
-errors, which is the standing rule that a migration must work against a dropped
-schema, checked rather than assumed.
+It reads the `.env` beside it, prints what it applied, says `No pending
+migrations.` when there is nothing to do, and exits non-zero on failure.
+
+Run it **before** starting or reloading the process, not after. New code against
+an old schema boots perfectly happily and then fails on its first query, which is
+a far worse failure than a deploy that stops here.
+
+This is deliberately not `migrationsRun: true` on the data source: running
+migrations at boot would tie them to every pm2 restart, bury the SQL among
+application logs, and turn a migration failure into a crash loop whose cause a
+health check can only infer.
+
+`runMigrations()` wraps the whole set in one transaction, which is why a new
+migration has to be tested against a _dropped_ schema rather than against a
+working database — see the note in `CLAUDE.md`.
 
 ## Run
 
+`pm2/ecosystem.config.cjs` defines one app per environment and carries no
+secrets — process identity, paths, restart policy and logs only. Each deployed
+backend owns the `.env` beside its own `main.js`, and pm2's `cwd` is what makes
+the right one load, so staging and production stay isolated while sharing this
+file. Start one environment at a time:
+
 ```bash
-pm2 start deploy/pm2/ecosystem.config.cjs
+pm2 start ecosystem.config.cjs --only fitoverforty-backend-test
 pm2 save
 pm2 startup            # once, so it survives a reboot
 ```
+
+Use `--only`, not a bare `pm2 start`, or you will also start the other
+environment's process on the same machine.
+
+## Staging deploys itself
+
+`.github/workflows/deploy-staging.yml` does all of the above against
+`test.fitoverforty.blog` from a single manual run: build, verify the artefact,
+rsync both halves, install runtime dependencies, migrate, reload pm2, and smoke
+check a server-rendered page.
+
+It needs four repository secrets — `STAGING_SSH_HOST`, `STAGING_SSH_USER`,
+`STAGING_SSH_KEY` and `STAGING_SSH_KNOWN_HOSTS` — and nothing else. Deployment
+transport only: no database, mail or auth configuration goes near GitHub, because
+the server's `.env` owns all of it.
+
+The rsync preserves `.env`, `node_modules/`, `.yarn/` and `.data/` while deleting
+anything else the build no longer produces. The server needs `corepack`, `rsync`
+and `pm2` on the deploy user's `PATH`.
 
 ## Nginx
 

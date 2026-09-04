@@ -5,10 +5,34 @@
  * installed on the server, not in this workspace: nothing here builds or tests
  * against it.
  */
+/**
+ * One file, one app per environment, started with `pm2 start … --only <name>`.
+ *
+ * Nothing environment-specific lives here beyond the paths: each deployed
+ * backend owns a `.env` beside its own `main.js`, and pm2's `cwd` is what makes
+ * the right one load. Database, mail and auth secrets therefore never reach the
+ * repository or GitHub Actions.
+ */
 module.exports = {
   apps: [
     {
-      name: 'fitoverforty',
+      name: 'fitoverforty-backend-test',
+      cwd: '/var/www/fitoverforty-test/backend',
+      script: 'main.js',
+      exec_mode: 'fork',
+      instances: 1,
+      env: { NODE_ENV: 'production' },
+      autorestart: true,
+      max_memory_restart: '512M',
+      min_uptime: '20s',
+      max_restarts: 10,
+      out_file: '/var/log/fitoverforty-test/out.log',
+      error_file: '/var/log/fitoverforty-test/error.log',
+      merge_logs: true,
+      time: true,
+    },
+    {
+      name: 'fitoverforty-backend',
 
       /**
        * `cwd` is load-bearing, not tidiness.
@@ -21,7 +45,7 @@ module.exports = {
        * app either refuses to boot (the two SSR paths are checked at startup)
        * or fails much later at send time (the template directory is not).
        */
-      cwd: '/srv/fitoverforty/current/server',
+      cwd: '/var/www/fitoverforty/backend',
       script: 'main.js',
 
       /**
@@ -44,7 +68,7 @@ module.exports = {
        * below would win over that file, which is a reason to keep this empty:
        * one place to look.
        */
-      env: {},
+      env: { NODE_ENV: 'production' },
 
       autorestart: true,
       max_memory_restart: '512M',

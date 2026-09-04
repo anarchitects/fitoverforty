@@ -1,0 +1,53 @@
+// Must come first: `data-source.ts` reads process.env at module scope, so the
+// file has to be loaded before that import is evaluated. `main.js` gets the
+// same .env through Nest's ConfigModule, which this entry point does not have —
+// it is a script, not an application — so it loads it directly. dotenv is
+// already a dependency of the artefact.
+import 'dotenv/config';
+
+import { AppDataSource } from './data-source';
+
+/**
+ * Applies pending migrations, as a deployment step.
+ *
+ * This exists because a deploy has no other way to reach them. The migration
+ * classes are statically imported by `data-source.ts` and so are bundled into
+ * the artefact, but nothing in `main.js` runs them and the TypeORM CLI is not
+ * part of a deployed backend — it needs the workspace, the source data source
+ * and the root tsconfig, none of which are on the server.
+ *
+ * It is deliberately a separate entry point rather than `migrationsRun: true`
+ * on the data source. Running migrations at boot would tie them to every pm2
+ * restart, hide the SQL among application logs, and turn a migration failure
+ * into a crash loop that a health check has to infer the cause of. As its own
+ * step it either succeeds or fails the deploy, before the new code is started.
+ *
+ * `runMigrations()` wraps the whole set in one transaction, so a failure part
+ * way through leaves the schema as it was — see the note in CLAUDE.md about
+ * testing a new migration against a dropped schema, which is what that
+ * all-or-nothing behaviour makes necessary.
+ */
+async function main(): Promise<void> {
+  const dataSource = await AppDataSource.initialize();
+
+  try {
+    const applied = await dataSource.runMigrations();
+
+    if (applied.length === 0) {
+      console.log('No pending migrations.');
+      return;
+    }
+
+    console.log(`Applied ${applied.length} migration(s):`);
+    for (const migration of applied) {
+      console.log(`  ${migration.name}`);
+    }
+  } finally {
+    await dataSource.destroy();
+  }
+}
+
+main().catch((error) => {
+  console.error('Migration failed:', error);
+  process.exitCode = 1;
+});
