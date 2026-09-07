@@ -97,13 +97,20 @@ jobs:
           printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
 
+      # TEMPORARY — diagnosing "Permission denied (publickey)". A fingerprint is
+      # a hash of the public half; sshd logs it routinely and it reveals nothing
+      # about the private key.
+      - name: Which key are we offering
+        run: ssh-keygen -lf ~/.ssh/deploy_key
+
       - name: Prepare the remote directories
         env:
           SSH_HOST: ${{ secrets.STAGING_SSH_HOST }}
           SSH_USER: ${{ secrets.STAGING_SSH_USER }}
         run: |
           set -euo pipefail
-          ssh -i ~/.ssh/deploy_key "$SSH_USER@$SSH_HOST" \
+          ssh -v -o IdentitiesOnly=yes -o PreferredAuthentications=publickey \
+            -i ~/.ssh/deploy_key "$SSH_USER@$SSH_HOST" \
             "mkdir -p '$DEPLOY_ROOT/backend' '$DEPLOY_ROOT/frontend'"
 
       # --delete keeps the artefact honest: a file removed from the build should
