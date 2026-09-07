@@ -14,6 +14,12 @@ module.exports = {
       target: 'node',
       compiler: 'tsc',
       main: './src/main.ts',
+      // A deployed backend has no other way to run migrations: the classes are
+      // bundled (data-source.ts imports them statically) but nothing in main.js
+      // runs them, and the TypeORM CLI needs the workspace. See src/migrate.ts.
+      additionalEntryPoints: [
+        { entryName: 'migrate', entryPath: './src/migrate.ts' },
+      ],
       tsConfig: './tsconfig.app.json',
       assets: [
         './src/assets',
