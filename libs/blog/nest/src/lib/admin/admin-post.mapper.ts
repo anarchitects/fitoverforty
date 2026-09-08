@@ -1,7 +1,4 @@
-import type {
-  AdminPost,
-  AdminPostSummary,
-} from '@fitoverforty/blog-ts';
+import type { AdminPost, AdminPostSummary } from '@fitoverforty/blog-ts';
 import type { PostEntity } from '../entities';
 
 /**
@@ -32,6 +29,9 @@ export function toAdminPostSummary(
     publishedAt: post.publishedAt?.toISOString() ?? null,
     scheduled: isScheduled(post, now),
     readingTimeMinutes: post.readingTimeMinutes,
+    pillar: post.pillar
+      ? { slug: post.pillar.slug, name: post.pillar.name }
+      : null,
     tags: (post.tags ?? []).map((tag) => ({ slug: tag.slug, name: tag.name })),
     updatedAt: post.updatedAt.toISOString(),
   };

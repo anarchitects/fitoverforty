@@ -1,5 +1,5 @@
 import type { OutputData } from './editorjs';
-import type { ImageRef, Iso8601, TagRef } from './refs';
+import type { ImageRef, Iso8601, PillarRef, TagRef } from './refs';
 
 /**
  * The authoring view of a post, which is deliberately not {@link Post}.
@@ -29,6 +29,11 @@ export interface AdminPostSummary {
    */
   scheduled: boolean;
   readingTimeMinutes: number;
+  /**
+   * Null is a real state here, unlike on the public `PostSummary`: the editor
+   * sees drafts, and a draft may not have been filed yet.
+   */
+  pillar: PillarRef | null;
   tags: TagRef[];
   updatedAt: Iso8601;
 }
@@ -56,6 +61,13 @@ export interface PostDraftInput {
   description: string;
   /** Unvalidated Editor.js output; the server sanitises it. */
   body: unknown;
+  /**
+   * One of `PILLAR_SLUGS`, or null to leave the post unfiled.
+   *
+   * Unlike tags this is a closed set, so the server rejects anything else
+   * rather than creating it. Required to publish, not to save.
+   */
+  pillarSlug?: string | null;
   /** Free-text names. The server slugifies and upserts them. */
   tags?: string[];
   /** A `blog.media` id, or null to clear the hero. */

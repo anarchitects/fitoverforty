@@ -58,6 +58,9 @@ describe('publish workflow', () => {
     slug: `${PREFIX}${randomUUID().slice(0, 8)}`,
     description: 'Written through the authoring API.',
     body: helloWorld,
+    // Every post needs one to publish, so the shared helper carries it.
+    // Tests about the pillar itself override or omit it deliberately.
+    pillarSlug: 'physical-fitness',
     ...over,
   });
 
@@ -292,6 +295,67 @@ describe('publish workflow', () => {
         ...draft(),
       });
       expect(status).toBe(404);
+    });
+  });
+
+  describe('the pillar', () => {
+    it('round-trips through create and load', async () => {
+      const post = await create({ pillarSlug: 'financial-fitness' });
+      expect(post.pillar).toEqual({
+        slug: 'financial-fitness',
+        name: 'Financial Fitness',
+      });
+
+      const { body } = await call('GET', `/admin/posts/${post.id}`);
+      expect(body.pillar.slug).toBe('financial-fitness');
+    });
+
+    it('can be changed, and cleared back to unfiled', async () => {
+      const post = await create();
+      const moved = await call('PATCH', `/admin/posts/${post.id}`, {
+        ...draft({ slug: post.slug, pillarSlug: 'mental-fitness' }),
+      });
+      expect(moved.body.pillar.slug).toBe('mental-fitness');
+
+      const cleared = await call('PATCH', `/admin/posts/${post.id}`, {
+        ...draft({ slug: post.slug, pillarSlug: null }),
+      });
+      expect(cleared.body.pillar).toBeNull();
+    });
+
+    it('lets a draft be saved without one', async () => {
+      // Same position as alt text: an unfinished post can be parked before its
+      // author has decided where it belongs.
+      const post = await create({ pillarSlug: null });
+      expect(post.pillar).toBeNull();
+      expect(post.status).toBe('draft');
+    });
+
+    it('refuses a slug outside the fixed set, rather than creating one', async () => {
+      const { status, body } = await call(
+        'POST',
+        '/admin/posts',
+        draft({ pillarSlug: 'spiritual-fitness' }),
+      );
+      expect(status).toBe(400);
+      expect(body.message).toContain('physical-fitness');
+    });
+
+    it('refuses to publish a post that has no pillar', async () => {
+      // The whole point of the taxonomy: a published post with no pillar has
+      // no home in the navigation and appears in no section a reader browses.
+      const post = await create({ pillarSlug: null });
+      const { status, body } = await call(
+        'POST',
+        `/admin/posts/${post.id}/publish`,
+      );
+
+      expect(status).toBe(400);
+      expect(body.message).toContain('pillar');
+
+      // And it really did not publish.
+      const still = await call('GET', `/admin/posts/${post.id}`);
+      expect(still.body.status).toBe('draft');
     });
   });
 

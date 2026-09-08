@@ -8,7 +8,11 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import type { AdminPost, PostDraftInput } from '@fitoverforty/blog-ts';
+import type {
+  AdminPost,
+  PillarRef,
+  PostDraftInput,
+} from '@fitoverforty/blog-ts';
 import { BlockRendererComponent } from '@fitoverforty/blog-angular-ui';
 import {
   EditorjsComponent,
@@ -17,6 +21,7 @@ import {
 import { SeoService } from '@fitoverforty/seo-angular';
 import { MediaApi } from '@fitoverforty/admin-angular-data-access';
 import { PostsApi } from '@fitoverforty/admin-angular-data-access';
+import { CONTENT_SOURCE } from '@fitoverforty/blog-angular-data-access';
 
 type Mode = 'write' | 'preview';
 
@@ -116,6 +121,17 @@ const EMPTY: EditorOutput = { blocks: [] };
             >{{ description().length }}/160 — used as the meta description and
             in the feed.</small
           >
+        </label>
+
+        <label>
+          <span>Pillar</span>
+          <select name="pillar" [(ngModel)]="pillarSlug">
+            <option value="">Not filed yet</option>
+            @for (pillar of pillars(); track pillar.slug) {
+              <option [value]="pillar.slug">{{ pillar.name }}</option>
+            }
+          </select>
+          <small>The section this post belongs to. Required to publish.</small>
         </label>
 
         <label>
@@ -331,6 +347,10 @@ export class PostEditorPage {
   readonly slug = signal('');
   readonly description = signal('');
   readonly tagText = signal('');
+  /** Empty string is "not filed yet" — a select cannot hold null. */
+  readonly pillarSlug = signal('');
+  readonly pillars = signal<PillarRef[]>([]);
+  private readonly content = inject(CONTENT_SOURCE);
   readonly heroAlt = signal('');
   readonly scheduleAt = signal('');
 
@@ -367,6 +387,24 @@ export class PostEditorPage {
 
     const id = this.id();
     if (id) void this.loadExisting(id);
+    void this.loadPillars();
+  }
+
+  /**
+   * The four options come from the API rather than from `PILLAR_SLUGS`, so the
+   * names shown match the rows a post is actually filed against. Reuses the
+   * public read port: the pillar list is not admin-only, and adding a second
+   * endpoint for it would be two things to keep in step.
+   *
+   * A failure here leaves the select with only "Not filed yet", which is
+   * honest — it is what the editor can offer — and does not block writing.
+   */
+  private async loadPillars(): Promise<void> {
+    try {
+      this.pillars.set(await this.content.listPillars());
+    } catch {
+      this.pillars.set([]);
+    }
   }
 
   private async loadExisting(id: string): Promise<void> {
@@ -388,6 +426,7 @@ export class PostEditorPage {
     this.slug.set(saved.slug);
     this.description.set(saved.description);
     this.tagText.set(saved.tags.map((tag) => tag.name).join(', '));
+    this.pillarSlug.set(saved.pillar?.slug ?? '');
     this.hero.set(
       saved.hero ? { mediaId: saved.hero.mediaId, url: saved.hero.src } : null,
     );
@@ -405,6 +444,8 @@ export class PostEditorPage {
         .split(',')
         .map((tag) => tag.trim())
         .filter(Boolean),
+      // '' is the "not filed yet" option; the API wants null for that.
+      pillarSlug: this.pillarSlug() || null,
       heroMediaId: this.hero()?.mediaId ?? null,
       heroAlt: this.heroAlt(),
     };

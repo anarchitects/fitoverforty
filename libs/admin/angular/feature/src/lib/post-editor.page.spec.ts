@@ -5,7 +5,8 @@ import {
 } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
-import type { AdminPost } from '@fitoverforty/blog-ts';
+import type { AdminPost, PillarSummary } from '@fitoverforty/blog-ts';
+import { CONTENT_SOURCE } from '@fitoverforty/blog-angular-data-access';
 import { PostEditorPage } from './post-editor.page';
 
 /**
@@ -23,6 +24,28 @@ import { PostEditorPage } from './post-editor.page';
  * the note is corrected rather than removed because it is the reason the
  * template went uncovered.
  */
+const PILLARS: PillarSummary[] = [
+  {
+    slug: 'physical-fitness',
+    name: 'Physical Fitness',
+    postCount: 2,
+    position: 1,
+  },
+  { slug: 'mental-fitness', name: 'Mental Fitness', postCount: 0, position: 2 },
+];
+
+/**
+ * A stub rather than the real HttpContentSource.
+ *
+ * The editor asks for the pillar list on construction, and routing that
+ * through the HTTP mock would put an unrelated pending request in front of
+ * every assertion in this file — including `http.verify()`, which would then
+ * fail on a call no test is about.
+ */
+function stubContentSource() {
+  return { listPillars: () => Promise.resolve(PILLARS) };
+}
+
 function makePost(over: Partial<AdminPost> = {}): AdminPost {
   return {
     id: 'post-1',
@@ -33,6 +56,7 @@ function makePost(over: Partial<AdminPost> = {}): AdminPost {
     publishedAt: null,
     scheduled: false,
     readingTimeMinutes: 1,
+    pillar: null,
     tags: [],
     updatedAt: '2026-08-27T10:00:00.000Z',
     body: { blocks: [] },
@@ -65,6 +89,7 @@ describe('PostEditorPage', () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         { provide: Router, useValue: { navigate } },
+        { provide: CONTENT_SOURCE, useValue: stubContentSource() },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -179,15 +204,13 @@ describe('PostEditorPage', () => {
     await settle();
 
     const pending = page.publishNow();
-    http
-      .expectOne({ method: 'PATCH', url: '/api/admin/posts/post-1' })
-      .flush(
-        {
-          message:
-            'The hero image needs alt text before this post can be published.',
-        },
-        { status: 400, statusText: 'Bad Request' },
-      );
+    http.expectOne({ method: 'PATCH', url: '/api/admin/posts/post-1' }).flush(
+      {
+        message:
+          'The hero image needs alt text before this post can be published.',
+      },
+      { status: 400, statusText: 'Bad Request' },
+    );
     await pending;
 
     expect(page.status()).toEqual({
@@ -238,6 +261,7 @@ describe('PostEditorPage', () => {
           provideHttpClient(),
           provideHttpClientTesting(),
           { provide: Router, useValue: { navigate: vi.fn() } },
+          { provide: CONTENT_SOURCE, useValue: stubContentSource() },
           {
             provide: ActivatedRoute,
             useValue: { snapshot: { paramMap: convertToParamMap({}) } },
@@ -255,6 +279,40 @@ describe('PostEditorPage', () => {
           '.admin-mode button',
         ),
       );
+
+    it('offers every pillar plus an explicit unfiled option', async () => {
+      // "Not filed yet" has to be selectable rather than implied by a blank
+      // first entry: clearing a pillar is a thing an author does deliberately,
+      // and a draft is allowed to stay that way.
+      const fixture = render();
+      await Promise.resolve();
+      fixture.detectChanges();
+
+      const options = Array.from(
+        fixture.nativeElement.querySelectorAll<HTMLOptionElement>(
+          'select[name="pillar"] option',
+        ),
+      );
+      expect(options.map((o) => o.value)).toEqual([
+        '',
+        'physical-fitness',
+        'mental-fitness',
+      ]);
+      expect(options[0].textContent?.trim()).toBe('Not filed yet');
+    });
+
+    it('names the pillars from the API rather than from their slugs', async () => {
+      const fixture = render();
+      await Promise.resolve();
+      fixture.detectChanges();
+
+      const labels = Array.from(
+        fixture.nativeElement.querySelectorAll<HTMLOptionElement>(
+          'select[name="pillar"] option',
+        ),
+      ).map((o) => o.textContent?.trim());
+      expect(labels).toContain('Physical Fitness');
+    });
 
     it('reports the current mode with aria-pressed', () => {
       const fixture = render();

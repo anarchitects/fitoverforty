@@ -1,5 +1,5 @@
 import { BadRequestException } from '@nestjs/common';
-import { slugify } from '@fitoverforty/blog-ts';
+import { isPillarSlug, PILLAR_SLUGS, slugify } from '@fitoverforty/blog-ts';
 import type { PostDraftInput } from '@fitoverforty/blog-ts';
 
 /**
@@ -16,8 +16,7 @@ const MAX_SLUG = 120;
 const MAX_TAGS = 8;
 const MAX_TAG_NAME = 40;
 
-const UUID =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 function object(body: unknown): Record<string, unknown> {
   if (!body || typeof body !== 'object' || Array.isArray(body)) {
@@ -89,6 +88,8 @@ export interface ParsedDraft extends Omit<PostDraftInput, 'tags'> {
   tags: { slug: string; name: string }[];
   heroMediaId: string | null;
   heroAlt: string | undefined;
+  /** Null means "leave it unfiled", which only a draft may stay. */
+  pillarSlug: string | null;
 }
 
 export function parseDraftBody(body: unknown): ParsedDraft {
@@ -123,6 +124,23 @@ export function parseDraftBody(body: unknown): ParsedDraft {
     throw new BadRequestException('"heroMediaId" must be a media id or null.');
   }
 
+  /**
+   * Checked against the fixed set rather than looked up, so a typo fails here
+   * with the four names in the message rather than as a foreign key violation
+   * several frames later.
+   */
+  const rawPillar = input['pillarSlug'];
+  if (
+    rawPillar !== undefined &&
+    rawPillar !== null &&
+    (typeof rawPillar !== 'string' || !isPillarSlug(rawPillar))
+  ) {
+    throw new BadRequestException(
+      `"pillarSlug" must be null or one of: ${PILLAR_SLUGS.join(', ')}.`,
+    );
+  }
+  const pillarSlug = typeof rawPillar === 'string' ? rawPillar : null;
+
   const rawAlt = input['heroAlt'];
   if (rawAlt !== undefined && typeof rawAlt !== 'string') {
     throw new BadRequestException('"heroAlt" must be a string when present.');
@@ -137,6 +155,7 @@ export function parseDraftBody(body: unknown): ParsedDraft {
     // place to keep in step.
     body: input['body'],
     tags: parseTags(input['tags']),
+    pillarSlug,
     heroMediaId: (rawHero as string | null | undefined) ?? null,
     heroAlt: rawAlt as string | undefined,
   };
@@ -153,7 +172,10 @@ export interface ParsedPublish {
 /** How far ahead a post may be scheduled. A typo of "2260" should not sit in the table. */
 const MAX_SCHEDULE_AHEAD_MS = 365 * 24 * 60 * 60 * 1000;
 
-export function parsePublishBody(body: unknown, now = new Date()): ParsedPublish {
+export function parsePublishBody(
+  body: unknown,
+  now = new Date(),
+): ParsedPublish {
   // An empty body is the common case — "publish this, now" — so no body at all
   // has to mean the same thing as `{}`.
   const input = body === undefined || body === null ? {} : object(body);

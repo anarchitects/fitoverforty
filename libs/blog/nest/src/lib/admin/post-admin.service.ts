@@ -9,11 +9,16 @@ import { DataSource, In, Not, Repository } from 'typeorm';
 import { slugify } from '@fitoverforty/blog-ts';
 import type { AdminPost, AdminPostSummary } from '@fitoverforty/blog-ts';
 import type { AuthenticatedUser } from '@fitoverforty/auth-nest';
-import { InvalidBlockError, readingTimeMinutes, sanitiseBody } from '../content';
+import {
+  InvalidBlockError,
+  readingTimeMinutes,
+  sanitiseBody,
+} from '../content';
 import {
   AuthorEntity,
   CURRENT_BODY_SCHEMA_VERSION,
   MediaEntity,
+  PillarEntity,
   PostEntity,
   TagEntity,
 } from '../entities';
@@ -21,7 +26,12 @@ import { toAdminPost, toAdminPostSummary } from './admin-post.mapper';
 import type { ParsedDraft } from './post-write.request';
 
 /** Everything the editor needs back, in one shape, for every write. */
-const EDIT_RELATIONS = { tags: true, hero: true, authors: true } as const;
+const EDIT_RELATIONS = {
+  tags: true,
+  pillar: true,
+  hero: true,
+  authors: true,
+} as const;
 
 @Injectable()
 export class PostAdminService {
@@ -34,6 +44,8 @@ export class PostAdminService {
     private readonly authors: Repository<AuthorEntity>,
     @InjectRepository(MediaEntity)
     private readonly media: Repository<MediaEntity>,
+    @InjectRepository(PillarEntity)
+    private readonly pillars: Repository<PillarEntity>,
     private readonly dataSource: DataSource,
   ) {}
 
@@ -80,6 +92,7 @@ export class PostAdminService {
       readingTimeMinutes: readingTimeMinutes(body),
       hero: await this.heroFor(input),
       tags: await this.upsertTags(input.tags),
+      pillar: await this.pillarFor(input),
       authors: [author],
     });
 
@@ -100,6 +113,7 @@ export class PostAdminService {
     post.readingTimeMinutes = readingTimeMinutes(body);
     post.hero = await this.heroFor(input);
     post.tags = await this.upsertTags(input.tags);
+    post.pillar = await this.pillarFor(input);
     // Authors are not touched. Attribution is set once, when the post is
     // created; a second person fixing a typo does not become a co-author.
 
@@ -121,6 +135,17 @@ export class PostAdminService {
       throw new BadRequestException(
         'The hero image needs alt text before this post can be published. ' +
           'Describe what the image shows for readers who cannot see it.',
+      );
+    }
+
+    // Same reasoning as the alt-text check above, and the same moment to make
+    // it: a draft may sit unfiled while it is being written, but a published
+    // post with no pillar has no home in the navigation and appears in no
+    // section a reader can browse.
+    if (post.pillar === null) {
+      throw new BadRequestException(
+        'This post needs a pillar before it can be published. ' +
+          'Choose the section it belongs to.',
       );
     }
 
@@ -186,6 +211,29 @@ export class PostAdminService {
    * image, not this use of it. Uploading writes it empty; this is where it
    * gets filled in.
    */
+  /**
+   * Resolves the chosen pillar, or null when the post is being left unfiled.
+   *
+   * The slug has already been checked against the fixed set by
+   * `parseDraftBody`, so a miss here means the row is absent from a database
+   * the migration should have seeded — a broken deployment rather than bad
+   * input, and worth saying so rather than silently unfiling the post.
+   */
+  private async pillarFor(input: ParsedDraft): Promise<PillarEntity | null> {
+    if (!input.pillarSlug) return null;
+
+    const pillar = await this.pillars.findOne({
+      where: { slug: input.pillarSlug },
+    });
+    if (!pillar) {
+      throw new Error(
+        `Pillar "${input.pillarSlug}" is missing from blog.pillars. ` +
+          'The AddContentPillars migration seeds all four.',
+      );
+    }
+    return pillar;
+  }
+
   private async heroFor(input: ParsedDraft): Promise<MediaEntity | null> {
     if (!input.heroMediaId) return null;
 
