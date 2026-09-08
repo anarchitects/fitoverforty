@@ -250,3 +250,20 @@
 .anx-root .admin-signin .admin-note {
   margin-block-start: 1rem;
 }
+
+/*
+ * The pillar select.
+ *
+ * Matched to the text inputs above it rather than left as a browser default,
+ * which in the dark theme renders a light control on a dark form — the one
+ * place a native widget stops following the theme.
+ */
+.anx-root .admin-fields select {
+  inline-size: 100%;
+  padding: 0.5rem 0.625rem;
+  font: inherit;
+  color: var(--anx-sys-color-text);
+  background-color: var(--anx-sys-color-surface);
+  border: 1px solid var(--anx-sys-color-border);
+  border-radius: var(--anx-sys-radius-sm, 0.25rem);
+}
