@@ -405,6 +405,8 @@ ul.blog-list ul.blog-list {
 .blog-archive h1,
 .blog-tag-archive h1,
 .blog-tag-index h1,
+.blog-pillar-archive h1,
+.blog-pillar-index h1,
 .blog-not-found h1,
 .blog-legal h1 {
   margin-block: 0 0.5em;
@@ -554,4 +556,62 @@ ul.blog-list ul.blog-list {
   margin: 0;
   font-size: 0.875rem;
   color: var(--anx-sys-color-danger);
+}
+
+/*
+ * Pillars: the section a post sits in.
+ *
+ * Deliberately quieter than the tag pills. A pillar is one word of orientation
+ * above the title, not a call to action — the tags below it are what a reader
+ * clicks to explore sideways.
+ */
+.anx-root .blog-post-pillar {
+  margin-block: var(--anx-sys-space-2, 0.5rem) 0;
+  font-size: 0.8125rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.anx-root .blog-post-pillar a {
+  color: var(--anx-sys-color-text-secondary);
+  text-decoration: none;
+}
+
+.anx-root .blog-post-pillar a:hover {
+  color: var(--anx-sys-color-text-primary);
+  text-decoration: underline;
+}
+
+.anx-root .blog-lede {
+  margin-block-end: var(--anx-sys-space-4, 1rem);
+  color: var(--anx-sys-color-text-muted);
+}
+
+.anx-root .blog-pillar-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--anx-sys-space-3, 0.75rem);
+}
+
+.anx-root .blog-pillar-list li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--anx-sys-space-3, 0.75rem);
+  padding-block-end: var(--anx-sys-space-3, 0.75rem);
+  border-block-end: 1px solid var(--anx-sys-color-border);
+}
+
+.anx-root .blog-pillar-list a {
+  font-family: var(--anx-sys-font-family-heading, inherit);
+  font-size: 1.125rem;
+  color: var(--anx-sys-color-text);
+  text-decoration: none;
+}
+
+.anx-root .blog-pillar-list a:hover {
+  color: var(--anx-sys-color-text-primary);
+  text-decoration: underline;
 }

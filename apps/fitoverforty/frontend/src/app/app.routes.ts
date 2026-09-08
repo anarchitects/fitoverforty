@@ -12,6 +12,8 @@ import {
 import {
   archiveResolver,
   latestResolver,
+  pillarPostsResolver,
+  pillarsResolver,
   postResolver,
   tagPostsResolver,
   tagsResolver,
@@ -21,7 +23,10 @@ export const appRoutes: Route[] = [
   {
     path: '',
     pathMatch: 'full',
-    loadComponent: () => import('@fitoverforty/blog-angular-feature/home.page').then((m) => m.HomePage),
+    loadComponent: () =>
+      import('@fitoverforty/blog-angular-feature/home.page').then(
+        (m) => m.HomePage,
+      ),
     resolve: { latest: latestResolver },
     title: 'Fit Over Forty',
   },
@@ -29,22 +34,55 @@ export const appRoutes: Route[] = [
     path: 'blog',
     pathMatch: 'full',
     loadComponent: () =>
-      import('@fitoverforty/blog-angular-feature/blog-archive.page').then((m) => m.BlogArchivePage),
+      import('@fitoverforty/blog-angular-feature/blog-archive.page').then(
+        (m) => m.BlogArchivePage,
+      ),
     resolve: { posts: archiveResolver },
     title: 'Blog — Fit Over Forty',
   },
   {
     path: 'blog/page/:page',
     loadComponent: () =>
-      import('@fitoverforty/blog-angular-feature/blog-archive.page').then((m) => m.BlogArchivePage),
+      import('@fitoverforty/blog-angular-feature/blog-archive.page').then(
+        (m) => m.BlogArchivePage,
+      ),
     resolve: { posts: archiveResolver },
     title: 'Blog — Fit Over Forty',
+  },
+  // Must precede 'blog/:slug', which would otherwise match 'pillars' as a slug.
+  {
+    path: 'blog/pillars',
+    loadComponent: () =>
+      import('@fitoverforty/blog-angular-feature/pillar-index.page').then(
+        (m) => m.PillarIndexPage,
+      ),
+    resolve: { pillars: pillarsResolver },
+    title: 'Pillars — Fit Over Forty',
+  },
+  {
+    path: 'blog/pillar/:pillar',
+    pathMatch: 'full',
+    loadComponent: () =>
+      import('@fitoverforty/blog-angular-feature/pillar-archive.page').then(
+        (m) => m.PillarArchivePage,
+      ),
+    resolve: { posts: pillarPostsResolver, pillars: pillarsResolver },
+  },
+  {
+    path: 'blog/pillar/:pillar/page/:page',
+    loadComponent: () =>
+      import('@fitoverforty/blog-angular-feature/pillar-archive.page').then(
+        (m) => m.PillarArchivePage,
+      ),
+    resolve: { posts: pillarPostsResolver, pillars: pillarsResolver },
   },
   // Must precede 'blog/:slug', which would otherwise match 'tags' as a slug.
   {
     path: 'blog/tags',
     loadComponent: () =>
-      import('@fitoverforty/blog-angular-feature/tag-index.page').then((m) => m.TagIndexPage),
+      import('@fitoverforty/blog-angular-feature/tag-index.page').then(
+        (m) => m.TagIndexPage,
+      ),
     resolve: { tags: tagsResolver },
     title: 'Tags — Fit Over Forty',
   },
@@ -52,19 +90,25 @@ export const appRoutes: Route[] = [
     path: 'blog/tag/:tag',
     pathMatch: 'full',
     loadComponent: () =>
-      import('@fitoverforty/blog-angular-feature/tag-archive.page').then((m) => m.TagArchivePage),
+      import('@fitoverforty/blog-angular-feature/tag-archive.page').then(
+        (m) => m.TagArchivePage,
+      ),
     resolve: { posts: tagPostsResolver },
   },
   {
     path: 'blog/tag/:tag/page/:page',
     loadComponent: () =>
-      import('@fitoverforty/blog-angular-feature/tag-archive.page').then((m) => m.TagArchivePage),
+      import('@fitoverforty/blog-angular-feature/tag-archive.page').then(
+        (m) => m.TagArchivePage,
+      ),
     resolve: { posts: tagPostsResolver },
   },
   {
     path: 'blog/:slug',
     loadComponent: () =>
-      import('@fitoverforty/blog-angular-feature/post-detail.page').then((m) => m.PostDetailPage),
+      import('@fitoverforty/blog-angular-feature/post-detail.page').then(
+        (m) => m.PostDetailPage,
+      ),
     resolve: { post: postResolver },
   },
   /**
@@ -79,7 +123,9 @@ export const appRoutes: Route[] = [
     path: 'admin/sign-in',
     canActivate: [signedOutGuard],
     loadComponent: () =>
-      import('@fitoverforty/admin-angular-feature/sign-in.page').then((m) => m.SignInPage),
+      import('@fitoverforty/admin-angular-feature/sign-in.page').then(
+        (m) => m.SignInPage,
+      ),
     title: 'Sign in — Fit Over Forty',
   },
   {
@@ -93,13 +139,17 @@ export const appRoutes: Route[] = [
      */
     providers: [{ provide: IMAGE_UPLOADER, useExisting: HttpImageUploader }],
     loadComponent: () =>
-      import('@fitoverforty/admin-angular-feature/admin-shell.page').then((m) => m.AdminShellPage),
+      import('@fitoverforty/admin-angular-feature/admin-shell.page').then(
+        (m) => m.AdminShellPage,
+      ),
     children: [
       {
         path: '',
         pathMatch: 'full',
         loadComponent: () =>
-          import('@fitoverforty/admin-angular-feature/dashboard.page').then((m) => m.DashboardPage),
+          import('@fitoverforty/admin-angular-feature/dashboard.page').then(
+            (m) => m.DashboardPage,
+          ),
         title: 'Posts — Fit Over Forty',
       },
       /**
@@ -109,13 +159,17 @@ export const appRoutes: Route[] = [
       {
         path: 'posts/new',
         loadComponent: () =>
-          import('@fitoverforty/admin-angular-feature/post-editor.page').then((m) => m.PostEditorPage),
+          import('@fitoverforty/admin-angular-feature/post-editor.page').then(
+            (m) => m.PostEditorPage,
+          ),
         title: 'New post — Fit Over Forty',
       },
       {
         path: 'posts/:id',
         loadComponent: () =>
-          import('@fitoverforty/admin-angular-feature/post-editor.page').then((m) => m.PostEditorPage),
+          import('@fitoverforty/admin-angular-feature/post-editor.page').then(
+            (m) => m.PostEditorPage,
+          ),
         title: 'Edit post — Fit Over Forty',
       },
     ],
@@ -151,7 +205,9 @@ export const appRoutes: Route[] = [
   {
     path: '**',
     loadComponent: () =>
-      import('@fitoverforty/blog-angular-feature/not-found.page').then((m) => m.NotFoundPage),
+      import('@fitoverforty/blog-angular-feature/not-found.page').then(
+        (m) => m.NotFoundPage,
+      ),
     title: 'Not found — Fit Over Forty',
   },
 ];

@@ -5,6 +5,7 @@ import { firstValueFrom } from 'rxjs';
 import type {
   ContentSource,
   Paged,
+  PillarSummary,
   Post,
   PostRef,
   PostSummary,
@@ -33,6 +34,23 @@ export class HttpContentSource implements ContentSource {
     return firstValueFrom(
       this.http.get<Paged<PostSummary>>(
         `${API}/tags/${encodeURIComponent(tagSlug)}/posts`,
+        { params: { page, perPage } },
+      ),
+    );
+  }
+
+  listPillars(): Promise<PillarSummary[]> {
+    return firstValueFrom(this.http.get<PillarSummary[]>(`${API}/pillars`));
+  }
+
+  postsByPillar(
+    pillarSlug: string,
+    page: number,
+    perPage: number,
+  ): Promise<Paged<PostSummary>> {
+    return firstValueFrom(
+      this.http.get<Paged<PostSummary>>(
+        `${API}/pillars/${encodeURIComponent(pillarSlug)}/posts`,
         { params: { page, perPage } },
       ),
     );

@@ -31,3 +31,21 @@ export interface TagRef {
 export interface TagSummary extends TagRef {
   postCount: number;
 }
+
+export interface PillarRef {
+  /** kebab-case, and one of PILLAR_SLUGS. */
+  slug: string;
+  name: string;
+}
+
+/**
+ * A pillar plus how many published posts sit in it.
+ *
+ * Mirrors TagSummary for the same reason: a post's own pillar does not need a
+ * count, and only the pillar index does.
+ */
+export interface PillarSummary extends PillarRef {
+  postCount: number;
+  /** Fixed display order, so the four always read Physical → Financial. */
+  position: number;
+}

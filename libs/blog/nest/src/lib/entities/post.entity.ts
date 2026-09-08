@@ -13,6 +13,7 @@ import {
 import type { OutputData, PostStatus } from '@fitoverforty/blog-ts';
 import { AuthorEntity } from './author.entity';
 import { MediaEntity } from './media.entity';
+import { PillarEntity } from './pillar.entity';
 import { TagEntity } from './tag.entity';
 
 /**
@@ -67,6 +68,19 @@ export class PostEntity {
   @ManyToOne(() => MediaEntity, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'hero_media_id' })
   hero!: MediaEntity | null;
+
+  /**
+   * The section this post belongs to. Exactly one, or none while drafting.
+   *
+   * Nullable for the same reason `blog.media.alt` may be empty at upload:
+   * `PostAdminService.publish` is what refuses, so an unfinished post can be
+   * parked without having decided where it lives. RESTRICT rather than SET
+   * NULL because a pillar is never deleted in normal operation, and silently
+   * unfiling every post in one would be a poor way to find out.
+   */
+  @ManyToOne(() => PillarEntity, { nullable: true, onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'pillar_id' })
+  pillar!: PillarEntity | null;
 
   @ManyToMany(() => TagEntity)
   @JoinTable({

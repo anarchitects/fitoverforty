@@ -5,13 +5,20 @@ import { PostAdminController, PostAdminService } from './admin';
 import { BlogController } from './blog.controller';
 import { SyndicationController } from './syndication.controller';
 import { CONTENT_SOURCE } from './content-source.token';
-import { AuthorEntity, MediaEntity, PostEntity, TagEntity } from './entities';
+import {
+  AuthorEntity,
+  MediaEntity,
+  PillarEntity,
+  PostEntity,
+  TagEntity,
+} from './entities';
 import { TypeOrmContentSource } from './typeorm-content-source';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([
       PostEntity,
+      PillarEntity,
       TagEntity,
       AuthorEntity,
       MediaEntity,

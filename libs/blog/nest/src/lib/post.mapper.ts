@@ -1,6 +1,7 @@
 import type {
   AuthorRef,
   ImageRef,
+  PillarRef,
   Post,
   PostSummary,
   TagRef,
@@ -9,6 +10,7 @@ import { extractHeadings } from './content';
 import type {
   AuthorEntity,
   MediaEntity,
+  PillarEntity,
   PostEntity,
   TagEntity,
 } from './entities';
@@ -35,6 +37,10 @@ function toTagRef(tag: TagEntity): TagRef {
   return { slug: tag.slug, name: tag.name };
 }
 
+function toPillarRef(pillar: PillarEntity): PillarRef {
+  return { slug: pillar.slug, name: pillar.name };
+}
+
 export function toPostSummary(post: PostEntity): PostSummary {
   return {
     slug: post.slug,
@@ -45,6 +51,9 @@ export function toPostSummary(post: PostEntity): PostSummary {
     publishedAt: (post.publishedAt as Date).toISOString(),
     updatedAt: post.updatedAt?.toISOString(),
     authors: (post.authors ?? []).map(toAuthorRef),
+    // Spread rather than `pillar: null`: the contract says optional, and a
+    // published post always has one. Absent means an unfiled draft.
+    ...(post.pillar ? { pillar: toPillarRef(post.pillar) } : {}),
     tags: (post.tags ?? []).map(toTagRef),
     ...(post.hero ? { hero: toImageRef(post.hero) } : {}),
     readingTimeMinutes: post.readingTimeMinutes,
