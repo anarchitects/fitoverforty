@@ -1,6 +1,6 @@
 import type { Paged } from './paged';
 import type { Post, PostRef, PostSummary } from './post';
-import type { TagSummary } from './refs';
+import type { PillarSummary, TagSummary } from './refs';
 
 /**
  * The narrow contract between stored content and everything that renders it.
@@ -14,6 +14,12 @@ export interface ContentSource {
   listTags(): Promise<TagSummary[]>;
   postsByTag(
     tagSlug: string,
+    page: number,
+    perPage: number,
+  ): Promise<Paged<PostSummary>>;
+  listPillars(): Promise<PillarSummary[]>;
+  postsByPillar(
+    pillarSlug: string,
     page: number,
     perPage: number,
   ): Promise<Paged<PostSummary>>;

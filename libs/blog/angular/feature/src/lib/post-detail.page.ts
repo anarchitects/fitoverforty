@@ -48,6 +48,13 @@ import { NewsletterCtaComponent } from '@fitoverforty/newsletter-angular';
               </span>
             }
           </p>
+          @if (loaded.pillar; as pillar) {
+            <p class="blog-post-pillar">
+              <a [routerLink]="['/blog/pillar', pillar.slug]">
+                {{ pillar.name }}
+              </a>
+            </p>
+          }
           @if (loaded.tags.length) {
             <ul class="blog-tag-list">
               @for (tag of loaded.tags; track tag.slug) {

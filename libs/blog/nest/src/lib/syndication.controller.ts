@@ -68,9 +68,10 @@ ${entries}
   @Header('Content-Type', 'application/xml; charset=utf-8')
   async sitemap(@Req() request: FastifyRequest): Promise<string> {
     const origin = siteOrigin(request);
-    const [posts, tags] = await Promise.all([
+    const [posts, tags, pillars] = await Promise.all([
       this.content.listPublishedRefs(),
       this.content.listTags(),
+      this.content.listPillars(),
     ]);
 
     const url = (path: string, lastmod?: string) =>
@@ -82,7 +83,11 @@ ${entries}
       url('/'),
       url('/blog'),
       url('/blog/tags'),
+      url('/blog/pillars'),
       url('/contact'),
+      // Every pillar, including any with no posts yet — unlike tags, which
+      // only exist once something carries them. The four are permanent URLs.
+      ...pillars.map((pillar) => url(`/blog/pillar/${pillar.slug}`)),
       ...tags.map((tag) => url(`/blog/tag/${tag.slug}`)),
       ...posts.map((post) =>
         url(`/blog/${post.slug}`, post.updatedAt ?? post.publishedAt),

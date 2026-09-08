@@ -1,5 +1,5 @@
 import type { OutputData } from './editorjs';
-import type { AuthorRef, ImageRef, Iso8601, TagRef } from './refs';
+import type { AuthorRef, ImageRef, Iso8601, PillarRef, TagRef } from './refs';
 
 export interface Heading {
   depth: 2 | 3;
@@ -15,6 +15,13 @@ export interface PostSummary {
   publishedAt: Iso8601;
   updatedAt?: Iso8601;
   authors: AuthorRef[];
+  /**
+   * Optional because the column is nullable: a draft may not have chosen one
+   * yet, mirroring how alt text is required to publish rather than to save.
+   * Published posts always have one — `PostAdminService.publish` refuses
+   * otherwise — so a renderer may treat its absence as a draft artefact.
+   */
+  pillar?: PillarRef;
   tags: TagRef[];
   hero?: ImageRef;
   readingTimeMinutes: number;

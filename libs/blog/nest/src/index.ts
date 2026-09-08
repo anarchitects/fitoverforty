@@ -14,6 +14,7 @@ export {
   AuthorEntity,
   MediaEntity,
   PostEntity,
+  PillarEntity,
   TagEntity,
   CURRENT_BODY_SCHEMA_VERSION,
 } from './lib/entities';

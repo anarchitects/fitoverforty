@@ -5,6 +5,8 @@ export {
   POSTS_PER_PAGE,
   archiveResolver,
   latestResolver,
+  pillarPostsResolver,
+  pillarsResolver,
   postResolver,
   tagPostsResolver,
   tagsResolver,

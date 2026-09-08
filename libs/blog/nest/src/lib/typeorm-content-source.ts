@@ -4,16 +4,18 @@ import { LessThanOrEqual, Repository } from 'typeorm';
 import type {
   ContentSource,
   Paged,
+  PillarSummary,
   Post,
   PostRef,
   PostSummary,
   TagSummary,
 } from '@fitoverforty/blog-ts';
-import { PostEntity } from './entities';
+import { PillarEntity, PostEntity } from './entities';
 import { toPost, toPostSummary } from './post.mapper';
 
 const POST_RELATIONS = {
   tags: true,
+  pillar: true,
   hero: true,
   authors: { avatar: true },
 } as const;
@@ -23,6 +25,8 @@ export class TypeOrmContentSource implements ContentSource {
   constructor(
     @InjectRepository(PostEntity)
     private readonly posts: Repository<PostEntity>,
+    @InjectRepository(PillarEntity)
+    private readonly pillars: Repository<PillarEntity>,
   ) {}
 
   /**
@@ -94,6 +98,24 @@ export class TypeOrmContentSource implements ContentSource {
     return this.paged(rows.map(toPostSummary), total, page, perPage);
   }
 
+  async postsByPillar(
+    pillarSlug: string,
+    page: number,
+    perPage: number,
+  ): Promise<Paged<PostSummary>> {
+    // Unlike postsByTag this can filter and paginate in one query: a post has
+    // at most one pillar, so the join cannot multiply rows and the count stays
+    // honest.
+    const [rows, total] = await this.posts.findAndCount({
+      where: { ...this.publishedWhere(), pillar: { slug: pillarSlug } },
+      relations: POST_RELATIONS,
+      order: { publishedAt: 'DESC' },
+      skip: (page - 1) * perPage,
+      take: perPage,
+    });
+    return this.paged(rows.map(toPostSummary), total, page, perPage);
+  }
+
   async loadPost(slug: string): Promise<Post | undefined> {
     const post = await this.posts.findOne({
       where: { ...this.publishedWhere(), slug },
@@ -115,6 +137,42 @@ export class TypeOrmContentSource implements ContentSource {
       slug: row.slug,
       publishedAt: (row.publishedAt as Date).toISOString(),
       updatedAt: row.updatedAt?.toISOString(),
+    }));
+  }
+
+  async listPillars(): Promise<PillarSummary[]> {
+    // A LEFT join, unlike listTags: the four pillars are navigation, so one
+    // with nothing in it yet still has to appear rather than vanish from the
+    // index until someone writes for it.
+    const rows = await this.pillars
+      .createQueryBuilder('pillar')
+      .select('pillar.slug', 'slug')
+      .addSelect('pillar.name', 'name')
+      .addSelect('pillar.position', 'position')
+      .addSelect(
+        `COUNT(post.id) FILTER (
+          WHERE post.status = 'published' AND post.published_at <= now()
+        )`,
+        'count',
+      )
+      .leftJoin(PostEntity, 'post', 'post.pillar_id = pillar.id')
+      .groupBy('pillar.slug')
+      .addGroupBy('pillar.name')
+      .addGroupBy('pillar.position')
+      .orderBy('pillar.position', 'ASC')
+      .getRawMany<{
+        slug: string;
+        name: string;
+        position: number;
+        count: string;
+      }>();
+
+    return rows.map((row) => ({
+      slug: row.slug,
+      name: row.name,
+      position: Number(row.position),
+      // COUNT is a bigint and comes back as a string, as in listTags.
+      postCount: Number.parseInt(row.count, 10),
     }));
   }
 

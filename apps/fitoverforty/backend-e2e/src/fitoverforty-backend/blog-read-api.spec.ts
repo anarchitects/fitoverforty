@@ -89,6 +89,80 @@ describe('blog read api', () => {
     });
   });
 
+  describe('GET /blog/pillars', () => {
+    it('returns all four in their fixed order, with counts', async () => {
+      const { status, body } = await get('/blog/pillars');
+      expect(status).toBe(200);
+      expect(body.map((p: { slug: string }) => p.slug)).toEqual([
+        'physical-fitness',
+        'mental-fitness',
+        'emotional-fitness',
+        'financial-fitness',
+      ]);
+    });
+
+    it('lists a pillar with no posts rather than omitting it', async () => {
+      // Unlike tags, which only exist once something carries them, the four
+      // pillars are navigation: a reader who sees three of four learns the
+      // wrong thing about what this blog covers.
+      const { body } = await get('/blog/pillars');
+      const mental = body.find(
+        (p: { slug: string }) => p.slug === 'mental-fitness',
+      );
+      expect(mental).toEqual(
+        expect.objectContaining({ name: 'Mental Fitness', postCount: 0 }),
+      );
+    });
+
+    it('counts only published, already-dated posts', async () => {
+      // The draft and the future-dated post inserted above are both filed
+      // under a pillar by the backfill, so a naive count would include them.
+      const { body } = await get('/blog/pillars');
+      const physical = body.find(
+        (p: { slug: string }) => p.slug === 'physical-fitness',
+      );
+      expect(physical.postCount).toBe(2);
+    });
+  });
+
+  describe('GET /blog/pillars/:slug/posts', () => {
+    it('returns the posts filed under a pillar', async () => {
+      const { status, body } = await get(
+        '/blog/pillars/physical-fitness/posts',
+      );
+      expect(status).toBe(200);
+      expect(body.totalItems).toBe(2);
+      const slugs = body.items.map((item: { slug: string }) => item.slug);
+      expect(slugs).toEqual([SEEDED.protein, SEEDED.lifting]);
+    });
+
+    it('carries the pillar on each summary', async () => {
+      const { body } = await get('/blog/pillars/physical-fitness/posts');
+      expect(body.items[0].pillar).toEqual({
+        slug: 'physical-fitness',
+        name: 'Physical Fitness',
+      });
+    });
+
+    it('hides drafts and future-dated posts, as every read does', async () => {
+      const { body } = await get(
+        '/blog/pillars/physical-fitness/posts?perPage=50',
+      );
+      const slugs = body.items.map((item: { slug: string }) => item.slug);
+      expect(slugs).not.toContain(HIDDEN.draft);
+      expect(slugs).not.toContain(HIDDEN.future);
+    });
+
+    it('is an empty page for a pillar nobody has written for', async () => {
+      const { status, body } = await get(
+        '/blog/pillars/financial-fitness/posts',
+      );
+      expect(status).toBe(200);
+      expect(body.items).toEqual([]);
+      expect(body.totalItems).toBe(0);
+    });
+  });
+
   describe('GET /blog/posts/:slug', () => {
     it('returns the full post with blocks and derived headings', async () => {
       const { status, body } = await get(`/blog/posts/${SEEDED.lifting}`);

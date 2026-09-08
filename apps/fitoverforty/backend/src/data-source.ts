@@ -38,6 +38,7 @@ import { CreateAuthSchema1787822337235 } from '../tools/typeorm/migrations/17878
 import { LinkAuthorsToUsers1787840262133 } from '../tools/typeorm/migrations/1787840262133-LinkAuthorsToUsers';
 import { RecordConsentWithdrawal1787871010736 } from '../tools/typeorm/migrations/1787871010736-RecordConsentWithdrawal';
 import { RelaxAccountIssuer1787926754714 } from '../tools/typeorm/migrations/1787926754714-RelaxAccountIssuer';
+import { AddContentPillars1788867721385 } from '../tools/typeorm/migrations/1788867721385-AddContentPillars';
 import { NewsletterConsentEntity } from '@fitoverforty/newsletter-nest';
 import {
   AuthAccountEntity,
@@ -48,6 +49,7 @@ import {
 import {
   AuthorEntity,
   MediaEntity,
+  PillarEntity,
   PostEntity,
   TagEntity,
 } from '@fitoverforty/blog-nest';
@@ -103,6 +105,7 @@ export const AppDataSource = new DataSource({
     TagEntity,
     AuthorEntity,
     MediaEntity,
+    PillarEntity,
     NewsletterConsentEntity,
     AuthUserEntity,
     AuthAccountEntity,
@@ -120,6 +123,7 @@ export const AppDataSource = new DataSource({
     LinkAuthorsToUsers1787840262133,
     RecordConsentWithdrawal1787871010736,
     RelaxAccountIssuer1787926754714,
+    AddContentPillars1788867721385,
   ],
 });
 

@@ -2,6 +2,7 @@ import { inject } from '@angular/core';
 import type { ActivatedRouteSnapshot, ResolveFn } from '@angular/router';
 import type {
   Paged,
+  PillarSummary,
   Post,
   PostSummary,
   TagSummary,
@@ -40,6 +41,20 @@ export const tagPostsResolver: ResolveFn<Loaded<Paged<PostSummary>>> = (
   loaded(
     inject(CONTENT_SOURCE).postsByTag(
       route.paramMap.get('tag') ?? '',
+      pageParam(route),
+      POSTS_PER_PAGE,
+    ),
+  );
+
+export const pillarsResolver: ResolveFn<Loaded<PillarSummary[]>> = () =>
+  loaded(inject(CONTENT_SOURCE).listPillars());
+
+export const pillarPostsResolver: ResolveFn<Loaded<Paged<PostSummary>>> = (
+  route,
+) =>
+  loaded(
+    inject(CONTENT_SOURCE).postsByPillar(
+      route.paramMap.get('pillar') ?? '',
       pageParam(route),
       POSTS_PER_PAGE,
     ),

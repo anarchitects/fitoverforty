@@ -40,6 +40,21 @@ export class BlogController {
     return post;
   }
 
+  @Get('pillars')
+  listPillars() {
+    return this.content.listPillars();
+  }
+
+  @Get('pillars/:slug/posts')
+  postsByPillar(
+    @Param('slug') slug: string,
+    @Query('page') page?: string,
+    @Query('perPage') perPage?: string,
+  ) {
+    const { page: p, perPage: pp } = parsePaging(page, perPage);
+    return this.content.postsByPillar(slug, p, pp);
+  }
+
   @Get('tags')
   listTags() {
     return this.content.listTags();
