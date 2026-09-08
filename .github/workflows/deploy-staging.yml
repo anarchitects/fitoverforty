@@ -218,6 +218,43 @@ jobs:
           pm2 save
           EOF
 
+      # TEMPORARY — the app is falling back to its defaults while migrate.js,
+      # run from the same directory seconds earlier, reads the .env correctly.
+      # Prints variable NAMES and pm2's working directory only; no values.
+      - name: What does the server actually see
+        env:
+          SSH_HOST: ${{ secrets.STAGING_SSH_HOST }}
+          SSH_USER: ${{ secrets.STAGING_SSH_USER }}
+        run: |
+          set -euo pipefail
+          ssh -i ~/.ssh/deploy_key "$SSH_USER@$SSH_HOST" \
+            bash -euo pipefail -s -- "$DEPLOY_ROOT" "$PM2_APP" <<'EOF'
+          deploy_root=$1
+          app=$2
+
+          echo "--- whoami / pm2 home ---"
+          whoami
+          echo "PM2_HOME=${PM2_HOME:-$HOME/.pm2}"
+
+          echo "--- pm2 processes (name, cwd, script, status) ---"
+          pm2 jlist | node -e '
+            let s = ""; process.stdin.on("data", d => s += d).on("end", () => {
+              for (const p of JSON.parse(s)) {
+                console.log([p.name, p.pm2_env.pm_cwd, p.pm2_env.pm_exec_path,
+                             p.pm2_env.status, "restarts=" + p.pm2_env.restart_time].join("  |  "));
+              }
+            });'
+
+          echo "--- .env beside main.js ---"
+          ls -l "$deploy_root/backend/.env" || echo "MISSING"
+          echo "keys present:"
+          grep -oE '^[A-Z_]+' "$deploy_root/backend/.env" | tr '\n' ' ' || true
+          echo
+
+          echo "--- does the ecosystem file on the box say what we think ---"
+          grep -nE "name:|cwd:" "$deploy_root/ecosystem.config.cjs" || true
+          EOF
+
       # The check runs on the server against the loopback port rather than from
       # the runner against the public name, so it tests the deploy rather than
       # DNS and TLS.
