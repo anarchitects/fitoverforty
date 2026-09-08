@@ -1,10 +1,7 @@
-// Must come first: `data-source.ts` reads process.env at module scope, so the
-// file has to be loaded before that import is evaluated. `main.js` gets the
-// same .env through Nest's ConfigModule, which this entry point does not have —
-// it is a script, not an application — so it loads it directly. dotenv is
-// already a dependency of the artefact.
-import 'dotenv/config';
-
+// `data-source.ts` loads `.env` itself, before it reads anything from the
+// environment — see the note at the top of that file. This entry point needs no
+// dotenv of its own, and adding one would imply the data source could be used
+// safely without it.
 import { AppDataSource } from './data-source';
 
 /**

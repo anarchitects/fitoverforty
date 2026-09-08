@@ -97,13 +97,22 @@ jobs:
           printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
 
+      # Logged on every deploy. "Permission denied (publickey)" is identical
+      # whether the secret holds the wrong key, the public half was never
+      # installed, or the permissions on authorized_keys are too loose — and
+      # this line is what tells them apart without another round trip. A
+      # fingerprint is a hash of the public half; sshd logs them routinely.
+      - name: Report the deploy key fingerprint
+        run: ssh-keygen -lf ~/.ssh/deploy_key
+
       - name: Prepare the remote directories
         env:
           SSH_HOST: ${{ secrets.STAGING_SSH_HOST }}
           SSH_USER: ${{ secrets.STAGING_SSH_USER }}
         run: |
           set -euo pipefail
-          ssh -i ~/.ssh/deploy_key "$SSH_USER@$SSH_HOST" \
+          ssh -o IdentitiesOnly=yes -o PreferredAuthentications=publickey \
+            -i ~/.ssh/deploy_key "$SSH_USER@$SSH_HOST" \
             "mkdir -p '$DEPLOY_ROOT/backend' '$DEPLOY_ROOT/frontend'"
 
       # --delete keeps the artefact honest: a file removed from the build should
@@ -193,15 +202,20 @@ jobs:
           deploy_root=$1
           app=$2
 
-          # `pm2 describe` decides between reload and start. Starting a name
-          # that is already running would leave two processes on the same port,
-          # and the deploy would report success while the new one died of
-          # EADDRINUSE.
-          if pm2 describe "$app" > /dev/null 2>&1; then
-            pm2 reload "$app" --update-env
-          else
-            pm2 start "$deploy_root/ecosystem.config.cjs" --only "$app"
-          fi
+          # `startOrReload` always re-reads the definition from the ecosystem
+          # file: it starts the app if absent and reloads it from the file if
+          # present. A hand-rolled `pm2 describe` branch reloads the *saved*
+          # definition instead, which is how the first successful deploy of this
+          # workflow failed — pm2 held an older entry whose `cwd` was not the
+          # backend directory, so dotenv found no `.env` beside `main.js` and the
+          # app fell back to every default it has, including the database
+          # username. Migrations had already succeeded from the same file
+          # seconds earlier, which is what made it confusing.
+          #
+          # --update-env so a changed environment is picked up rather than
+          # inherited from the previous incarnation.
+          pm2 startOrReload "$deploy_root/ecosystem.config.cjs" \
+            --only "$app" --update-env
 
           pm2 save
           EOF
