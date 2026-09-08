@@ -1,3 +1,29 @@
+/**
+ * Must be the first import in this file, and this file must be the one that
+ * does it.
+ *
+ * `AppDataSource` below is constructed at module scope, so it reads
+ * `process.env` the moment this module is evaluated. `app.module.ts` imports it
+ * statically, which means that happens *before* `ConfigModule.forRoot()` is
+ * ever called — and `forRoot` is what would otherwise load `.env`. Every
+ * TYPEORM_* value would therefore fall back to its default no matter what the
+ * file beside `main.js` says.
+ *
+ * It went unnoticed for as long as it did because everything that runs this in
+ * development already has the variables in the real environment: Nx loads the
+ * workspace `.env` into a task's environment, and CI sets them in the workflow.
+ * Only a deployed process — pm2 starting `main.js` with a `.env` next to it —
+ * has nothing doing that, so the first symptom was a staging box connecting as
+ * the development default while `migrate.js`, which loads dotenv itself, read
+ * the same file correctly (#65).
+ *
+ * Note this is not a general fix for the app's configuration: variables read
+ * *after* bootstrap, such as `PORT` and the SSR paths in `main.ts`, get theirs
+ * from ConfigModule as normal. Module-scope reads are the ones that cannot
+ * wait, and this is the only file that does them.
+ */
+import 'dotenv/config';
+
 import {
   AddValidationRulesToFormConfigs1720310000000,
   CreateFormsTables1720300000000,

@@ -411,6 +411,22 @@ These cost real debugging time; none are inferable from the code.
     says `ENOTFOUND`. `apiBaseUrlInterceptor` uses `http://127.0.0.1:` plus `PORT`, with
     `API_ORIGIN` as the override for a genuinely split deployment.
 
+- **`data-source.ts` loads `.env` itself, and has to.** `AppDataSource` is built at
+  module scope, and `app.module.ts` imports it statically — so it reads `process.env`
+  *before* `ConfigModule.forRoot()` is called, which is what would otherwise load the
+  file. Without the `import 'dotenv/config'` at the top of that file every `TYPEORM_*`
+  value silently falls back to its development default.
+  It is invisible everywhere it is normally run: Nx loads the workspace `.env` into a
+  task's environment, and CI sets the variables in the workflow, so in both cases they
+  are already in the real environment before any of this matters. Only a deployed
+  process — pm2 starting `main.js` with a `.env` beside it — has nothing doing that.
+  The symptom is a deployed app connecting as `fitoverforty`, the development default,
+  while `migrate.js` reads the same file correctly from the same directory seconds
+  earlier. Note `PORT` and the SSR paths are *not* affected: `main.ts` reads those after
+  `NestFactory.create()`, by which time ConfigModule has loaded the file. Module-scope
+  reads are the ones that cannot wait, and `data-source.ts` is the only file that does
+  them. Found on the first real deploy to staging (#65).
+
 - **`WEB_ALLOWED_HOSTS` defaults to a value that takes a deployed site down.** It is
   `localhost,127.0.0.1`, and Angular's SSR engine answers **400 to every page** whose
   `Host` is not in the list. Behind a proxy that is the public hostname, so leaving it
