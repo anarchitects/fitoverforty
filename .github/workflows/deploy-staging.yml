@@ -253,6 +253,25 @@ jobs:
 
           echo "--- does the ecosystem file on the box say what we think ---"
           grep -nE "name:|cwd:" "$deploy_root/ecosystem.config.cjs" || true
+
+          echo "--- can dotenv parse that file from the app's cwd ---"
+          cd "$deploy_root/backend"
+          node -e '
+            const r = require("dotenv").config();
+            console.log("dotenv error:", r.error ? r.error.message : "none");
+            console.log("parsed keys:", r.parsed ? Object.keys(r.parsed).length : 0);
+            console.log("resolved TYPEORM_USERNAME:", JSON.stringify(process.env.TYPEORM_USERNAME));
+            console.log("resolved TYPEORM_DATABASE:", JSON.stringify(process.env.TYPEORM_DATABASE));'
+
+          echo "--- environment pm2 injects into the app (names only) ---"
+          pm2 jlist | node -e '
+            let s = ""; process.stdin.on("data", d => s += d).on("end", () => {
+              const app = JSON.parse(s).find(p => p.name === process.argv[1]);
+              const env = app ? app.pm2_env : {};
+              const keys = Object.keys(env).filter(k => /^[A-Z][A-Z0-9_]*$/.test(k));
+              console.log(keys.sort().join(" "));
+              console.log("TYPEORM_USERNAME injected by pm2:", JSON.stringify(env.TYPEORM_USERNAME));
+            });' "$app"
           EOF
 
       # The check runs on the server against the loopback port rather than from
