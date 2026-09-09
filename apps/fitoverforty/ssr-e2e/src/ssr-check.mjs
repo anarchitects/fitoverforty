@@ -246,15 +246,31 @@ async function main() {
     );
 
     console.log('degraded backend');
+    // These four are the server-side half of what `blog-flow.spec.ts` used to
+    // assert by mocking the API in the browser. Since #80 the transfer cache
+    // works, so a server-rendered first load takes its data from the server's
+    // own fetch and a browser-level mock never sees the request — this is the
+    // only place the API can be made to fail for a first load.
     stub.setFailing(true);
     const failed = await fetch(`${base}/blog`);
     check(
       'API failure renders 503, not an empty-looking 200',
       failed.status === 503,
     );
+    const failedBody = await failed.text();
     check(
       'and says so in the body',
-      (await failed.text()).includes('could not be loaded'),
+      failedBody.includes('could not be loaded'),
+    );
+    check(
+      'and does not offer a false empty state alongside it',
+      !failedBody.includes('blog-empty'),
+    );
+    const home = await (await fetch(`${base}/`)).text();
+    check(
+      'the home page still renders its own heading when the API is down',
+      home.includes('<h1>Fit Over Forty</h1>') &&
+        home.includes('could not be loaded'),
     );
   } catch (error) {
     console.error('\nSSR check threw:', error);

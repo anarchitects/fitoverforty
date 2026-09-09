@@ -1,8 +1,10 @@
 import {
   Injectable,
+  inject,
   makeEnvironmentProviders,
   type EnvironmentProviders,
 } from '@angular/core';
+import { PlatformLocation } from '@angular/common';
 import {
   FetchBackend,
   HttpBackend,
@@ -41,12 +43,15 @@ function apiOrigin(): string {
 }
 
 /**
- * Makes relative API URLs work during server-side rendering, **below** the
- * interceptor chain.
+ * Sends the renderer's own API calls to loopback, **below** the interceptor
+ * chain.
  *
  * In the browser a request to `/api/blog/posts` resolves against the current
- * page. On the server there is no page, so the same URL has nothing to resolve
- * against and the request fails. Something has to prefix an origin.
+ * page. On the server there is no page, so something has to supply an origin,
+ * and `@angular/platform-server` already does: it registers
+ * `relativeUrlsTransformerInterceptorFn`, which resolves relative URLs against
+ * `PlatformLocation` — the origin the page was requested on. This backend runs
+ * after that, and swaps that origin for loopback.
  *
  * The base has to be **loopback**, not the origin of the incoming request.
  * Behind Nginx that origin is the public one — `https://the-blog.example` —
@@ -91,6 +96,16 @@ function apiOrigin(): string {
  * the empty string a relative URL would need is falsy, so the lookup
  * short-circuits and returns the URL unchanged.
  *
+ * Root interceptor order is what makes this work, and it is decided by
+ * provider order: `provideClientHydration()` is in `app.config.ts` and
+ * `provideServerRendering()` in `app.config.server.ts`, which `merge`
+ * appends second — so the transfer cache keys the request before
+ * platform-server absolutises it. Confirmed the other way round too, on
+ * staging before the fix: the entry was keyed
+ * `http://127.0.0.1:3001/api/blog/posts`, the loopback URL our *user*
+ * interceptor produced, not the request origin platform-server would have
+ * produced afterwards.
+ *
  * It *extends* `FetchBackend` rather than wrapping one, because Angular warns
  * (NG02801) when the backend in use during SSR is not a `FetchBackend`. A
  * delegating wrapper fails that `instanceof` check and produces a "HttpClient
@@ -98,13 +113,41 @@ function apiOrigin(): string {
  */
 @Injectable()
 export class LoopbackApiBackend extends FetchBackend {
+  private readonly location = inject(PlatformLocation);
+
   override handle(
     request: HttpRequest<unknown>,
   ): Observable<HttpEvent<unknown>> {
-    if (!request.url.startsWith('/')) return super.handle(request);
+    const url = toLoopback(request.url, renderOrigin(this.location));
+    if (url === request.url) return super.handle(request);
 
-    return super.handle(request.clone({ url: `${apiOrigin()}${request.url}` }));
+    return super.handle(request.clone({ url }));
   }
+}
+
+/**
+ * The origin the page being rendered was requested on, exactly as
+ * `relativeUrlsTransformerInterceptorFn` computes it — the two have to agree
+ * or `toLoopback` stops recognising the URLs that interceptor produces.
+ *
+ * `null` before the render has a location to speak of, which is the same
+ * condition that makes the interceptor leave the URL alone.
+ */
+function renderOrigin(location: PlatformLocation): string | null {
+  const { protocol, hostname, port } = location;
+  if (!protocol.startsWith('http')) return null;
+
+  return `${protocol}//${hostname}${port ? `:${port}` : ''}`;
+}
+
+function toLoopback(url: string, origin: string | null): string {
+  // Belt and braces: reachable only if platform-server ever stops absolutising
+  // relative URLs before the backend sees them.
+  if (url.startsWith('/')) return `${apiOrigin()}${url}`;
+
+  if (origin === null || !url.startsWith(`${origin}/`)) return url;
+
+  return `${apiOrigin()}${url.slice(origin.length)}`;
 }
 
 /**

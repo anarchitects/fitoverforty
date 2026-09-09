@@ -6,6 +6,7 @@ import {
   withInterceptors,
   type HttpInterceptorFn,
 } from '@angular/common/http';
+import { PlatformLocation } from '@angular/common';
 import { provideClientHydration } from '@angular/platform-browser';
 import { TestBed } from '@angular/core/testing';
 import { firstValueFrom } from 'rxjs';
@@ -17,6 +18,16 @@ import { provideLoopbackApi } from './loopback-api.backend';
  * that the process talks to itself.
  */
 const PUBLIC_ORIGIN = 'https://the-blog.example';
+
+/**
+ * Only the four fields `relativeUrlsTransformerInterceptorFn` reads, which are
+ * the same four `renderOrigin()` reads. Anything else on `PlatformLocation`
+ * would be scenery.
+ */
+function platformLocationAt(origin: string): Partial<PlatformLocation> {
+  const { protocol, hostname, port } = new URL(origin);
+  return { protocol, hostname, port, href: `${origin}/blog` };
+}
 
 const POSTS_URL = '/api/blog/posts';
 const POSTS_BODY = { items: [{ slug: 'protein-without-the-spreadsheet' }] };
@@ -53,6 +64,7 @@ function serverProviders(extra: unknown[] = []) {
   return [
     provideHttpClient(withFetch()),
     provideLoopbackApi(),
+    { provide: PlatformLocation, useValue: platformLocationAt(PUBLIC_ORIGIN) },
     ...(extra as never[]),
   ];
 }
@@ -82,12 +94,36 @@ describe('LoopbackApiBackend', () => {
   it('addresses loopback during SSR, not the public origin', async () => {
     // The failure this guards against renders a page and then answers 503:
     // the fetch leaves the machine for a name the machine cannot resolve.
+    //
+    // The URL arrives already absolute because platform-server's own root
+    // interceptor resolved it against `PlatformLocation` first — that is the
+    // shape this backend has to recognise, not the relative one.
     delete process.env['API_ORIGIN'];
     process.env['PORT'] = '8080';
     TestBed.configureTestingModule({ providers: serverProviders() });
 
-    await expect(get(POSTS_URL)).resolves.toEqual(POSTS_BODY);
+    await expect(get(`${PUBLIC_ORIGIN}${POSTS_URL}`)).resolves.toEqual(
+      POSTS_BODY,
+    );
     expect(fetched).toEqual([`http://127.0.0.1:8080${POSTS_URL}`]);
+  });
+
+  it('still handles a relative URL, if nothing above it absolutised one', async () => {
+    delete process.env['API_ORIGIN'];
+    process.env['PORT'] = '8080';
+    TestBed.configureTestingModule({ providers: serverProviders() });
+
+    await get(POSTS_URL);
+    expect(fetched).toEqual([`http://127.0.0.1:8080${POSTS_URL}`]);
+  });
+
+  it('keeps the path, query and fragment when it swaps the origin', async () => {
+    delete process.env['API_ORIGIN'];
+    process.env['PORT'] = '8080';
+    TestBed.configureTestingModule({ providers: serverProviders() });
+
+    await get(`${PUBLIC_ORIGIN}/api/blog/posts?page=2`);
+    expect(fetched).toEqual(['http://127.0.0.1:8080/api/blog/posts?page=2']);
   });
 
   it('falls back to the port main.ts defaults to', async () => {
@@ -95,7 +131,7 @@ describe('LoopbackApiBackend', () => {
     delete process.env['PORT'];
     TestBed.configureTestingModule({ providers: serverProviders() });
 
-    await get(POSTS_URL);
+    await get(`${PUBLIC_ORIGIN}${POSTS_URL}`);
     expect(fetched).toEqual([`http://127.0.0.1:3000${POSTS_URL}`]);
   });
 
@@ -104,16 +140,18 @@ describe('LoopbackApiBackend', () => {
     process.env['PORT'] = '8080';
     TestBed.configureTestingModule({ providers: serverProviders() });
 
-    await get(POSTS_URL);
+    await get(`${PUBLIC_ORIGIN}${POSTS_URL}`);
     expect(fetched).toEqual([`http://10.0.0.4:9000${POSTS_URL}`]);
   });
 
-  it('does not touch a URL that is already absolute', async () => {
+  it('leaves a genuinely third-party URL alone', async () => {
+    // Only this render's own origin is redirected inwards. Somebody else's
+    // host is somebody else's host, whatever path it carries.
     process.env['PORT'] = '8080';
     TestBed.configureTestingModule({ providers: serverProviders() });
 
-    await get(`${PUBLIC_ORIGIN}/thing`);
-    expect(fetched).toEqual([`${PUBLIC_ORIGIN}/thing`]);
+    await get('https://elsewhere.example/api/thing');
+    expect(fetched).toEqual(['https://elsewhere.example/api/thing']);
   });
 
   it('rewrites below the interceptor chain, so interceptors see the relative URL', async () => {
@@ -133,6 +171,10 @@ describe('LoopbackApiBackend', () => {
       providers: [
         provideHttpClient(withFetch(), withInterceptors([spy])),
         provideLoopbackApi(),
+        {
+          provide: PlatformLocation,
+          useValue: platformLocationAt(PUBLIC_ORIGIN),
+        },
       ],
     });
 

@@ -428,6 +428,23 @@ These cost real debugging time; none are inferable from the code.
   not `instanceof FetchBackend` — a delegating wrapper works perfectly and reports that
   `HttpClient` is not configured to use fetch, which is untrue.
 
+- **A Playwright `page.route` mock no longer decides what a server-rendered page
+  shows.** It used to, only because the transfer cache was broken (#80): the browser
+  repeated every request the server had already made, and the mock answered the repeat.
+  Now the first load's data comes from the server's own fetch, and the browser never
+  asks. Three consequences, all of which `blog-flow.spec.ts` had to be rewritten around.
+  A `page.goto` of a blog route shows whatever the real backend held. A route that
+  fetches nothing is unaffected, and so is a post the backend does not have — a failed
+  server fetch is not cached, so the browser does fetch it and the mock applies, which
+  is why only some of the suite broke. Anything that needs a mock to decide what a
+  *listing* shows has to arrive by client-side navigation, and anything that needs the
+  API to fail on a first load belongs in `ssr-e2e`, which owns the stub the server talks
+  to. Waiting for hydration before that first in-app click is not optional: until then
+  the link is a plain anchor and clicking it is a full page load. `withEventReplay()`
+  stamps `jsaction` on the elements it stashed listeners for and removes it once the
+  listener is Angular's, so `not.toHaveAttribute('jsaction')` is the exact signal —
+  `networkidle` is banned by lint, and rightly.
+
 - **`data-source.ts` loads `.env` itself, and has to.** `AppDataSource` is built at
   module scope, and `app.module.ts` imports it statically — so it reads `process.env`
   *before* `ConfigModule.forRoot()` is called, which is what would otherwise load the
