@@ -27,6 +27,24 @@ const MARK_VIEWBOX = '17 1 71.6 93.6';
  */
 const LOCKUP_VIEWBOX = '-22 1 150 121';
 
+/**
+ * Bell left, lettering right, on the bell's own vertical centre. A header is
+ * wide and short, so the stacked lockup would have to shrink the wordmark to
+ * nothing to fit; this keeps the lettering readable at header height.
+ *
+ * Proportioned by the lettering rather than the bell: at 30px the wordmark's
+ * cap height was under a quarter of the bell's, which reads as a caption beside
+ * a picture. At 36px it is nearer a third, and the whole thing is 384 units
+ * wide against a bell of 67.5.
+ */
+const INLINE_VIEWBOX = '17 1 384 94';
+
+/** Left edge of the inline wordmark: the bell's right edge plus a gap. */
+const INLINE_WORDMARK_X = 105;
+
+/** The bell's vertical centre, raised by half a cap height to sit on it. */
+const INLINE_BASELINE = 61;
+
 /** Baseline of the wordmark: 13 units below the bell, which is its own width/7. */
 const WORDMARK_BASELINE = 118;
 
@@ -104,9 +122,10 @@ let nextId = 0;
       @if (variant() === 'lockup') {
         <text
           class="fof-logo__wordmark"
-          x="52.8"
-          [attr.y]="wordmarkBaseline"
-          text-anchor="middle"
+          [class.fof-logo__wordmark--inline]="orientation() === 'inline'"
+          [attr.x]="wordmarkX()"
+          [attr.y]="wordmarkY()"
+          [attr.text-anchor]="orientation() === 'inline' ? 'start' : 'middle'"
           fill="currentColor"
         >
           {{ wordmark() }}
@@ -146,12 +165,22 @@ let nextId = 0;
       font-weight: 700;
       letter-spacing: 0.08em;
     }
+
+    .fof-logo__wordmark--inline {
+      font-size: 36px;
+    }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LogoComponent {
-  /** `mark` is the bell alone; `lockup` sets the wordmark beneath it. */
+  /** `mark` is the bell alone; `lockup` sets the wordmark with it. */
   readonly variant = input<'lockup' | 'mark'>('lockup');
+
+  /**
+   * Where the lettering sits. `stacked` is the export's own arrangement;
+   * `inline` puts it beside the bell, which is what a header wants.
+   */
+  readonly orientation = input<'stacked' | 'inline'>('stacked');
 
   /**
    * Hides the mark from assistive technology. Correct wherever the name is
@@ -180,10 +209,18 @@ export class LogoComponent {
   protected readonly titleId = `fof-logo-title-${this.instance}`;
   protected readonly maskRef = `url(#${this.maskId})`;
   protected readonly bell = BELL;
-  protected readonly wordmarkBaseline = WORDMARK_BASELINE;
 
-  protected readonly viewBox = computed(() =>
-    this.variant() === 'mark' ? MARK_VIEWBOX : LOCKUP_VIEWBOX,
+  protected readonly viewBox = computed(() => {
+    if (this.variant() === 'mark') return MARK_VIEWBOX;
+    return this.orientation() === 'inline' ? INLINE_VIEWBOX : LOCKUP_VIEWBOX;
+  });
+
+  protected readonly wordmarkX = computed(() =>
+    this.orientation() === 'inline' ? INLINE_WORDMARK_X : 52.8,
+  );
+
+  protected readonly wordmarkY = computed(() =>
+    this.orientation() === 'inline' ? INLINE_BASELINE : WORDMARK_BASELINE,
   );
 
   protected readonly aspectRatio = computed(() => {

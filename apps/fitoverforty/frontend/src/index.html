@@ -15,7 +15,16 @@
       href="https://fonts.googleapis.com/css2?family=Bitter:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
+    <!--
+      SVG first, because it is the only one that can follow the browser's own
+      light/dark chrome - it carries a prefers-color-scheme rule, which a raster
+      icon cannot. The .ico is the fallback for browsers that ignore it, and
+      carries 16 and 32 so neither is a downscale of the other. Neither shows
+      the 40+: three characters across 32 pixels is texture, not a counter.
+    -->
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
     <!--
       Applies the theme before first paint.
 
