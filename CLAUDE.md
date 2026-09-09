@@ -461,6 +461,22 @@ These cost real debugging time; none are inferable from the code.
   reads are the ones that cannot wait, and `data-source.ts` is the only file that does
   them. Found on the first real deploy to staging (#65).
 
+- **The staging deploy holds one SSH connection, and has to.** Every step opening its
+  own meant six handshakes in quick succession from one address, and the server resets
+  them partway through — `kex_exchange_identification: read: Connection reset by peer`,
+  rsync exit 255. It reads as a flake and is not: re-running walks it exactly one step
+  further along each time, because the throttle is counting connections, not failing
+  them. Authentication is never involved, which is the tell — the step *before* the
+  failure succeeds over the same key. `~/.ssh/config` sets `ControlMaster`/`ControlPath`/
+  `ControlPersist`, one step opens the master with a retry, and everything after rides on
+  it; no `ssh` or `rsync` line names the key any more because the config does. Measured
+  against a real sshd before committing: six operations, six `Accepted publickey` without
+  it and one with. Two traps if this is edited. A `ControlPath` is a Unix domain socket,
+  so the whole expanded path must stay under 104 bytes — `~/.ssh/control/%C` on a runner
+  is about 58, but a longer directory silently fails with `unix_listener: ... too long`.
+  And adding a step that shells out before "Open the SSH connection" puts a handshake
+  back outside the master, which is the thing being avoided.
+
 - **`WEB_ALLOWED_HOSTS` defaults to a value that takes a deployed site down.** It is
   `localhost,127.0.0.1`, and Angular's SSR engine answers **400 to every page** whose
   `Host` is not in the list. Behind a proxy that is the public hostname, so leaving it

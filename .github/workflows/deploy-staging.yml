@@ -87,8 +87,8 @@ jobs:
           SSH_KNOWN_HOSTS: ${{ secrets.STAGING_SSH_KNOWN_HOSTS }}
         run: |
           set -euo pipefail
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
+          mkdir -p ~/.ssh/control
+          chmod 700 ~/.ssh ~/.ssh/control
           printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
           # Pinned from a secret rather than StrictHostKeyChecking=no. Turning
@@ -96,6 +96,19 @@ jobs:
           # deploy key.
           printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
+          # Every ssh and rsync below reads this, which is why none of them
+          # names the key any more.
+          cat > ~/.ssh/config <<'CONF'
+          Host *
+            IdentityFile ~/.ssh/deploy_key
+            IdentitiesOnly yes
+            PreferredAuthentications publickey
+            ControlMaster auto
+            ControlPath ~/.ssh/control/%C
+            ControlPersist 10m
+            ServerAliveInterval 30
+          CONF
+          chmod 600 ~/.ssh/config
 
       # Logged on every deploy. "Permission denied (publickey)" is identical
       # whether the secret holds the wrong key, the public half was never
@@ -105,14 +118,46 @@ jobs:
       - name: Report the deploy key fingerprint
         run: ssh-keygen -lf ~/.ssh/deploy_key
 
+      # One TCP connection carries the whole deploy, and everything after this
+      # step rides on it.
+      #
+      # Each step used to open its own — six handshakes in quick succession from
+      # one address, which the server resets partway through:
+      #
+      #   kex_exchange_identification: read: Connection reset by peer
+      #
+      # It is throttling rather than a flake, and re-running only walks it one
+      # step further along: the first attempt died on the third connection, the
+      # re-run on the fourth. Authentication is not involved — the step before
+      # the failure succeeds over the same key every time. Multiplexing leaves
+      # one handshake per deploy, and the retry covers that one.
+      - name: Open the SSH connection
+        env:
+          SSH_HOST: ${{ secrets.STAGING_SSH_HOST }}
+          SSH_USER: ${{ secrets.STAGING_SSH_USER }}
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3 4 5; do
+            if ssh -f -N -o ControlMaster=yes "$SSH_USER@$SSH_HOST"; then
+              ssh -O check "$SSH_USER@$SSH_HOST"
+              exit 0
+            fi
+            # A half-open master makes the next attempt fail as "ControlSocket
+            # already exists" rather than retrying the handshake.
+            ssh -O exit "$SSH_USER@$SSH_HOST" 2>/dev/null || true
+            echo "attempt $attempt could not reach the staging host; waiting"
+            sleep $(( attempt * 15 ))
+          done
+          echo "no SSH connection to the staging host after 5 attempts" >&2
+          exit 1
+
       - name: Prepare the remote directories
         env:
           SSH_HOST: ${{ secrets.STAGING_SSH_HOST }}
           SSH_USER: ${{ secrets.STAGING_SSH_USER }}
         run: |
           set -euo pipefail
-          ssh -o IdentitiesOnly=yes -o PreferredAuthentications=publickey \
-            -i ~/.ssh/deploy_key "$SSH_USER@$SSH_HOST" \
+          ssh "$SSH_USER@$SSH_HOST" \
             "mkdir -p '$DEPLOY_ROOT/backend' '$DEPLOY_ROOT/frontend'"
 
       # --delete keeps the artefact honest: a file removed from the build should
@@ -134,7 +179,6 @@ jobs:
             --exclude='node_modules/' \
             --exclude='.yarn/' \
             --exclude='.data/' \
-            -e "ssh -i ~/.ssh/deploy_key" \
             dist/apps/fitoverforty/backend/ \
             "$SSH_USER@$SSH_HOST:$DEPLOY_ROOT/backend/"
 
@@ -145,7 +189,6 @@ jobs:
         run: |
           set -euo pipefail
           rsync -az --delete \
-            -e "ssh -i ~/.ssh/deploy_key" \
             dist/apps/fitoverforty/frontend/ \
             "$SSH_USER@$SSH_HOST:$DEPLOY_ROOT/frontend/"
 
@@ -159,7 +202,7 @@ jobs:
           SSH_USER: ${{ secrets.STAGING_SSH_USER }}
         run: |
           set -euo pipefail
-          rsync -az -e "ssh -i ~/.ssh/deploy_key" \
+          rsync -az \
             deploy/pm2/ecosystem.config.cjs \
             "$SSH_USER@$SSH_HOST:$DEPLOY_ROOT/ecosystem.config.cjs"
 
@@ -171,7 +214,7 @@ jobs:
           set -euo pipefail
           # --immutable: the lockfile ships with the artefact, so an install that
           # wants to change it means the artefact is not what was built.
-          ssh -i ~/.ssh/deploy_key "$SSH_USER@$SSH_HOST" \
+          ssh "$SSH_USER@$SSH_HOST" \
             "cd '$DEPLOY_ROOT/backend' && corepack yarn install --immutable"
 
       # Before pm2 is reloaded, deliberately. New code against an old schema
@@ -183,7 +226,7 @@ jobs:
           SSH_USER: ${{ secrets.STAGING_SSH_USER }}
         run: |
           set -euo pipefail
-          ssh -i ~/.ssh/deploy_key "$SSH_USER@$SSH_HOST" \
+          ssh "$SSH_USER@$SSH_HOST" \
             "cd '$DEPLOY_ROOT/backend' && node migrate.js"
 
       - name: Reload or start the process
@@ -197,7 +240,7 @@ jobs:
           # Escaping `$` by hand instead works right up until one is missed, and
           # the failure then is a remote command that silently uses an empty
           # variable.
-          ssh -i ~/.ssh/deploy_key "$SSH_USER@$SSH_HOST" \
+          ssh "$SSH_USER@$SSH_HOST" \
             bash -euo pipefail -s -- "$DEPLOY_ROOT" "$PM2_APP" <<'EOF'
           deploy_root=$1
           app=$2
@@ -233,7 +276,7 @@ jobs:
           SSH_USER: ${{ secrets.STAGING_SSH_USER }}
         run: |
           set -euo pipefail
-          ssh -i ~/.ssh/deploy_key "$SSH_USER@$SSH_HOST" \
+          ssh "$SSH_USER@$SSH_HOST" \
             bash -euo pipefail -s -- "$DEPLOY_ROOT" "$PM2_APP" "$PUBLIC_HOST" <<'EOF'
           deploy_root=$1
           app=$2
@@ -268,3 +311,13 @@ jobs:
 
           pm2 describe "$app" | grep -E 'status' || true
           EOF
+
+      # The master would go on its own after ControlPersist, but a runner that
+      # finishes with a live background process is untidy and the next job on a
+      # reused runner would inherit a socket pointing nowhere.
+      - name: Close the SSH connection
+        if: always()
+        env:
+          SSH_HOST: ${{ secrets.STAGING_SSH_HOST }}
+          SSH_USER: ${{ secrets.STAGING_SSH_USER }}
+        run: ssh -O exit "$SSH_USER@$SSH_HOST" || true
