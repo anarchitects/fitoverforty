@@ -28,7 +28,8 @@ export type AuthStatus = 'unknown' | 'signed-in' | 'signed-out';
  * plain JSON over the same `/api` prefix everything else here uses, so the
  * client library would add a dependency and a second HTTP stack without
  * replacing any logic. Going through `HttpClient` also means these requests
- * pass through `apiBaseUrlInterceptor` like every other call in the app.
+ * are addressed the same way as every other call in the app — relative, with
+ * SSR resolving them against loopback in `LoopbackApiBackend`.
  */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
