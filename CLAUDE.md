@@ -408,8 +408,25 @@ These cost real debugging time; none are inferable from the code.
     Nginx that origin is the public one, so rendering a page fetches the app's own API
     out across the network and back in through the proxy. Against a hostname the box
     cannot resolve it fails outright — pages render, every one answers 503, and the log
-    says `ENOTFOUND`. `apiBaseUrlInterceptor` uses `http://127.0.0.1:` plus `PORT`, with
+    says `ENOTFOUND`. `LoopbackApiBackend` uses `http://127.0.0.1:` plus `PORT`, with
     `API_ORIGIN` as the override for a genuinely split deployment.
+
+- **The SSR loopback rewrite is an `HttpBackend`, and that is the whole point.** It was
+  an interceptor until #80, which is why the HTTP transfer cache never once hit: Angular
+  builds the chain as `[...HTTP_INTERCEPTOR_FNS, ...HTTP_ROOT_INTERCEPTOR_FNS]`, and
+  `provideClientHydration` registers the transfer cache in the *root* list — so it always
+  ran after ours and saw `http://127.0.0.1:3000/api/x` on the server against `/api/x` in
+  the browser. The key is a hash over `[method, responseType, url, body, params]`, so
+  that is two keys and a guaranteed miss: every page fetched its data while rendering and
+  again immediately after hydration, and nothing failed. A backend runs after every
+  interceptor, so both sides key on the relative URL by construction.
+  Two traps if this is ever revisited. `HTTP_TRANSFER_CACHE_ORIGIN_MAP` looks like
+  Angular's answer and is not: it maps origin to origin and short-circuits on a falsy
+  result, so the empty string a relative URL needs never applies. And
+  `LoopbackApiBackend` **extends** `FetchBackend` rather than wrapping one, because
+  `HttpInterceptorHandler`'s constructor warns NG02801 during SSR when the backend is
+  not `instanceof FetchBackend` — a delegating wrapper works perfectly and reports that
+  `HttpClient` is not configured to use fetch, which is untrue.
 
 - **`data-source.ts` loads `.env` itself, and has to.** `AppDataSource` is built at
   module scope, and `app.module.ts` imports it statically — so it reads `process.env`

@@ -1,4 +1,7 @@
-export { apiBaseUrlInterceptor } from './lib/api-base-url.interceptor';
+export {
+  LoopbackApiBackend,
+  provideLoopbackApi,
+} from './lib/loopback-api.backend';
 export { CONTENT_SOURCE } from './lib/content-source.token';
 export { HttpContentSource } from './lib/http-content-source';
 export {

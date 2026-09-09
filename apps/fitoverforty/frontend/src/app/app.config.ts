@@ -3,11 +3,7 @@ import {
   provideBrowserGlobalErrorListeners,
 } from '@angular/core';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
-import {
-  provideHttpClient,
-  withFetch,
-  withInterceptors,
-} from '@angular/common/http';
+import { provideHttpClient, withFetch } from '@angular/common/http';
 import {
   provideClientHydration,
   withEventReplay,
@@ -17,7 +13,6 @@ import { provideDesignSystemConfig } from '@anarchitects/common-angular-design/c
 import { provideAnxDefaultLayouts } from '@anarchitects/common-angular-ui-layouts/defaults';
 import { appRoutes } from './app.routes';
 import {
-  apiBaseUrlInterceptor,
   CONTENT_SOURCE,
   HttpContentSource,
 } from '@fitoverforty/blog-angular-data-access';
@@ -30,7 +25,10 @@ export const appConfig: ApplicationConfig = {
     // request the server already made being repeated by the browser.
     provideClientHydration(withEventReplay(), withNoIncrementalHydration()),
     provideRouter(appRoutes, withComponentInputBinding()),
-    provideHttpClient(withFetch(), withInterceptors([apiBaseUrlInterceptor])),
+    // Relative API URLs are correct as they stand in the browser. Making
+    // them absolute for SSR is `provideLoopbackApi()`'s job, below the
+    // interceptor chain, in `app.config.server.ts`.
+    provideHttpClient(withFetch()),
     HttpContentSource,
     { provide: CONTENT_SOURCE, useExisting: HttpContentSource },
     provideDesignSystemConfig({
