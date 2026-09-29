@@ -47,7 +47,7 @@
     "create-admin": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "ts-node -r tsconfig-paths/register -P apps/fitoverforty/backend/tsconfig.app.json apps/fitoverforty/backend/tools/create-admin.ts",
+        "command": "ts-node -r tsconfig-paths/register -P apps/fitoverforty/backend/tsconfig.app.json apps/fitoverforty/backend/src/create-admin.ts",
         "cwd": "{workspaceRoot}"
       }
     }

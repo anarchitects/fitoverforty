@@ -117,6 +117,51 @@ health check can only infer.
 migration has to be tested against a _dropped_ schema rather than against a
 working database — see the note in `CLAUDE.md`.
 
+## Create an administrator
+
+`create-admin.js` ships beside `main.js` and `migrate.js`, for the same reason
+the latter does: a deployed backend has no workspace, so the ts-node script this
+used to be could not run on a server at all. Until it was bundled, a deployed
+instance could not be given an administrator without checking the repository out
+on the box.
+
+There is no public sign-up route to fall back on — `disableSignUp` closes it
+outright, and a unit test and a Playwright test both assert that it stays
+closed. This script is the only way in, and it passes `allowSignUp` to Better
+Auth for its own call only.
+
+On the server, if you have shell access:
+
+```bash
+cd /var/www/fitoverforty-test/backend
+node create-admin.js
+```
+
+With no arguments it prompts, and the password is read without echo.
+
+Without shell access, run the **Provision staging admin** workflow from the
+Actions tab. It takes the email and display name as inputs and reads the
+password from the `STAGING_ADMIN_PASSWORD` secret on the `staging` environment,
+which you set yourself. It shares the deploy's concurrency group, so it can
+never run while an rsync is replacing the bundle underneath it.
+
+The password travels on **stdin and only stdin**, in both paths. Not an
+argument: those are visible in `ps` to every other user on the box for as long
+as the process runs. Not an environment variable: those survive into crash dumps
+and stray `printenv` output. Actions masks the secret in its own log, but that
+covers only one end of the pipe.
+
+Delete or rotate `STAGING_ADMIN_PASSWORD` once the account exists. It has done
+its job, and a live password sitting in a secret is a standing risk for no
+further benefit — change the account's password from the admin UI if you want a
+different one.
+
+Why a script and not a seed migration, which has not changed: the stored hash
+has to be one Better Auth's own sign-in will later verify, so it has to come
+from Better Auth's own hasher with its own parameters. A hash committed to a
+migration pins those parameters for ever and puts a credential in version
+control, where the placeholder invariably survives into production.
+
 ## Run
 
 `pm2/ecosystem.config.cjs` defines one app per environment and carries no

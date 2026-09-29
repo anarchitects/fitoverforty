@@ -19,6 +19,10 @@ module.exports = {
       // runs them, and the TypeORM CLI needs the workspace. See src/migrate.ts.
       additionalEntryPoints: [
         { entryName: 'migrate', entryPath: './src/migrate.ts' },
+        // Same reason as migrate: a deployed backend has no workspace, so a
+        // ts-node script under tools/ cannot run there. Without this the
+        // deployment has no way to be given an administrator at all.
+        { entryName: 'create-admin', entryPath: './src/create-admin.ts' },
       ],
       tsConfig: './tsconfig.app.json',
       assets: [

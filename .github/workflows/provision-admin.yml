@@ -1,0 +1,114 @@
+name: Provision staging admin
+
+# Manual only, and deliberately separate from the deploy. Creating an account
+# is not part of shipping code: it happens once, it is not idempotent, and a
+# deploy that quietly provisioned administrators would be a deploy nobody could
+# audit.
+#
+# This exists so an administrator can be created without anyone having shell
+# access to the server. `create-admin` is bundled into the artefact beside
+# `main.js` for the same reason `migrate.js` is — a deployed backend has no
+# workspace, so the ts-node script it used to be could not run there at all.
+on:
+  workflow_dispatch:
+    inputs:
+      email:
+        description: 'Email address for the new admin'
+        required: true
+      name:
+        description: 'Display name (appears as the byline author)'
+        required: true
+
+permissions:
+  contents: read
+
+# Never in parallel with a deploy: the backend directory is being rsynced
+# during one, and `node create-admin.js` would be reading a half-replaced
+# bundle. Sharing the deploy's group serialises them.
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: false
+
+env:
+  DEPLOY_ROOT: /var/www/fitoverforty-test
+
+jobs:
+  provision:
+    runs-on: ubuntu-latest
+    environment: staging
+
+    steps:
+      # No checkout. This runs code that is already on the server; checking the
+      # repository out here would only invite someone to run the workspace copy
+      # instead, against production's database.
+
+      - name: Configure SSH
+        env:
+          SSH_KEY: ${{ secrets.STAGING_SSH_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.STAGING_SSH_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh/control
+          chmod 700 ~/.ssh ~/.ssh/control
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          # Pinned from a secret rather than StrictHostKeyChecking=no. Turning
+          # the check off would let anything answering that address receive the
+          # deploy key — and, here, the password piped over it.
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+          cat > ~/.ssh/config <<'CONF'
+          Host *
+            IdentityFile ~/.ssh/deploy_key
+            IdentitiesOnly yes
+            PreferredAuthentications publickey
+            ControlMaster auto
+            ControlPath ~/.ssh/control/%C
+            ControlPersist 10m
+            ServerAliveInterval 30
+          CONF
+
+      - name: Create the account
+        env:
+          SSH_HOST: ${{ secrets.STAGING_SSH_HOST }}
+          SSH_USER: ${{ secrets.STAGING_SSH_USER }}
+          ADMIN_PASSWORD: ${{ secrets.STAGING_ADMIN_PASSWORD }}
+          ADMIN_EMAIL: ${{ inputs.email }}
+          ADMIN_NAME: ${{ inputs.name }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${ADMIN_PASSWORD:-}" ]; then
+            echo "STAGING_ADMIN_PASSWORD is not set."
+            echo "Add it under Settings → Secrets and variables → Actions,"
+            echo "in the 'staging' environment. At least 12 characters."
+            exit 1
+          fi
+
+          # The password travels on stdin and only on stdin. As an argument it
+          # would be visible in `ps` on the server to every other user for as
+          # long as the process runs; as an environment variable it survives in
+          # any crash dump or stray `printenv`. Actions masks the secret in
+          # this job's own log, but that only covers this side of the pipe.
+          #
+          # `printf %s` rather than echo: no trailing newline is added, and the
+          # script strips at most one if a shell adds it anyway.
+          printf '%s' "$ADMIN_PASSWORD" | ssh "$SSH_USER@$SSH_HOST" \
+            "cd '$DEPLOY_ROOT/backend' && node create-admin.js \
+               --email '$ADMIN_EMAIL' --name '$ADMIN_NAME' --password-stdin"
+
+      - name: Close the SSH connection
+        if: always()
+        env:
+          SSH_HOST: ${{ secrets.STAGING_SSH_HOST }}
+          SSH_USER: ${{ secrets.STAGING_SSH_USER }}
+        run: ssh -O exit "$SSH_USER@$SSH_HOST" 2>/dev/null || true
+
+      - name: What to do next
+        run: |
+          echo "Sign in at https://test.fitoverforty.blog/admin"
+          echo
+          echo "Then rotate STAGING_ADMIN_PASSWORD, or delete it: it has done"
+          echo "its job, and a live password sitting in a secret is a standing"
+          echo "risk for no further benefit. Change the account password from"
+          echo "the admin UI if you want a different one."
