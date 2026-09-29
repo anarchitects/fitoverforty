@@ -422,22 +422,34 @@ ul.blog-list ul.blog-list {
 }
 
 /*
-  A byline is a link now, but it sits inside a line of muted metadata. Styling
-  it as an ordinary link would make the author the loudest thing in the line,
-  which it is not — the post title above it is.
+  A byline is a link, and it has to look like one.
+
+  This was `color: inherit` with a 45%-opacity underline, on the reasoning
+  that the author should not outshout the post title above it. That went too
+  far: the name came out the same colour and the same weight as the muted
+  metadata either side of it, so the only thing marking it as a link was an
+  underline most of the way to transparent. It read as plain text, and the
+  author pages behind it were effectively reachable only by typing the URL.
+
+  The fix keeps the line quiet and makes one word in it solid: full text
+  colour against muted siblings, a touch more weight, and an underline that
+  is actually visible. The title stays the loudest thing on the card because
+  it is three times the size, not because the byline was hidden.
 */
 .anx-root .blog-post-meta a {
-  color: inherit;
+  color: var(--anx-sys-color-text);
+  font-weight: 500;
   text-decoration: underline;
   text-decoration-color: color-mix(
     in srgb,
-    var(--anx-sys-color-text-muted) 45%,
+    var(--anx-sys-color-text) 45%,
     transparent
   );
   text-underline-offset: 0.18em;
 }
 
-.anx-root .blog-post-meta a:hover {
+.anx-root .blog-post-meta a:hover,
+.anx-root .blog-post-meta a:focus-visible {
   color: var(--anx-sys-color-accent);
   text-decoration-color: currentColor;
 }
