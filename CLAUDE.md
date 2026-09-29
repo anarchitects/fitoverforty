@@ -337,6 +337,23 @@ These cost real debugging time; none are inferable from the code.
     resolved at the point of use, inside whichever `data-anx-surface` is active. Dropping
     it breaks theme switching and nothing fails.
 
+- **`:where()` makes a package rule look less specific than it is, and it silently
+  zeroed every margin in `blog.css`.** The design system ships
+  `.anx-root :where(h1, h2, h3, h4, h5, h6, p, ul, ol) { margin: 0 }`. `:where()`
+  contributes nothing to specificity, so that scores (0,1,0) — *identical* to a
+  bare `.blog-paragraph`, not higher. Equal specificity is broken by source
+  order, and the package's stylesheet is emitted after this app's, so the
+  package wins every time. The symptom is the worst kind: the rule is in the
+  stylesheet, it matches the element, and the margin computes to `0px`. Post
+  bodies shipped with no space between paragraphs, headings and lists for
+  exactly this reason, and it read as a missing-styles bug rather than a
+  cascade one. Every margin-setting rule in `styles/blog.css` therefore leads
+  with `.anx-root`, which costs one class and settles it. Note this is a
+  *different* failure from the `.anx-surface` note above, where the package
+  rule genuinely is more specific — counting classes is not enough when
+  `:where()` is involved, because it counts as zero. `.anx-root` is on the
+  `<html>` element, so prefixing a selector with it never changes what matches.
+
 - **Tailwind's preflight removes what the blog was relying on.** Before Tailwind, no rule
   anywhere matched the 31 `blog-*` classes the renderer emits — posts rendered on browser
   defaults. Preflight strips those too (list markers, heading sizes), so adding Tailwind

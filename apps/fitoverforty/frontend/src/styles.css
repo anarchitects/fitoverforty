@@ -70,6 +70,29 @@
   --anx-sys-space-md: 1.125rem;
   --anx-sys-space-lg: 1.75rem;
   --anx-layout-container-max-inline-size: 100%;
+
+  /**
+   * The type scale.
+   *
+   * Sizes rather than colours, so they belong in this block: they must not
+   * change with the theme, and the prefix match keeps them in dark mode.
+   *
+   * Every heading on the blog used to sit between 15px and 31px, which is a
+   * range too narrow to carry a hierarchy — a page title only half a step
+   * above the post titles under it reads as a list of equals, and nothing on
+   * the page is the thing you look at first. These are the steps the social
+   * card is drawn on, which is why a card and a page now look related.
+   *
+   * Fluid where the size is large enough for the viewport to matter, fixed
+   * where it is not: clamping a 13px label buys nothing and makes it harder
+   * to reason about.
+   */
+  --fof-text-eyebrow: 0.8125rem;
+  --fof-text-meta: 0.875rem;
+  --fof-text-lede: clamp(1.125rem, 1.6vw, 1.3125rem);
+  --fof-text-card-title: clamp(1.5rem, 2.6vw, 1.875rem);
+  --fof-text-post-title: clamp(2.125rem, 4.6vw, 3rem);
+  --fof-text-page-title: clamp(2.25rem, 5.4vw, 3.5rem);
 }
 
 /* Global base styles */
