@@ -1,12 +1,19 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { LogoComponent } from './logo.component';
+import { SiteNavComponent } from './site-nav.component';
 import { ThemeToggleComponent } from './theme-toggle.component';
 
 @Component({
   selector: 'fitoverforty-header',
   standalone: true,
-  imports: [LogoComponent, ThemeToggleComponent, RouterLink, RouterLinkActive],
+  imports: [
+    LogoComponent,
+    ThemeToggleComponent,
+    SiteNavComponent,
+    RouterLink,
+    RouterLinkActive,
+  ],
   template: `
     <header class="anx-section anx-header">
       <!--
@@ -41,6 +48,7 @@ import { ThemeToggleComponent } from './theme-toggle.component';
           <fitoverforty-logo orientation="inline" label="Fit Over Forty" />
         </a>
       </p>
+      <fitoverforty-site-nav />
       <fitoverforty-theme-toggle />
     </header>
   `,
@@ -66,9 +74,16 @@ import { ThemeToggleComponent } from './theme-toggle.component';
       The margin reset is because .anx-heading is a paragraph and brings the
       block margins of one, which would push the mark off the header's centre.
     */
+    /*
+      The mark on the left, the theme control on the right, and the navigation
+      taking whatever is between them. An auto inline-end margin on the brand
+      rather than space-between on the header, so the nav sits next to the
+      mark instead of floating in the middle of a wide header.
+    */
     .fitoverforty-brand {
       display: flex;
       margin: 0;
+      margin-inline-end: auto;
     }
 
     .fitoverforty-brand a {

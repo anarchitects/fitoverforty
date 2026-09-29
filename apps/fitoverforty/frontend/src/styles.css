@@ -200,8 +200,138 @@ app-root > .anx-region.anx-stack {
 .anx-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 1rem;
+  /* Wraps rather than overflowing once the nav is open on a narrow screen. */
+  flex-wrap: wrap;
+}
+
+/* --- Primary navigation -------------------------------------------------- */
+
+.site-nav {
+  display: flex;
+  align-items: center;
+}
+
+.site-nav__list {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.site-nav__list a {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--anx-sys-color-text-muted);
+  text-decoration: none;
+  /*
+    A transparent border rather than none, so the current-page underline below
+    does not move the text by a pixel when it appears.
+  */
+  border-block-end: 2px solid transparent;
+  padding-block-end: 2px;
+}
+
+.site-nav__list a:hover {
+  color: var(--anx-sys-color-text);
+}
+
+/*
+  The current section, marked by weight and a rule rather than colour alone —
+  colour on its own fails for anyone who cannot distinguish it, and this is
+  the only indication of where in the site you are.
+*/
+.site-nav__list a.is-current {
+  color: var(--anx-sys-color-text);
+  border-block-end-color: var(--anx-sys-color-accent);
+}
+
+.site-nav__toggle {
+  display: none;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.7rem;
+  font: inherit;
+  font-size: 0.8rem;
+  color: var(--anx-sys-color-text-muted);
+  background: none;
+  border: 1px solid
+    color-mix(in srgb, var(--anx-sys-color-text-muted) 30%, transparent);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.site-nav__toggle:hover {
+  color: var(--anx-sys-color-accent);
+}
+
+/*
+  Narrow: the row becomes a panel behind a disclosure button.
+
+  48rem rather than a device width. The breakpoint is where the mark, four
+  links and the theme control stop fitting on one line, which is a fact about
+  this header rather than about any particular phone.
+*/
+@media (max-width: 48rem) {
+  .site-nav__toggle {
+    display: inline-flex;
+  }
+
+  .site-nav__list {
+    display: none;
+  }
+
+  /*
+    `flex: 1 0 100%`, not `inline-size: 100%`.
+
+    Both are flex items, and a flex item's width is a starting point that
+    shrinking then overrides — the nav came out 177px wide inside a 375px
+    header with `inline-size: 100%` set on it. A flex-basis of 100% with
+    shrink disabled is what actually claims the row.
+
+    The nav therefore takes a line of its own below the mark and the theme
+    control, and the open list takes a line below the button.
+  */
+  /*
+    Only claims the whole row once the panel is open.
+
+    Closed, the button sits beside the theme control on the same line as
+    everything else; making the nav full-width unconditionally pushed the
+    theme control onto a third row and made the header taller for no reason.
+    :has() is what lets the parent react to the state of the list inside it.
+  */
+  .site-nav {
+    flex-wrap: wrap;
+  }
+
+  .site-nav:has(.is-open) {
+    flex: 1 0 100%;
+  }
+
+  .site-nav__list.is-open {
+    display: flex;
+    flex: 1 0 100%;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+    margin-block-start: 0.75rem;
+    padding-block-start: 0.75rem;
+    border-block-start: 1px solid
+      color-mix(in srgb, var(--anx-sys-color-text-muted) 22%, transparent);
+  }
+
+  .site-nav__list.is-open a {
+    display: block;
+    inline-size: 100%;
+    padding-block: 0.5rem;
+    border-block-end: 0;
+  }
+
+  .site-nav__list.is-open a.is-current {
+    color: var(--anx-sys-color-accent);
+  }
 }
 
 .anx-theme-toggle {
