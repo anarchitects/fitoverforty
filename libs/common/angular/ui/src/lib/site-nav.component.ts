@@ -29,6 +29,7 @@ const ITEMS: readonly NavItem[] = [
   { path: '/blog', label: 'Posts' },
   { path: '/blog/pillars', label: 'Pillars' },
   { path: '/blog/tags', label: 'Tags' },
+  { path: '/about', label: 'About' },
   { path: '/contact', label: 'Contact' },
 ];
 
