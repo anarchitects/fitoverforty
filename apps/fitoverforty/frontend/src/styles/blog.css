@@ -533,6 +533,7 @@ ul.blog-list ul.blog-list {
 .blog-pillar-index h1,
 .blog-author h1,
 .blog-not-found h1,
+.blog-about h1,
 .blog-legal h1 {
   margin-block: 0 0.35em;
   font-family: 'Bitter', Georgia, serif;
@@ -544,7 +545,8 @@ ul.blog-list ul.blog-list {
   text-wrap: balance;
 }
 
-.blog-legal h2 {
+.blog-legal h2,
+.blog-about h2 {
   margin-block: 1.75em 0.5em;
   font-family: 'Bitter', Georgia, serif;
   font-size: 1.25rem;
@@ -553,6 +555,7 @@ ul.blog-list ul.blog-list {
 }
 
 .blog-legal p,
+.blog-about p,
 .blog-not-found p {
   margin-block: 0 1.15em;
   line-height: 1.7;
@@ -560,9 +563,30 @@ ul.blog-list ul.blog-list {
 }
 
 .blog-legal a,
+.blog-about a,
 .blog-not-found a {
   color: var(--anx-sys-color-accent);
   text-underline-offset: 0.15em;
+}
+
+/* --- About --------------------------------------------------------------- */
+
+/*
+ * The four pillars, as a list rather than prose. Leads with `.anx-root` for
+ * the reason the header of this file gives: a bare `.blog-about-pillars` on a
+ * `ul` scores the same as the package's `:where(ul){margin:0}` and loses on
+ * source order, so the markers and the spacing would both vanish.
+ */
+.anx-root .blog-about-pillars {
+  margin-block: 0 1.15em;
+  padding-inline-start: 1.25rem;
+  list-style: disc;
+}
+
+.anx-root .blog-about-pillars li {
+  margin-block-end: 0.6em;
+  line-height: 1.7;
+  color: var(--anx-sys-color-text);
 }
 
 /* --- Newsletter call to action ------------------------------------------ */

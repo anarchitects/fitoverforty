@@ -202,6 +202,13 @@ export const appRoutes: Route[] = [
     ],
   },
   {
+    path: 'about',
+    loadComponent: () =>
+      import('@fitoverforty/blog-angular-feature/about.page').then(
+        (m) => m.AboutPage,
+      ),
+  },
+  {
     path: 'privacy',
     loadComponent: () =>
       import('@fitoverforty/legal-angular').then((m) => m.PrivacyPage),
