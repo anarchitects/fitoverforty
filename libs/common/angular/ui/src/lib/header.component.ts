@@ -1,11 +1,12 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { LogoComponent } from './logo.component';
 import { ThemeToggleComponent } from './theme-toggle.component';
 
 @Component({
   selector: 'fitoverforty-header',
   standalone: true,
-  imports: [LogoComponent, ThemeToggleComponent],
+  imports: [LogoComponent, ThemeToggleComponent, RouterLink, RouterLinkActive],
   template: `
     <header class="anx-section anx-header">
       <!--
@@ -19,7 +20,26 @@ import { ThemeToggleComponent } from './theme-toggle.component';
         is no longer written out.
       -->
       <p class="anx-heading fitoverforty-brand">
-        <fitoverforty-logo orientation="inline" label="Fit Over Forty" />
+        <!--
+          routerLink rather than href: a full page load from the header would
+          throw away the running application on every click of the logo.
+
+          The link takes its accessible name from the mark inside it, which
+          already announces itself as "Fit Over Forty" — so it reads as a link
+          to the site rather than as an unlabelled graphic. ariaCurrentWhenActive
+          with an exact match tells a screen reader when the link points at the
+          page already being read; exact matters because every route starts
+          with "/" and without it the logo would claim to be current
+          everywhere.
+        -->
+        <a
+          routerLink="/"
+          routerLinkActive
+          [routerLinkActiveOptions]="{ exact: true }"
+          ariaCurrentWhenActive="page"
+        >
+          <fitoverforty-logo orientation="inline" label="Fit Over Forty" />
+        </a>
       </p>
       <fitoverforty-theme-toggle />
     </header>
@@ -49,6 +69,21 @@ import { ThemeToggleComponent } from './theme-toggle.component';
     .fitoverforty-brand {
       display: flex;
       margin: 0;
+    }
+
+    .fitoverforty-brand a {
+      display: flex;
+      border-radius: 4px;
+    }
+
+    /*
+      The mark is the link's only content, so the focus ring has to sit on the
+      anchor: an outline on the logo element would trace the SVG box and read
+      as part of the artwork rather than as focus.
+    */
+    .fitoverforty-brand a:focus-visible {
+      outline: 2px solid var(--anx-sys-color-accent);
+      outline-offset: 3px;
     }
 
     .fitoverforty-brand fitoverforty-logo {
