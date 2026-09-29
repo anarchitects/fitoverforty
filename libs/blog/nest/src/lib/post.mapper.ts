@@ -15,7 +15,7 @@ import type {
   TagEntity,
 } from './entities';
 
-function toImageRef(media: MediaEntity): ImageRef {
+export function toImageRef(media: MediaEntity): ImageRef {
   return {
     src: media.url,
     alt: media.alt,

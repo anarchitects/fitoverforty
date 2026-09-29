@@ -11,6 +11,8 @@ import {
 } from '@fitoverforty/admin-angular-data-access';
 import {
   archiveResolver,
+  authorResolver,
+  authorPostsResolver,
   latestResolver,
   pillarPostsResolver,
   pillarsResolver,
@@ -76,6 +78,30 @@ export const appRoutes: Route[] = [
         (m) => m.PillarArchivePage,
       ),
     resolve: { posts: pillarPostsResolver, pillars: pillarsResolver },
+  },
+  /**
+   * An author's posts. Both must precede 'blog/:slug' for the same reason the
+   * tag routes do — otherwise 'author' is matched as a post slug.
+   *
+   * The route parameter is named `slug` so component input binding hands it to
+   * the page's `slug` input; `author` is taken by the resolved profile.
+   */
+  {
+    path: 'blog/author/:slug',
+    pathMatch: 'full',
+    loadComponent: () =>
+      import('@fitoverforty/blog-angular-feature/author-archive.page').then(
+        (m) => m.AuthorArchivePage,
+      ),
+    resolve: { author: authorResolver, posts: authorPostsResolver },
+  },
+  {
+    path: 'blog/author/:slug/page/:page',
+    loadComponent: () =>
+      import('@fitoverforty/blog-angular-feature/author-archive.page').then(
+        (m) => m.AuthorArchivePage,
+      ),
+    resolve: { author: authorResolver, posts: authorPostsResolver },
   },
   // Must precede 'blog/:slug', which would otherwise match 'tags' as a slug.
   {

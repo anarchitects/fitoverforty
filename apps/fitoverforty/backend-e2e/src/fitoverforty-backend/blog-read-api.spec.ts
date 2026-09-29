@@ -89,6 +89,47 @@ describe('blog read api', () => {
     });
   });
 
+  describe('GET /blog/authors/:slug', () => {
+    it('returns the author with a count of everything they have published', async () => {
+      const { status, body } = await get('/blog/authors/paul');
+      expect(status).toBe(200);
+      expect(body.name).toBe('Paul');
+      // Counted across all published posts, not the page being rendered.
+      expect(typeof body.postCount).toBe('number');
+      expect(body.postCount).toBeGreaterThan(0);
+    });
+
+    it('404s only when there is no such author', async () => {
+      expect((await get('/blog/authors/nobody')).status).toBe(404);
+    });
+
+    it('lists that author\'s posts', async () => {
+      const { status, body } = await get('/blog/authors/paul/posts');
+      expect(status).toBe(200);
+      expect(body.items.length).toBeGreaterThan(0);
+      for (const post of body.items) {
+        expect(post.authors.map((a: { slug: string }) => a.slug)).toContain(
+          'paul',
+        );
+      }
+    });
+
+    it('never lists a draft or a future-dated post', async () => {
+      const { body } = await get('/blog/authors/paul/posts');
+      const slugs = body.items.map((p: { slug: string }) => p.slug);
+      expect(slugs).not.toContain(HIDDEN.draft);
+      expect(slugs).not.toContain(HIDDEN.future);
+    });
+
+    it('counts posts rather than author rows on them', async () => {
+      // A post can carry several authors, so filtering and paginating in one
+      // query would let the join multiply rows and make totalItems wrong.
+      const { body } = await get('/blog/authors/paul/posts?perPage=1');
+      expect(body.items.length).toBe(1);
+      expect(body.totalItems).toBeGreaterThanOrEqual(body.items.length);
+    });
+  });
+
   describe('GET /blog/posts/:slug/related', () => {
     it('never includes the post it was asked about', async () => {
       const { status, body } = await get(

@@ -1,6 +1,6 @@
 import type { Paged } from './paged';
 import type { Post, PostRef, PostSummary } from './post';
-import type { PillarSummary, TagSummary } from './refs';
+import type { AuthorProfile, PillarSummary, TagSummary } from './refs';
 
 /**
  * The narrow contract between stored content and everything that renders it.
@@ -37,6 +37,22 @@ export interface ContentSource {
    * Never includes the post it was asked about.
    */
   relatedPosts(slug: string, limit: number): Promise<PostSummary[]>;
+
+  /**
+   * One author, or undefined when no such author exists.
+   *
+   * An author with no published posts is still an author: they may be
+   * credited only on something scheduled, or on a post since unpublished. The
+   * page says so rather than 404ing, because the slug is linked from every
+   * byline and a dead link there is worse than an empty page.
+   */
+  loadAuthor(slug: string): Promise<AuthorProfile | undefined>;
+
+  postsByAuthor(
+    authorSlug: string,
+    page: number,
+    perPage: number,
+  ): Promise<Paged<PostSummary>>;
 
   /** Every published post, unpaginated. For the sitemap. */
   listPublishedRefs(): Promise<PostRef[]>;

@@ -16,6 +16,17 @@ export interface AuthorRef {
   avatar?: ImageRef;
 }
 
+/**
+ * An author plus what their own page needs: the prose, and how much they have
+ * written. Widens AuthorRef rather than replacing it — a byline on a post
+ * carries neither, and making every AuthorRef carry them would mean loading a
+ * bio to render a listing.
+ */
+export interface AuthorProfile extends AuthorRef {
+  bio?: string;
+  postCount: number;
+}
+
 export interface TagRef {
   /** kebab-case. */
   slug: string;

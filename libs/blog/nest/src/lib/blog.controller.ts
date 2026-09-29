@@ -72,6 +72,32 @@ export class BlogController {
     return this.content.postsByPillar(slug, p, pp);
   }
 
+  /**
+   * An author's own page.
+   *
+   * 404 only when there is no such author. An author with no published posts
+   * still resolves: the slug is linked from every byline, and a dead link
+   * there is worse than a page saying they have not published anything yet.
+   */
+  @Get('authors/:slug')
+  async author(@Param('slug') slug: string) {
+    const author = await this.content.loadAuthor(slug);
+    if (!author) {
+      throw new NotFoundException(`No author with slug "${slug}"`);
+    }
+    return author;
+  }
+
+  @Get('authors/:slug/posts')
+  postsByAuthor(
+    @Param('slug') slug: string,
+    @Query('page') page?: string,
+    @Query('perPage') perPage?: string,
+  ) {
+    const { page: p, perPage: pp } = parsePaging(page, perPage);
+    return this.content.postsByAuthor(slug, p, pp);
+  }
+
   @Get('tags')
   listTags() {
     return this.content.listTags();

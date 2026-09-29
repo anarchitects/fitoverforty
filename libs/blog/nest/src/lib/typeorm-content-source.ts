@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, LessThanOrEqual, Not, Repository } from 'typeorm';
 import type {
+  AuthorProfile,
   ContentSource,
   Paged,
   PillarSummary,
@@ -10,8 +11,8 @@ import type {
   PostSummary,
   TagSummary,
 } from '@fitoverforty/blog-ts';
-import { PillarEntity, PostEntity } from './entities';
-import { toPost, toPostSummary } from './post.mapper';
+import { AuthorEntity, PillarEntity, PostEntity } from './entities';
+import { toImageRef, toPost, toPostSummary } from './post.mapper';
 
 const POST_RELATIONS = {
   tags: true,
@@ -27,6 +28,8 @@ export class TypeOrmContentSource implements ContentSource {
     private readonly posts: Repository<PostEntity>,
     @InjectRepository(PillarEntity)
     private readonly pillars: Repository<PillarEntity>,
+    @InjectRepository(AuthorEntity)
+    private readonly authors: Repository<AuthorEntity>,
   ) {}
 
   /**
@@ -122,6 +125,69 @@ export class TypeOrmContentSource implements ContentSource {
       relations: POST_RELATIONS,
     });
     return post ? toPost(post) : undefined;
+  }
+
+  async loadAuthor(slug: string): Promise<AuthorProfile | undefined> {
+    const author = await this.authors.findOne({
+      where: { slug },
+      relations: { avatar: true },
+    });
+    if (!author) return undefined;
+
+    /**
+     * Counted rather than derived from a loaded list: the page paginates, so
+     * the posts it renders are one page of them, and "12 posts" has to mean
+     * all of them rather than however many fit on screen.
+     */
+    const postCount = await this.posts
+      .createQueryBuilder('post')
+      .innerJoin('post.authors', 'author')
+      .where('author.slug = :slug', { slug })
+      .andWhere('post.status = :status', { status: 'published' })
+      .andWhere('post.published_at <= now()')
+      .getCount();
+
+    return {
+      id: author.id,
+      slug: author.slug,
+      name: author.name,
+      ...(author.bio ? { bio: author.bio } : {}),
+      ...(author.avatar ? { avatar: toImageRef(author.avatar) } : {}),
+      postCount,
+    };
+  }
+
+  async postsByAuthor(
+    authorSlug: string,
+    page: number,
+    perPage: number,
+  ): Promise<Paged<PostSummary>> {
+    // Two steps, for the same reason postsByTag needs them: a post has many
+    // authors, so filtering and paginating in one query lets the join
+    // multiply rows and the count stops being the number of posts.
+    const matching = await this.posts
+      .createQueryBuilder('post')
+      .select('post.id', 'id')
+      .innerJoin('post.authors', 'author')
+      .where('author.slug = :authorSlug', { authorSlug })
+      .andWhere('post.status = :status', { status: 'published' })
+      .andWhere('post.published_at <= now()')
+      .orderBy('post.published_at', 'DESC')
+      .getRawMany<{ id: string }>();
+
+    const total = matching.length;
+    const ids = matching
+      .slice((page - 1) * perPage, page * perPage)
+      .map((r) => r.id);
+    if (ids.length === 0)
+      return this.paged<PostSummary>([], total, page, perPage);
+
+    const rows = await this.posts.find({
+      where: ids.map((id) => ({ id })),
+      relations: POST_RELATIONS,
+      order: { publishedAt: 'DESC' },
+    });
+    return this.paged(rows.map(toPostSummary), total, page, perPage);
   }
 
   async relatedPosts(slug: string, limit: number): Promise<PostSummary[]> {

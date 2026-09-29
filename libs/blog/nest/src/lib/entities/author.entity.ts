@@ -25,6 +25,14 @@ export class AuthorEntity {
   name!: string;
 
   /**
+   * Prose for the author's own page. Null until somebody writes one — a
+   * byline is not a biography, and an author row exists as soon as anybody is
+   * credited on a post.
+   */
+  @Column({ type: 'text', nullable: true })
+  bio!: string | null;
+
+  /**
    * The Better Auth account that writes as this author, if any.
    *
    * A plain column rather than a relation: the auth entities live in another
