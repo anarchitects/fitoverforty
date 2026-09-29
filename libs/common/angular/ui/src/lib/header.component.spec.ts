@@ -7,11 +7,15 @@ describe('HeaderComponent', () => {
       imports: [HeaderComponent],
     }).compileComponents();
 
-    const fixture = TestBed.createComponent(
-      HeaderComponent,
-    );
+    const fixture = TestBed.createComponent(HeaderComponent);
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.textContent).toContain('Fit Over Forty');
+    // The name is no longer written out — the mark carries it, and this is
+    // what stops it becoming a header that announces nothing.
+    const svg: SVGSVGElement = fixture.nativeElement.querySelector('svg');
+    expect(svg.getAttribute('role')).toBe('img');
+    expect(svg.querySelector('title')?.textContent?.trim()).toBe(
+      'Fit Over Forty',
+    );
   });
 });
