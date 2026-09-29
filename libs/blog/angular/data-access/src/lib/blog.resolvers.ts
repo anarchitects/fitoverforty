@@ -63,3 +63,19 @@ export const pillarPostsResolver: ResolveFn<Loaded<Paged<PostSummary>>> = (
 /** `data: undefined` is a genuine 404; `ok: false` is a failure to reach the API. */
 export const postResolver: ResolveFn<Loaded<Post | undefined>> = (route) =>
   loaded(inject(CONTENT_SOURCE).loadPost(route.paramMap.get('slug') ?? ''));
+
+/** How many posts to offer at the foot of a post. */
+export const RELATED_POSTS = 3;
+
+/**
+ * Resolved rather than fetched in the component, like everything else here, so
+ * the list is in the server-rendered HTML. A reader who never runs the
+ * JavaScript still gets somewhere to go next, and a crawler sees the links.
+ */
+export const relatedResolver: ResolveFn<Loaded<PostSummary[]>> = (route) =>
+  loaded(
+    inject(CONTENT_SOURCE).relatedPosts(
+      route.paramMap.get('slug') ?? '',
+      RELATED_POSTS,
+    ),
+  );

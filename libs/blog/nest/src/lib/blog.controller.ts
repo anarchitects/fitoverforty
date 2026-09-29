@@ -40,6 +40,23 @@ export class BlogController {
     return post;
   }
 
+  /**
+   * Where a reader goes after finishing this post.
+   *
+   * A separate route rather than a field on the post: it is only needed once
+   * the body has been read, the post payload is already the largest thing the
+   * API serves, and a listing page has no use for it.
+   */
+  @Get('posts/:slug/related')
+  related(@Param('slug') slug: string, @Query('limit') limit?: string) {
+    const parsed = Number.parseInt(limit ?? '', 10);
+    // Clamped rather than trusted: the limit is a take on a public query.
+    const take = Number.isFinite(parsed)
+      ? Math.min(Math.max(parsed, 1), 6)
+      : 3;
+    return this.content.relatedPosts(slug, take);
+  }
+
   @Get('pillars')
   listPillars() {
     return this.content.listPillars();

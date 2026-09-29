@@ -8,8 +8,15 @@ import {
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { BlockRendererComponent } from '@fitoverforty/blog-angular-ui';
-import { isBlocksBody, type Post } from '@fitoverforty/blog-ts';
+import {
+  BlockRendererComponent,
+  PostSummaryListComponent,
+} from '@fitoverforty/blog-angular-ui';
+import {
+  isBlocksBody,
+  type Post,
+  type PostSummary,
+} from '@fitoverforty/blog-ts';
 import { SeoService } from '@fitoverforty/seo-angular';
 import type { Loaded } from '@fitoverforty/blog-angular-data-access';
 import { LoadErrorComponent } from '@fitoverforty/blog-angular-ui';
@@ -26,6 +33,7 @@ import { NewsletterCtaComponent } from '@fitoverforty/newsletter-angular';
     NotFoundPage,
     LoadErrorComponent,
     NewsletterCtaComponent,
+    PostSummaryListComponent,
   ],
   template: `
     @if (failed()) {
@@ -78,6 +86,19 @@ import { NewsletterCtaComponent } from '@fitoverforty/newsletter-angular';
         }
       </article>
 
+      @if (relatedPosts().length) {
+        <!--
+          Before the newsletter CTA, not after it. A reader who has just
+          finished a post is more likely to read another than to subscribe,
+          and burying the onward links under a form makes the post a dead end
+          for everyone who does not subscribe.
+        -->
+        <section class="anx-section blog-related">
+          <h2 class="blog-section-label">Keep reading</h2>
+          <fitoverforty-post-summary-list [posts]="relatedPosts()" />
+        </section>
+      }
+
       <!--
         Inside the loaded branch, not below it. The CTA belongs at the foot of
         a post somebody just read — offering a subscription under a "no such
@@ -108,6 +129,18 @@ export class PostDetailPage {
    * Narrowing happens here rather than in the template: Angular's template
    * type checker narrows `@if (x.ok)` but not the negated `@else if` branch.
    */
+  /**
+   * Resolved alongside the post. A failure here is not a failure of the page:
+   * the post is what the reader came for, so an unreachable related-posts
+   * call renders nothing rather than an error.
+   */
+  readonly related = input.required<Loaded<PostSummary[]>>();
+
+  protected readonly relatedPosts = computed(() => {
+    const result = this.related();
+    return result.ok ? result.data : [];
+  });
+
   protected readonly failed = computed(() => !this.post().ok);
 
   protected readonly loadedPost = computed(() => {

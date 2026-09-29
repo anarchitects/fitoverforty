@@ -15,6 +15,7 @@ import {
   pillarPostsResolver,
   pillarsResolver,
   postResolver,
+  relatedResolver,
   tagPostsResolver,
   tagsResolver,
 } from '@fitoverforty/blog-angular-data-access';
@@ -109,7 +110,7 @@ export const appRoutes: Route[] = [
       import('@fitoverforty/blog-angular-feature/post-detail.page').then(
         (m) => m.PostDetailPage,
       ),
-    resolve: { post: postResolver },
+    resolve: { post: postResolver, related: relatedResolver },
   },
   /**
    * The admin area. Nothing here is server-rendered — see app.routes.server.ts

@@ -391,6 +391,17 @@ ul.blog-list ul.blog-list {
     color-mix(in srgb, var(--anx-sys-color-warning) 35%, transparent);
 }
 
+/* --- Related posts ------------------------------------------------------ */
+
+/**
+ * Separated from the body above it by space and a rule rather than a box.
+ * The post has just ended; this is a new section of the page, not a card
+ * attached to the article.
+ */
+.anx-root .blog-related {
+  margin-block-start: 4rem;
+}
+
 /* --- Section labels ----------------------------------------------------- */
 
 /**
