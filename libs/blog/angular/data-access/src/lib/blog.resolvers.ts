@@ -1,6 +1,7 @@
 import { inject } from '@angular/core';
 import type { ActivatedRouteSnapshot, ResolveFn } from '@angular/router';
 import type {
+  AuthorProfile,
   Paged,
   PillarSummary,
   Post,
@@ -63,6 +64,28 @@ export const pillarPostsResolver: ResolveFn<Loaded<Paged<PostSummary>>> = (
 /** `data: undefined` is a genuine 404; `ok: false` is a failure to reach the API. */
 export const postResolver: ResolveFn<Loaded<Post | undefined>> = (route) =>
   loaded(inject(CONTENT_SOURCE).loadPost(route.paramMap.get('slug') ?? ''));
+
+/**
+ * The author, and their posts, resolved side by side.
+ *
+ * Two resolvers rather than one that loads both: Angular runs them in
+ * parallel, so the page is not waiting for the profile before the posts
+ * start, and either can fail without taking the other with it.
+ */
+export const authorResolver: ResolveFn<Loaded<AuthorProfile | undefined>> = (
+  route,
+) => loaded(inject(CONTENT_SOURCE).loadAuthor(route.paramMap.get('slug') ?? ''));
+
+export const authorPostsResolver: ResolveFn<Loaded<Paged<PostSummary>>> = (
+  route,
+) =>
+  loaded(
+    inject(CONTENT_SOURCE).postsByAuthor(
+      route.paramMap.get('slug') ?? '',
+      Number(route.paramMap.get('page') ?? 1),
+      POSTS_PER_PAGE,
+    ),
+  );
 
 /** How many posts to offer at the foot of a post. */
 export const RELATED_POSTS = 3;

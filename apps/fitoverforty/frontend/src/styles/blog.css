@@ -391,6 +391,57 @@ ul.blog-list ul.blog-list {
     color-mix(in srgb, var(--anx-sys-color-warning) 35%, transparent);
 }
 
+/* --- Author page -------------------------------------------------------- */
+
+.anx-root .blog-author-header {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  margin-block-end: 1.5rem;
+}
+
+.anx-root .blog-author-avatar {
+  inline-size: 4.5rem;
+  block-size: 4.5rem;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.anx-root .blog-author-count {
+  margin-block: 0.35rem 0;
+  font-size: var(--fof-text-meta);
+  color: var(--anx-sys-color-text-muted);
+}
+
+.anx-root .blog-author-bio {
+  max-inline-size: 48ch;
+  margin-block: 0 2.5rem;
+  font-size: var(--fof-text-lede);
+  line-height: 1.55;
+  color: var(--anx-sys-color-text-muted);
+}
+
+/*
+  A byline is a link now, but it sits inside a line of muted metadata. Styling
+  it as an ordinary link would make the author the loudest thing in the line,
+  which it is not — the post title above it is.
+*/
+.anx-root .blog-post-meta a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: color-mix(
+    in srgb,
+    var(--anx-sys-color-text-muted) 45%,
+    transparent
+  );
+  text-underline-offset: 0.18em;
+}
+
+.anx-root .blog-post-meta a:hover {
+  color: var(--anx-sys-color-accent);
+  text-decoration-color: currentColor;
+}
+
 /* --- Related posts ------------------------------------------------------ */
 
 /**
@@ -480,6 +531,7 @@ ul.blog-list ul.blog-list {
 .blog-tag-index h1,
 .blog-pillar-archive h1,
 .blog-pillar-index h1,
+.blog-author h1,
 .blog-not-found h1,
 .blog-legal h1 {
   margin-block: 0 0.35em;

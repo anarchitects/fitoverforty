@@ -7,6 +7,8 @@ export { HttpContentSource } from './lib/http-content-source';
 export {
   POSTS_PER_PAGE,
   archiveResolver,
+  authorResolver,
+  authorPostsResolver,
   latestResolver,
   pillarPostsResolver,
   pillarsResolver,

@@ -50,8 +50,14 @@ import { NewsletterCtaComponent } from '@fitoverforty/newsletter-angular';
             @if (loaded.authors.length) {
               <span>
                 · by
-                @for (author of loaded.authors; track author.id) {
-                  {{ author.name }}
+                @for (
+                  author of loaded.authors;
+                  track author.id;
+                  let last = $last
+                ) {
+                  <a [routerLink]="['/blog/author', author.slug]">{{
+                    author.name
+                  }}</a>@if (!last) {<span>, </span>}
                 }
               </span>
             }

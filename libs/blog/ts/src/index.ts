@@ -7,6 +7,7 @@ export {
 export type { SupportedBlockType, SupportedListStyle } from './lib/blocks';
 export type {
   AuthorRef,
+  AuthorProfile,
   ImageRef,
   Iso8601,
   PillarRef,

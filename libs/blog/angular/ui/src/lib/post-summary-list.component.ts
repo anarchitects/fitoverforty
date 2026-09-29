@@ -28,8 +28,10 @@ import type { PostSummary } from '@fitoverforty/blog-ts';
                 @if (post.authors.length) {
                   <span>
                     · by
-                    @for (author of post.authors; track author.id) {
-                      {{ author.name }}
+                    @for (author of post.authors; track author.id; let last = $last) {
+                      <a [routerLink]="['/blog/author', author.slug]">{{
+                        author.name
+                      }}</a>@if (!last) {<span>, </span>}
                     }
                   </span>
                 }
