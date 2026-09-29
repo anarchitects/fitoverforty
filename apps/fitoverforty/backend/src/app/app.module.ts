@@ -13,6 +13,7 @@ import { BlogModule } from '@fitoverforty/blog-nest';
 import { NewsletterModule } from '@fitoverforty/newsletter-nest';
 import { AuthModule } from '@fitoverforty/auth-nest';
 import { MediaModule } from '@fitoverforty/media-nest';
+import { OgModule } from '@fitoverforty/og-nest';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { MediaModule } from '@fitoverforty/media-nest';
     BlogModule,
     MediaModule,
     NewsletterModule,
+    OgModule,
   ],
   controllers: [AppController],
   providers: [AppService],

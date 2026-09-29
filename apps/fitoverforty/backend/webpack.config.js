@@ -34,6 +34,26 @@ module.exports = {
           glob: '.yarnrc.yml',
           output: '.',
         },
+        // The social-card renderer reads these from disk at runtime rather
+        // than importing them, so they have to be copied beside main.js. See
+        // OG_ASSET_DIR in libs/og/nest: resolving them out of node_modules
+        // instead would mean require.resolve, which webpack rewrites at build
+        // time into a module id.
+        {
+          input: 'node_modules/@fontsource/manrope/files',
+          glob: 'manrope-latin-{400,500,700}-normal.woff',
+          output: 'assets/fonts',
+        },
+        {
+          input: 'node_modules/@fontsource/bitter/files',
+          glob: 'bitter-latin-600-normal.woff',
+          output: 'assets/fonts',
+        },
+        {
+          input: 'node_modules/@resvg/resvg-wasm',
+          glob: 'index_bg.wasm',
+          output: 'assets',
+        },
       ],
       optimization: false,
       outputHashing: 'none',

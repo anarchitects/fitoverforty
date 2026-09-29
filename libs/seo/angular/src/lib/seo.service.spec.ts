@@ -88,17 +88,29 @@ describe('SeoService', () => {
       expect(meta('meta[property="og:image"]')).toBe(remote);
     });
 
-    it('switches the twitter card type on whether there is an image', () => {
+    it('falls back to the generated site card when a page names no image', () => {
+      // A link with no og:image renders as a grey box on most platforms, so
+      // every page has one whether or not it supplied its own.
       seo.apply(page);
-      expect(meta('meta[name="twitter:card"]')).toBe('summary');
+      expect(meta('meta[property="og:image"]')).toBe(`${ORIGIN}/og/site.png`);
+      expect(meta('meta[name="twitter:image"]')).toBe(`${ORIGIN}/og/site.png`);
+    });
+
+    it('always asks for the large twitter card', () => {
+      // Both kinds of image — a hero photo and a generated card — are at
+      // least 1200x630, which is what this variant is for.
+      seo.apply(page);
+      expect(meta('meta[name="twitter:card"]')).toBe('summary_large_image');
       seo.apply({ ...page, image: '/media/hero.png' });
       expect(meta('meta[name="twitter:card"]')).toBe('summary_large_image');
     });
 
-    it('removes a previous page image rather than carrying it over', () => {
+    it('drops a previous page image back to the site card', () => {
+      // The service is a singleton applied per navigation: carrying the last
+      // post's hero onto the next page would mislabel it.
       seo.apply({ ...page, image: '/media/hero.png' });
       seo.apply(page);
-      expect(meta('meta[property="og:image"]')).toBeUndefined();
+      expect(meta('meta[property="og:image"]')).toBe(`${ORIGIN}/og/site.png`);
     });
   });
 

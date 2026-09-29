@@ -21,6 +21,16 @@ const SITE_NAME = 'Fit Over Forty';
 const JSON_LD_ID = 'blog-json-ld';
 
 /**
+ * The card served when a page names no image of its own.
+ *
+ * Every page having one matters more than any page having the perfect one: a
+ * link with no `og:image` is rendered by most platforms as a bare grey box
+ * with the URL under it, which reads as a broken or untrustworthy link rather
+ * than a plain one. Rendered by `@fitoverforty/og-nest`.
+ */
+const DEFAULT_IMAGE = '/og/site.png';
+
+/**
  * Sets per-page metadata.
  *
  * Everything here manipulates the document, so it works identically under
@@ -60,25 +70,21 @@ export class SeoService {
     this.setProperty('og:description', input.description);
     this.setProperty('og:url', url);
 
-    this.setName(
-      'twitter:card',
-      input.image ? 'summary_large_image' : 'summary',
-    );
+    /**
+     * Always the large card: there is now always an image, and every one of
+     * them — a hero photo or a generated card — is 1200×630 or wider, which
+     * is the size this variant expects.
+     */
+    this.setName('twitter:card', 'summary_large_image');
     this.setName('twitter:title', fullTitle);
     this.setName('twitter:description', input.description);
 
-    const image = input.image
-      ? input.image.startsWith('http')
-        ? input.image
-        : `${this.origin}${input.image}`
-      : undefined;
-    if (image) {
-      this.setProperty('og:image', image);
-      this.setName('twitter:image', image);
-    } else {
-      this.removeProperty('og:image');
-      this.removeName('twitter:image');
-    }
+    const source = input.image ?? DEFAULT_IMAGE;
+    const image = source.startsWith('http')
+      ? source
+      : `${this.origin}${source}`;
+    this.setProperty('og:image', image);
+    this.setName('twitter:image', image);
 
     if (input.type === 'article') {
       if (input.publishedAt) {

@@ -33,3 +33,9 @@ export {
   InvalidBlockError,
   SUPPORTED_BLOCK_TYPES,
 } from './lib/content';
+
+/**
+ * Exported for `@fitoverforty/og-nest`, which needs the same public origin the
+ * feed and sitemap use to label a social card with the site's hostname.
+ */
+export { siteOrigin } from './lib/site-url';
