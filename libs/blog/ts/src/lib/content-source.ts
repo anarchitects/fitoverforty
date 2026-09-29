@@ -25,6 +25,19 @@ export interface ContentSource {
   ): Promise<Paged<PostSummary>>;
   loadPost(slug: string): Promise<Post | undefined>;
 
+  /**
+   * Other posts a reader of this one might want, newest first.
+   *
+   * Same pillar before anything else, because a pillar is the section a post
+   * is filed under and is the strongest signal of relatedness the content
+   * model carries. Topped up with recent posts when the pillar cannot fill
+   * the list, so a new pillar with one post in it still offers a way onward
+   * rather than showing nothing.
+   *
+   * Never includes the post it was asked about.
+   */
+  relatedPosts(slug: string, limit: number): Promise<PostSummary[]>;
+
   /** Every published post, unpaginated. For the sitemap. */
   listPublishedRefs(): Promise<PostRef[]>;
 }

@@ -68,6 +68,15 @@ export class HttpContentSource implements ContentSource {
     return firstValueFrom(this.http.get<TagSummary[]>(`${API}/tags`));
   }
 
+  relatedPosts(slug: string, limit: number): Promise<PostSummary[]> {
+    return firstValueFrom(
+      this.http.get<PostSummary[]>(
+        `${API}/posts/${encodeURIComponent(slug)}/related`,
+        { params: { limit } },
+      ),
+    );
+  }
+
   /**
    * A missing post is `undefined`, not an error. Drafts, future-dated posts
    * and typos are all 404 from the API by design, and the caller's job is to

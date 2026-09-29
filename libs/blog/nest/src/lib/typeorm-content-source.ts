@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { LessThanOrEqual, Repository } from 'typeorm';
+import { In, LessThanOrEqual, Not, Repository } from 'typeorm';
 import type {
   ContentSource,
   Paged,
@@ -122,6 +122,48 @@ export class TypeOrmContentSource implements ContentSource {
       relations: POST_RELATIONS,
     });
     return post ? toPost(post) : undefined;
+  }
+
+  async relatedPosts(slug: string, limit: number): Promise<PostSummary[]> {
+    const post = await this.posts.findOne({
+      where: { ...this.publishedWhere(), slug },
+      relations: { pillar: true },
+    });
+    // A post that is not published has no related posts rather than the
+    // recent ones: answering at all would confirm the slug exists.
+    if (!post) return [];
+
+    const samePillar = post.pillar
+      ? await this.posts.find({
+          where: {
+            ...this.publishedWhere(),
+            pillar: { slug: post.pillar.slug },
+            id: Not(post.id),
+          },
+          relations: POST_RELATIONS,
+          order: { publishedAt: 'DESC' },
+          take: limit,
+        })
+      : [];
+
+    if (samePillar.length >= limit) {
+      return samePillar.map(toPostSummary);
+    }
+
+    /**
+     * Top up with recent posts, excluding this one and anything already
+     * chosen. Without this a pillar holding a single post offers a reader
+     * nothing at the foot of it, which is the case this feature exists for.
+     */
+    const exclude = [post.id, ...samePillar.map((p) => p.id)];
+    const recent = await this.posts.find({
+      where: { ...this.publishedWhere(), id: Not(In(exclude)) },
+      relations: POST_RELATIONS,
+      order: { publishedAt: 'DESC' },
+      take: limit - samePillar.length,
+    });
+
+    return [...samePillar, ...recent].map(toPostSummary);
   }
 
   async listPublishedRefs(): Promise<PostRef[]> {

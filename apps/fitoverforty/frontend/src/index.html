@@ -22,6 +22,17 @@
       carries 16 and 32 so neither is a downscale of the other. Neither shows
       the 40+: three characters across 32 pixels is texture, not a counter.
     -->
+    <!--
+      The feed has existed since the blog shipped and nothing pointed at it, so
+      no browser or reader could find it without being told the URL. This is
+      the only way feed discovery works: readers look for exactly this element.
+    -->
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title="Fit Over Forty"
+      href="/blog/feed.xml"
+    />
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
     <link rel="apple-touch-icon" href="apple-touch-icon.png" />

@@ -11,6 +11,8 @@ export {
   pillarPostsResolver,
   pillarsResolver,
   postResolver,
+  relatedResolver,
+  RELATED_POSTS,
   tagPostsResolver,
   tagsResolver,
 } from './lib/blog.resolvers';

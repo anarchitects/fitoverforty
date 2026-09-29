@@ -89,6 +89,53 @@ describe('blog read api', () => {
     });
   });
 
+  describe('GET /blog/posts/:slug/related', () => {
+    it('never includes the post it was asked about', async () => {
+      const { status, body } = await get(
+        `/blog/posts/${SEEDED.lifting}/related`,
+      );
+      expect(status).toBe(200);
+      expect(body.map((p: { slug: string }) => p.slug)).not.toContain(
+        SEEDED.lifting,
+      );
+    });
+
+    it('tops up from recent posts when the pillar cannot fill the list', async () => {
+      // The seeded posts sit in different pillars, so same-pillar alone would
+      // return nothing here. Returning an empty list would make every post a
+      // dead end until each pillar has several posts in it, which is exactly
+      // the state a new blog is in.
+      const { body } = await get(`/blog/posts/${SEEDED.lifting}/related`);
+      expect(body.length).toBeGreaterThan(0);
+      expect(body.map((p: { slug: string }) => p.slug)).toContain(
+        SEEDED.protein,
+      );
+    });
+
+    it('offers nothing for a post that is not published', async () => {
+      // Answering with recent posts would confirm the slug exists.
+      const { status, body } = await get(`/blog/posts/${HIDDEN.draft}/related`);
+      expect(status).toBe(200);
+      expect(body).toEqual([]);
+    });
+
+    it('never offers a draft or a future-dated post', async () => {
+      const { body } = await get(`/blog/posts/${SEEDED.lifting}/related`);
+      const slugs = body.map((p: { slug: string }) => p.slug);
+      expect(slugs).not.toContain(HIDDEN.draft);
+      expect(slugs).not.toContain(HIDDEN.future);
+    });
+
+    it('clamps the limit rather than trusting it', async () => {
+      // `take` on a public query: an unbounded limit is a way to ask for the
+      // whole table one request at a time.
+      const { body } = await get(
+        `/blog/posts/${SEEDED.lifting}/related?limit=999`,
+      );
+      expect(body.length).toBeLessThanOrEqual(6);
+    });
+  });
+
   describe('GET /blog/pillars', () => {
     it('returns all four in their fixed order, with counts', async () => {
       const { status, body } = await get('/blog/pillars');
