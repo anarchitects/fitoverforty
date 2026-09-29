@@ -80,8 +80,16 @@ jobs:
 
           if [ -z "${ADMIN_PASSWORD:-}" ]; then
             echo "STAGING_ADMIN_PASSWORD is not set."
-            echo "Add it under Settings → Secrets and variables → Actions,"
-            echo "in the 'staging' environment. At least 12 characters."
+            echo
+            echo "Add it as a repository secret, beside STAGING_SSH_KEY:"
+            echo "  Settings → Secrets and variables → Actions"
+            echo "      → New repository secret"
+            echo
+            echo "Or scope it to this environment alone, which is tighter and"
+            echo "is where a password is better off:"
+            echo "  Settings → Environments → staging → Add environment secret"
+            echo
+            echo "Either is found by this job. At least 12 characters."
             exit 1
           fi
 
