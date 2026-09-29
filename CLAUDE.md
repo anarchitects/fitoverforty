@@ -485,6 +485,25 @@ These cost real debugging time; none are inferable from the code.
   is what stops an arbitrary `Host` reaching the app at all; neither makes the other
   redundant.
 
+- **The social-card renderer reads its fonts and WASM from disk, and three things
+  about that are load-bearing.** `libs/og/nest` draws `og:image` cards with satori
+  and `@resvg/resvg-wasm`, and every one of these fails quietly rather than loudly.
+  Satori takes font *bytes* and has no fallback stack, so a face not passed in
+  `fonts` is substituted silently and the card renders in the wrong typeface; it
+  parses `ttf`, `otf` and `woff` but **not** `woff2`, and @fontsource ships both
+  while shipping no `ttf` at all, so picking the wrong one produces a valid PNG
+  with no text on it. `initWasm` may be called **once per process** — it throws
+  `Already initialized` on the second call, which would make the first card served
+  succeed and every one after it a 500, so the guard is a module-level promise
+  rather than a field on the renderer. And the files are *copied* beside `main.js`
+  by the `assets` list in the backend's `webpack.config.js`, then read from
+  `OG_ASSET_DIR`, because `require.resolve` — the obvious way to find them in
+  `node_modules` — is rewritten by webpack at build time into a module id, so the
+  path stops being a path. A Jest suite has no such directory and overrides the
+  token; `createFastifyTestApp({ ogAssetDir })` is that seam. Adding a weight means
+  editing `FACES` *and* the webpack asset list, which `og-renderer.spec.ts` checks
+  by building the artefact's layout rather than resolving from `node_modules`.
+
 ## Known rough edges
 
 Not defects, but worth knowing before you trip over them or duplicate the work.

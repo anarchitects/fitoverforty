@@ -35,6 +35,18 @@ export interface TestAppOptions {
    * Omit the key entirely to leave the stub in place.
    */
   signedInAs?: FakeSessionUser | null;
+
+  /**
+   * Where the social-card renderer should find its fonts and WASM.
+   *
+   * `OgModule` defaults to `join(__dirname, 'assets')`, which is correct for
+   * the built artefact and wrong here: these suites run from source, where
+   * that directory does not exist. A suite that exercises an `/og` route
+   * prepares a directory the way `webpack.config.js` lays one out and passes
+   * it; everything else leaves this alone, because a module that is never
+   * asked for a card never reads the files.
+   */
+  ogAssetDir?: string;
 }
 
 export async function createFastifyTestApp(
@@ -62,6 +74,11 @@ export async function createFastifyTestApp(
       // rather than passing against a fake.
       api: { getSession: async () => (user ? { user } : null) },
     });
+  }
+
+  if (options.ogAssetDir) {
+    const { OG_ASSET_DIR } = await import('@fitoverforty/og-nest');
+    builder = builder.overrideProvider(OG_ASSET_DIR).useValue(options.ogAssetDir);
   }
 
   const moduleFixture = await builder.compile();

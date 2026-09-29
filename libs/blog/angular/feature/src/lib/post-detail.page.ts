@@ -135,7 +135,12 @@ export class PostDetailPage {
         modifiedAt: post.updatedAt,
         authors: post.authors.map((author) => author.name),
         tags: post.tags.map((tag) => tag.name),
-        image: post.hero?.src,
+        /**
+         * The hero when there is one, and a generated card when there is not.
+         * A post's own photograph is a better preview than anything drawn
+         * from its title, so this only falls back.
+         */
+        image: post.hero?.src ?? `/og/blog/${post.slug}.png`,
       });
     });
   }

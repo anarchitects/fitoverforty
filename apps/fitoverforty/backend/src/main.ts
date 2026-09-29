@@ -95,7 +95,15 @@ async function bootstrap() {
     // Uploaded images are excluded for the same reason the feed is: they are
     // linked from published posts and from OpenGraph tags, where /api would be
     // a strange and permanent part of the URL. Uploading stays under /api.
-    exclude: ['blog/feed.xml', 'sitemap.xml', 'robots.txt', 'media/:key'],
+    exclude: [
+      'blog/feed.xml',
+      'sitemap.xml',
+      'robots.txt',
+      'media/:key',
+      // Social cards, for the same reason: the URL goes in an og:image tag.
+      'og/site.png',
+      'og/blog/:file',
+    ],
   });
 
   /**

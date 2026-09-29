@@ -6,5 +6,9 @@
   "/media": {
     "target": "http://localhost:3000",
     "secure": false
+  },
+  "/og": {
+    "target": "http://localhost:3000",
+    "secure": false
   }
 }
