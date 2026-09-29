@@ -1,10 +1,15 @@
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { App } from './app';
 
 describe('App', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [App],
+      // The header's mark links to the home page, so the component tree needs
+      // a router to instantiate — without one it fails on ActivatedRoute
+      // rather than on anything to do with what these tests assert.
+      providers: [provideRouter([])],
     }).compileComponents();
   });
 
