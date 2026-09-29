@@ -28,7 +28,7 @@ import { NewsletterCtaComponent } from '@fitoverforty/newsletter-angular';
       <p class="blog-home-intro">
         Training, recovery and nutrition for people who did not start yesterday.
       </p>
-      <h2>Latest</h2>
+      <h2 class="blog-section-label">Latest</h2>
       @if (latest(); as result) {
         @if (result.ok) {
           <fitoverforty-post-summary-list [posts]="result.data.items" />

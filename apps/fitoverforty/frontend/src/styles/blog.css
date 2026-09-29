@@ -12,17 +12,35 @@
  *
  * The reading measure is not set here: `.anx-main > *` in `styles.css` already
  * constrains every top-level block to `min(100%, 44rem)` and centres it.
+ *
+ * **Every rule that sets a margin leads with `.anx-root`, and has to.** The
+ * design system ships
+ *
+ *     .anx-root :where(h1, h2, h3, h4, h5, h6, p, ul, ol) { margin: 0 }
+ *
+ * and `:where()` contributes *nothing* to specificity — so that selector
+ * scores (0,1,0), exactly the same as a bare `.blog-paragraph`. Equal
+ * specificity is settled by source order, and the package's stylesheet is
+ * emitted after this one, so it wins. The failure is silent and total: the
+ * rule is present, it matches, and the margin is zero. Post bodies rendered
+ * with no space between paragraphs and headings for this reason, which reads
+ * as a layout bug rather than a cascade one.
+ *
+ * This is the same trap as the `.anx-surface` note in the repository guide,
+ * with an extra turn on it — there the package rule was *more* specific, here
+ * it merely comes later. Counting classes is not enough; `:where()` has to be
+ * counted as zero.
  */
 
 /* --- Prose -------------------------------------------------------------- */
 
-.blog-paragraph {
+.anx-root .blog-paragraph {
   margin-block: 0 1.15em;
   line-height: 1.7;
   color: var(--anx-sys-color-text);
 }
 
-.blog-heading {
+.anx-root .blog-heading {
   font-family: 'Bitter', Georgia, serif;
   font-weight: 600;
   line-height: 1.25;
@@ -69,7 +87,7 @@ h3.blog-heading {
  * the one place in the app where a bullet carries meaning rather than
  * decoration.
  */
-.blog-list {
+.anx-root .blog-list {
   margin-block: 0 1.15em;
   padding-inline-start: 1.5em;
   line-height: 1.7;
@@ -103,7 +121,7 @@ ul.blog-list ul.blog-list {
 
 /* --- Quote, figure, rule ------------------------------------------------ */
 
-.blog-quote {
+.anx-root .blog-quote {
   margin-block: 1.75em;
   margin-inline: 0;
   padding-inline-start: 1.15rem;
@@ -126,7 +144,7 @@ ul.blog-list ul.blog-list {
   color: var(--anx-sys-color-text-muted);
 }
 
-.blog-figure {
+.anx-root .blog-figure {
   margin-block: 1.75em;
   margin-inline: 0;
 }
@@ -138,7 +156,7 @@ ul.blog-list ul.blog-list {
   border-radius: 2px;
 }
 
-.blog-delimiter {
+.anx-root .blog-delimiter {
   margin-block: 2.5em;
   margin-inline: auto;
   inline-size: 6rem;
@@ -149,7 +167,7 @@ ul.blog-list ul.blog-list {
 
 /* --- Code --------------------------------------------------------------- */
 
-.blog-code {
+.anx-root .blog-code {
   margin-block: 1.5em;
   padding: 1rem 1.15rem;
   overflow-x: auto;
@@ -174,7 +192,7 @@ ul.blog-list ul.blog-list {
 /* --- Table -------------------------------------------------------------- */
 
 /* The scroll container, not the table, so a wide table never widens the page. */
-.blog-table-scroll {
+.anx-root .blog-table-scroll {
   margin-block: 1.5em;
   overflow-x: auto;
 }
@@ -204,23 +222,25 @@ ul.blog-list ul.blog-list {
 
 /* --- Post header and listing -------------------------------------------- */
 
-.blog-post-header {
-  margin-block-end: 2rem;
+.anx-root .blog-post-header {
+  /* The title above it is now roughly twice the size it was; 2rem under it
+     read as cramped once the type grew. */
+  margin-block-end: 2.75rem;
 }
 
-.blog-post-meta {
-  margin-block: 0.4em 0;
-  font-size: 0.875rem;
+.anx-root .blog-post-meta {
+  margin-block: 0.7em 0;
+  font-size: var(--fof-text-meta);
   color: var(--anx-sys-color-text-muted);
 }
 
-.blog-post-description {
+.anx-root .blog-post-description {
   margin-block: 0.6em 0;
   line-height: 1.6;
   color: var(--anx-sys-color-text);
 }
 
-.blog-post-list {
+.anx-root .blog-post-list {
   margin: 0;
   padding: 0;
   list-style: none;
@@ -230,7 +250,7 @@ ul.blog-list ul.blog-list {
 }
 
 .blog-post-card {
-  padding-block-end: 1.75rem;
+  padding-block-end: 2.75rem;
   border-block-end: 1px solid
     color-mix(in srgb, var(--anx-sys-color-text-muted) 20%, transparent);
 }
@@ -243,24 +263,35 @@ ul.blog-list ul.blog-list {
 .blog-post-card h2 {
   margin: 0;
   font-family: 'Bitter', Georgia, serif;
-  font-size: clamp(1.35rem, 2vw, 1.6rem);
+  font-size: var(--fof-text-card-title);
   font-weight: 600;
-  line-height: 1.3;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
 }
 
+/**
+ * Ink, not accent.
+ *
+ * The accent used to be on every heading on the page, which meant it marked
+ * nothing: a colour that is everywhere carries no information. It now says
+ * "this responds to you" — links on hover, and the section labels — so a
+ * post title reads as a title and turns green only when pointed at.
+ */
 .blog-post-card h2 a {
-  color: var(--anx-sys-color-accent);
+  color: var(--anx-sys-color-text);
   text-decoration: none;
 }
 
 .blog-post-card h2 a:hover {
+  color: var(--anx-sys-color-accent);
   text-decoration: underline;
   text-underline-offset: 0.15em;
 }
 
 /* --- Tags --------------------------------------------------------------- */
 
-.blog-tag-list {
+.anx-root .blog-tag-list {
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem;
@@ -296,7 +327,7 @@ ul.blog-list ul.blog-list {
 
 /* --- Pagination --------------------------------------------------------- */
 
-.blog-pagination {
+.anx-root .blog-pagination {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -323,9 +354,9 @@ ul.blog-list ul.blog-list {
 
 /* --- Empty, error and unknown states ------------------------------------ */
 
-.blog-empty,
-.blog-load-error,
-.blog-unknown-block {
+.anx-root .blog-empty,
+.anx-root .blog-load-error,
+.anx-root .blog-unknown-block {
   margin-block: 1.5em;
   padding: 0.9rem 1.15rem;
   border-radius: 3px;
@@ -360,11 +391,42 @@ ul.blog-list ul.blog-list {
     color-mix(in srgb, var(--anx-sys-color-warning) 35%, transparent);
 }
 
+/* --- Section labels ----------------------------------------------------- */
+
+/**
+ * A heading that orients rather than announces, such as "Latest".
+ *
+ * It is an `h2` because it genuinely heads a section and the document outline
+ * should say so — but visually it is a label, not a title. Left at heading
+ * size it competed with the post titles beneath it while carrying far less
+ * information; at body size with no treatment it simply disappeared. Small,
+ * spaced and ruled reads as a divider with a name on it, which is what it is.
+ */
+.anx-root .blog-section-label {
+  margin-block: 0 1.75rem;
+  padding-block-end: 0.75rem;
+  border-block-end: 1px solid
+    color-mix(in srgb, var(--anx-sys-color-text-muted) 22%, transparent);
+  font-family: 'Manrope', 'Segoe UI', sans-serif;
+  font-size: var(--fof-text-eyebrow);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--anx-sys-color-accent);
+}
+
 /* --- Page-level spacing ------------------------------------------------- */
 
-.blog-home-intro {
-  margin-block-end: 2rem;
-  line-height: 1.7;
+.anx-root .blog-home-intro {
+  margin-block-end: 3.25rem;
+  /**
+   * Held well short of the page width. The title above it is set to balance
+   * across two or three lines, and a standfirst running the full measure
+   * under it undoes that — the eye has nowhere to stop.
+   */
+  max-inline-size: 42ch;
+  font-size: var(--fof-text-lede);
+  line-height: 1.5;
   color: var(--anx-sys-color-text-muted);
 }
 
@@ -387,11 +449,11 @@ ul.blog-list ul.blog-list {
 .blog-post-header h1 {
   margin: 0;
   font-family: 'Bitter', Georgia, serif;
-  font-size: clamp(1.9rem, 3.2vw, 2.6rem);
+  font-size: var(--fof-text-post-title);
   font-weight: 600;
-  line-height: 1.15;
-  letter-spacing: 0.01em;
-  color: var(--anx-sys-color-accent);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  color: var(--anx-sys-color-text);
   text-wrap: balance;
 }
 
@@ -409,12 +471,13 @@ ul.blog-list ul.blog-list {
 .blog-pillar-index h1,
 .blog-not-found h1,
 .blog-legal h1 {
-  margin-block: 0 0.5em;
+  margin-block: 0 0.35em;
   font-family: 'Bitter', Georgia, serif;
-  font-size: clamp(1.75rem, 3vw, 2.35rem);
+  font-size: var(--fof-text-page-title);
   font-weight: 600;
-  line-height: 1.2;
-  color: var(--anx-sys-color-accent);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--anx-sys-color-text);
   text-wrap: balance;
 }
 
@@ -441,7 +504,7 @@ ul.blog-list ul.blog-list {
 
 /* --- Newsletter call to action ------------------------------------------ */
 
-.blog-newsletter {
+.anx-root .blog-newsletter {
   margin-block-start: 3rem;
   padding: 1.5rem;
   border: 1px solid
@@ -511,7 +574,7 @@ ul.blog-list ul.blog-list {
   accent-color: var(--anx-sys-color-accent);
 }
 
-.blog-newsletter-privacy {
+.anx-root .blog-newsletter-privacy {
   margin: 0;
   font-size: 0.8rem;
   color: var(--anx-sys-color-text-muted);
@@ -545,14 +608,14 @@ ul.blog-list ul.blog-list {
   cursor: not-allowed;
 }
 
-.blog-newsletter-done {
+.anx-root .blog-newsletter-done {
   margin: 0;
   font-size: 0.9rem;
   line-height: 1.6;
   color: var(--anx-sys-color-success);
 }
 
-.blog-newsletter-error {
+.anx-root .blog-newsletter-error {
   margin: 0;
   font-size: 0.875rem;
   color: var(--anx-sys-color-danger);
