@@ -400,6 +400,26 @@ These cost real debugging time; none are inferable from the code.
   `require(esm)`, which is why the built server works and why real sign-in is covered by
   Playwright rather than Jest.
 
+- **The artefact has three entry points, and the third one exists because a
+  server has no workspace.** `main.js`, `migrate.js` and `create-admin.js` are
+  all produced by the backend build; the latter two are `additionalEntryPoints`
+  in `webpack.config.js`. `create-admin` was a ts-node script under `tools/`
+  until it was bundled, which meant a deployed instance could not be given an
+  administrator at all — there is no public sign-up route to fall back on
+  (`disableSignUp` closes it, and both a unit test and a Playwright test assert
+  it stays closed), so the only way in needed the repository checked out on the
+  server. The same script serves both situations: it prompts without echo on a
+  terminal, and takes `--email`, `--name` and `--password-stdin` when there
+  isn't one. **The password goes on stdin in both paths and must stay there** —
+  an argument is visible in `ps` to every other user on the box for as long as
+  the process runs, and an environment variable survives into crash dumps and
+  stray `printenv` output. The `provision-admin.yml` workflow pipes it in from a
+  secret, and shares the deploy's `concurrency` group so it can never run while
+  an rsync is replacing the bundle under it. Adding a fourth entry point means
+  editing the webpack config *and* the deploy's artefact check, which is what
+  turns "the site is down" into "the build did not produce what the deploy
+  expects".
+
 - **Four things about the deployable artefact fail only outside the workspace.** All
   four were found by laying the built output out the way a server will, in
   `deploy/README.md`; none of them can go wrong while `nx serve` is what runs the app.

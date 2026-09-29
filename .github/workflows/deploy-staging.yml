@@ -64,7 +64,8 @@ jobs:
           set -euo pipefail
           backend=dist/apps/fitoverforty/backend
           frontend=dist/apps/fitoverforty/frontend
-          for f in "$backend/main.js" "$backend/migrate.js" "$backend/package.json" \
+          for f in "$backend/main.js" "$backend/migrate.js" \
+                   "$backend/create-admin.js" "$backend/package.json" \
                    "$backend/yarn.lock" "$backend/.yarnrc.yml" \
                    "$frontend/server/server.mjs" "$frontend/browser/index.csr.html"; do
             test -f "$f" || { echo "missing: $f"; exit 1; }
