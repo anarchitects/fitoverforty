@@ -1,0 +1,18 @@
+# Canonical identities, so `git shortlog` and `git log` count one person once.
+#
+# Both of us have committed under two addresses — a GitHub noreply and a
+# personal one — which git treats as four contributors rather than two. The
+# left-hand side of each line is the canonical identity; the right-hand side is
+# the address to fold into it.
+#
+# What this does NOT do, since it came up: GitHub does not read .mailmap. Its
+# contributors graph works from the email addresses connected to a GitHub
+# account, so the way to make the personal addresses attribute correctly there
+# is to add them under Settings → Emails on the account itself. And neither has
+# any bearing on Actions billing, which is charged per licensed seat and by
+# minutes used.
+#
+#   https://docs.github.com/en/account-and-profile/how-tos/email-preferences/adding-an-email-address-to-your-github-account
+
+PWG Consulting Ltd <97451198+pwgconsulting@users.noreply.github.com> <pecwg@icloud.com>
+Johan Vrolix <vrxj81@users.noreply.github.com> <johan@vrolix.eu>
