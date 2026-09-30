@@ -16,8 +16,15 @@ on:
         description: 'Email address for the new admin'
         required: true
       name:
-        description: 'Display name (appears as the byline author)'
+        description: 'Display name (used if no author row is linked)'
         required: true
+      link_author:
+        description: >-
+          Slug of an existing author row to write as, e.g. "paul". Leave blank
+          to create a new one. Without this, the first post by this account
+          creates a second author beside the seeded one.
+        required: false
+        default: ''
 
 permissions:
   contents: read
@@ -75,13 +82,22 @@ jobs:
           ADMIN_PASSWORD: ${{ secrets.STAGING_ADMIN_PASSWORD }}
           ADMIN_EMAIL: ${{ inputs.email }}
           ADMIN_NAME: ${{ inputs.name }}
+          LINK_AUTHOR: ${{ inputs.link_author }}
         run: |
           set -euo pipefail
 
           if [ -z "${ADMIN_PASSWORD:-}" ]; then
             echo "STAGING_ADMIN_PASSWORD is not set."
-            echo "Add it under Settings → Secrets and variables → Actions,"
-            echo "in the 'staging' environment. At least 12 characters."
+            echo
+            echo "Add it as a repository secret, beside STAGING_SSH_KEY:"
+            echo "  Settings → Secrets and variables → Actions"
+            echo "      → New repository secret"
+            echo
+            echo "Or scope it to this environment alone, which is tighter and"
+            echo "is where a password is better off:"
+            echo "  Settings → Environments → staging → Add environment secret"
+            echo
+            echo "Either is found by this job. At least 12 characters."
             exit 1
           fi
 
@@ -93,9 +109,15 @@ jobs:
           #
           # `printf %s` rather than echo: no trailing newline is added, and the
           # script strips at most one if a shell adds it anyway.
+          link=""
+          if [ -n "${LINK_AUTHOR:-}" ]; then
+            link="--link-author '$LINK_AUTHOR'"
+          fi
+
           printf '%s' "$ADMIN_PASSWORD" | ssh "$SSH_USER@$SSH_HOST" \
             "cd '$DEPLOY_ROOT/backend' && node create-admin.js \
-               --email '$ADMIN_EMAIL' --name '$ADMIN_NAME' --password-stdin"
+               --email '$ADMIN_EMAIL' --name '$ADMIN_NAME' $link \
+               --password-stdin"
 
       - name: Close the SSH connection
         if: always()
