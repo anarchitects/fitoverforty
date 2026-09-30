@@ -40,6 +40,27 @@ import { NewsletterCtaComponent } from '@fitoverforty/newsletter-angular';
       <fitoverforty-load-error />
     } @else if (loadedPost(); as loaded) {
       <article class="anx-section blog-post">
+        @if (loaded.hero; as hero) {
+          <!--
+            Above the title, at content width. Width and height are the
+            stored intrinsic dimensions rather than the rendered size: they
+            give the browser an aspect ratio to reserve before the bytes
+            arrive, so the title does not jump down the page as it loads.
+            The CSS caps how large a small image is allowed to become.
+
+            No lazy loading and fetchpriority high: this is the largest
+            element above the fold, so deferring it is deferring the thing
+            the page is judged on.
+          -->
+          <img
+            class="blog-post-hero"
+            [src]="hero.src"
+            [alt]="hero.alt"
+            [attr.width]="hero.width"
+            [attr.height]="hero.height"
+            fetchpriority="high"
+          />
+        }
         <header class="blog-post-header">
           <h1>{{ loaded.title }}</h1>
           <p class="blog-post-meta">

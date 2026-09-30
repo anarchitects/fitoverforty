@@ -482,10 +482,23 @@ export class PostEditorPage {
     });
   }
 
+  /**
+   * Publishing leaves the editor.
+   *
+   * It used to stay, showing "Published." in the status line at the top of
+   * the page — roughly a screen and a half above the button that had just
+   * been pressed. On anything longer than a short post the author was below
+   * the fold when it appeared, so a successful publish looked exactly like
+   * nothing happening, and the obvious response was to press it again.
+   *
+   * The list is where the confirmation lives now: the post is in it, marked
+   * published. Going somewhere is feedback that cannot be scrolled past.
+   */
   async publishNow(): Promise<void> {
     await this.run('Published.', async () => {
       const id = await this.persist();
       this.apply(await this.posts.publish(id));
+      await this.router.navigate(['/admin']);
     });
   }
 
@@ -496,9 +509,12 @@ export class PostEditorPage {
     // and toISOString is what makes that explicit before it leaves.
     const at = new Date(local).toISOString();
 
+    // Same as publishing, for the same reason: two adjacent buttons that
+    // behave differently is worse than either behaviour on its own.
     await this.run('Scheduled.', async () => {
       const id = await this.persist();
       this.apply(await this.posts.publish(id, at));
+      await this.router.navigate(['/admin']);
     });
   }
 
