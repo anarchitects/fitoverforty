@@ -156,6 +156,31 @@ its job, and a live password sitting in a secret is a standing risk for no
 further benefit — change the account's password from the admin UI if you want a
 different one.
 
+### If the password does not work
+
+`create-admin` reports the **length** of the password it used, and warns when
+that password begins or ends with whitespace. Both are worth reading: a value
+that arrives with a stray space — easily pasted into a GitHub secret without
+noticing — hashes perfectly happily and then fails at the sign-in form, where
+the only message is "email address and password do not match an account". The
+sign-in error deliberately does not distinguish a wrong password from an
+unknown address, so it cannot tell you which half is wrong.
+
+To fix it, run the workflow again with `mode: reset-password`, or on the
+server:
+
+```bash
+node create-admin.js --reset-password --email you@example.com
+```
+
+A reset takes no `--name` and no `--link-author`: the account and its author
+row both already exist, and it must not disturb either. The new hash is
+verified before the command returns.
+
+There is no other route. `signUpEmail` refuses an address it already holds,
+there is no public reset page, and nothing in `/admin` changes a password — so
+before this existed, an account whose password nobody knew was simply lost.
+
 Why a script and not a seed migration, which has not changed: the stored hash
 has to be one Better Auth's own sign-in will later verify, so it has to come
 from Better Auth's own hasher with its own parameters. A hash committed to a
