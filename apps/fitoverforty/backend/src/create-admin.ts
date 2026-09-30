@@ -3,6 +3,7 @@
 // dotenv of its own, and adding one would imply the data source could be used
 // safely without it.
 import { createInterface } from 'node:readline/promises';
+import type { DataSource } from 'typeorm';
 import { makeRuntimeDataSource } from './data-source';
 import { createAuth } from '@fitoverforty/auth-nest';
 
@@ -48,12 +49,14 @@ const MIN_PASSWORD_LENGTH = 12;
 interface Args {
   readonly email?: string;
   readonly name?: string;
+  readonly linkAuthor?: string;
   readonly passwordFromStdin: boolean;
 }
 
 function parseArgs(argv: readonly string[]): Args {
   let email: string | undefined;
   let name: string | undefined;
+  let linkAuthor: string | undefined;
   let passwordFromStdin = false;
 
   for (let i = 0; i < argv.length; i += 1) {
@@ -63,10 +66,13 @@ function parseArgs(argv: readonly string[]): Args {
     else if (arg === '--name') name = argv[(i += 1)];
     else if (arg.startsWith('--email=')) email = arg.slice('--email='.length);
     else if (arg.startsWith('--name=')) name = arg.slice('--name='.length);
+    else if (arg === '--link-author') linkAuthor = argv[(i += 1)];
+    else if (arg.startsWith('--link-author='))
+      linkAuthor = arg.slice('--link-author='.length);
     else throw new Error(`Unrecognised argument: ${arg}`);
   }
 
-  return { email, name, passwordFromStdin };
+  return { email, name, linkAuthor, passwordFromStdin };
 }
 
 async function ask(question: string): Promise<string> {
@@ -158,6 +164,55 @@ function validate(email: string, name: string, password: string): void {
   }
 }
 
+/**
+ * Attaches the new account to an author row that already exists.
+ *
+ * `PostAdminService.authorFor` resolves a byline by `user_id` alone, and
+ * creates a row on first use when it finds none. A seeded author has
+ * `user_id NULL`, so without this the first post by a new account produces a
+ * *second* author — `paul-2` beside `paul` — carrying no bio and none of the
+ * existing posts, while the original is left orphaned. Nothing errors, and the
+ * damage is only visible once something has been published under the wrong
+ * byline.
+ *
+ * Checked before the account is created, not after: a failure here would
+ * otherwise leave an account that exists and a link that does not, which is
+ * the state hardest to reason about afterwards.
+ */
+async function assertAuthorLinkable(
+  dataSource: DataSource,
+  slug: string,
+): Promise<void> {
+  const rows: { user_id: string | null }[] = await dataSource.query(
+    `SELECT "user_id" FROM "blog"."authors" WHERE "slug" = $1`,
+    [slug],
+  );
+
+  if (rows.length === 0) {
+    throw new Error(
+      `No author with slug "${slug}". Omit --link-author to create a new one.`,
+    );
+  }
+  if (rows[0].user_id !== null) {
+    // `uq_authors_user_id` would reject the update anyway; this says why.
+    throw new Error(
+      `Author "${slug}" already belongs to another account. One account ` +
+        `writes as one author.`,
+    );
+  }
+}
+
+async function linkAuthor(
+  dataSource: DataSource,
+  slug: string,
+  userId: string,
+): Promise<void> {
+  await dataSource.query(
+    `UPDATE "blog"."authors" SET "user_id" = $1 WHERE "slug" = $2`,
+    [userId, slug],
+  );
+}
+
 async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
 
@@ -186,9 +241,20 @@ async function main(): Promise<void> {
   await dataSource.initialize();
 
   try {
+    if (args.linkAuthor) {
+      await assertAuthorLinkable(dataSource, args.linkAuthor);
+    }
+
     const auth = createAuth(dataSource, { allowSignUp: true });
-    await auth.api.signUpEmail({ body: { email, name, password } });
+    const created = await auth.api.signUpEmail({
+      body: { email, name, password },
+    });
     process.stdout.write(`Created admin account for ${email}.\n`);
+
+    if (args.linkAuthor) {
+      await linkAuthor(dataSource, args.linkAuthor, created.user.id);
+      process.stdout.write(`Writes as existing author "${args.linkAuthor}".\n`);
+    }
   } finally {
     await dataSource.destroy();
   }
