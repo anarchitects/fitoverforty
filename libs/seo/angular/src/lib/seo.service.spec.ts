@@ -2,6 +2,8 @@ import { TestBed } from '@angular/core/testing';
 import { DOCUMENT } from '@angular/core';
 import { SeoService } from './seo.service';
 import { SITE_ORIGIN } from './site-origin.token';
+import { FIT_OVER_FORTY } from '@fitoverforty/site-ts';
+import { provideSiteIdentity } from '@fitoverforty/site-angular';
 
 const ORIGIN = 'https://example.test';
 
@@ -22,7 +24,10 @@ describe('SeoService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [{ provide: SITE_ORIGIN, useValue: ORIGIN }],
+      providers: [
+        { provide: SITE_ORIGIN, useValue: ORIGIN },
+        provideSiteIdentity(FIT_OVER_FORTY),
+      ],
     });
     seo = TestBed.inject(SeoService);
     document = TestBed.inject(DOCUMENT);

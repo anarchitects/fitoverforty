@@ -4,6 +4,8 @@ import { SITE_ORIGIN } from '@fitoverforty/seo-angular';
 import type { Paged, PillarSummary, PostSummary } from '@fitoverforty/blog-ts';
 import type { Loaded } from '@fitoverforty/blog-angular-data-access';
 import { PillarArchivePage } from './pillar-archive.page';
+import { FIT_OVER_FORTY } from '@fitoverforty/site-ts';
+import { provideSiteIdentity } from '@fitoverforty/site-angular';
 
 const PILLARS: PillarSummary[] = [
   {
@@ -41,6 +43,7 @@ describe('PillarArchivePage', () => {
       providers: [
         provideRouter([]),
         { provide: SITE_ORIGIN, useValue: 'https://example.test' },
+        provideSiteIdentity(FIT_OVER_FORTY),
       ],
     });
     const fixture = TestBed.createComponent(PillarArchivePage);

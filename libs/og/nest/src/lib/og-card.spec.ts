@@ -16,6 +16,7 @@ describe('og card', () => {
     title: 'A post about something',
     description: 'And what came of it.',
     pillar: 'Physical fitness',
+    siteName: 'Fit Over Forty',
     kicker: 'fitoverforty.test',
   };
 
@@ -31,6 +32,18 @@ describe('og card', () => {
     // satori does not implement — lower-case here means it silently renders
     // out of keeping with every other card.
     expect(texts(card(input))).toContain('PHYSICAL FITNESS');
+  });
+
+  it('draws the site name as the wordmark, upper-cased', () => {
+    // Upper-cased here rather than by the caller: SiteIdentity.name is in
+    // normal case because the footer and the feed want it that way, and
+    // satori does not implement text-transform. The name used to be a
+    // literal in the card, which is what made a card for any other site
+    // impossible.
+    expect(texts(card(input))).toContain('FIT OVER FORTY');
+    expect(texts(card({ ...input, siteName: 'Reeves Corner Retreats' }))).toContain(
+      'REEVES CORNER RETREATS',
+    );
   });
 
   it('omits the description block when there is none', () => {

@@ -14,6 +14,7 @@ import { NewsletterModule } from '@fitoverforty/newsletter-nest';
 import { AuthModule } from '@fitoverforty/auth-nest';
 import { MediaModule } from '@fitoverforty/media-nest';
 import { OgModule } from '@fitoverforty/og-nest';
+import { SiteIdentityModule } from './site-identity.module';
 
 @Module({
   imports: [
@@ -28,6 +29,9 @@ import { OgModule } from '@fitoverforty/og-nest';
     }),
     CommonMailerModule.forRootFromConfig(),
     FormsModule.forRootFromConfig(),
+    // Global, and before the modules that inject it: every library that
+    // renders the site's name reads it from here rather than holding it.
+    SiteIdentityModule,
     AuthModule,
     BlogModule,
     MediaModule,

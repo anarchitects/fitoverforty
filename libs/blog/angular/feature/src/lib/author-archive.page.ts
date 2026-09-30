@@ -12,6 +12,7 @@ import type {
   PostSummary,
 } from '@fitoverforty/blog-ts';
 import { SeoService } from '@fitoverforty/seo-angular';
+import { SITE_IDENTITY } from '@fitoverforty/site-angular';
 import type { Loaded } from '@fitoverforty/blog-angular-data-access';
 import {
   LoadErrorComponent,
@@ -115,6 +116,7 @@ export class AuthorArchivePage {
   });
 
   private readonly seo = inject(SeoService);
+  private readonly identity = inject(SITE_IDENTITY);
 
   constructor() {
     effect(() => {
@@ -126,7 +128,7 @@ export class AuthorArchivePage {
       this.seo.apply({
         title: author.name,
         description:
-          author.bio ?? `Posts by ${author.name} on Fit Over Forty.`,
+          author.bio ?? `Posts by ${author.name} on ${this.identity.name}.`,
         path: `/blog/author/${author.slug}`,
       });
     });

@@ -1,6 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { FooterComponent } from './footer.component';
+import { FIT_OVER_FORTY } from '@fitoverforty/site-ts';
+import { provideSiteIdentity } from '@fitoverforty/site-angular';
 
 /**
  * The footer carries routerLinks now, so it needs a router to instantiate at
@@ -10,7 +12,7 @@ import { FooterComponent } from './footer.component';
 async function render() {
   await TestBed.configureTestingModule({
     imports: [FooterComponent],
-    providers: [provideRouter([])],
+    providers: [provideRouter([]), provideSiteIdentity(FIT_OVER_FORTY)],
   }).compileComponents();
 
   const fixture = TestBed.createComponent(FooterComponent);

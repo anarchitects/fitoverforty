@@ -11,6 +11,8 @@ import {
 } from '@angular/platform-browser';
 import { provideDesignSystemConfig } from '@anarchitects/common-angular-design/config';
 import { provideAnxDefaultLayouts } from '@anarchitects/common-angular-ui-layouts/defaults';
+import { FIT_OVER_FORTY } from '@fitoverforty/site-ts';
+import { provideSiteIdentity } from '@fitoverforty/site-angular';
 import { appRoutes } from './app.routes';
 import {
   CONTENT_SOURCE,
@@ -31,6 +33,12 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withFetch()),
     HttpContentSource,
     { provide: CONTENT_SOURCE, useExisting: HttpContentSource },
+    // Naming the site is the composition root's job. The libraries that
+    // render it — the footer, the home page, the admin screens — read it from
+    // here rather than holding a literal, which is what makes them usable by
+    // anything else. The token has no default on purpose: a library that
+    // falls back to a name works everywhere and is wrong nearly everywhere.
+    provideSiteIdentity(FIT_OVER_FORTY),
     provideDesignSystemConfig({
       theme: 'fitoverforty',
       density: 'comfortable',

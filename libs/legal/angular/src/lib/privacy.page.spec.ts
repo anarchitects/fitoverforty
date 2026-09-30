@@ -2,6 +2,8 @@ import { provideRouter } from '@angular/router';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CONSENT_TEXT } from '@fitoverforty/newsletter-angular';
 import { PrivacyPage } from './privacy.page';
+import { FIT_OVER_FORTY } from '@fitoverforty/site-ts';
+import { provideSiteIdentity } from '@fitoverforty/site-angular';
 
 /**
  * This page is a legal obligation, not decoration.
@@ -26,7 +28,7 @@ describe('PrivacyPage', () => {
   beforeEach(async () => {
     TestBed.configureTestingModule({
       imports: [PrivacyPage],
-      providers: [provideRouter([])],
+      providers: [provideRouter([]), provideSiteIdentity(FIT_OVER_FORTY)],
     });
     fixture = TestBed.createComponent(PrivacyPage);
     await fixture.whenStable();

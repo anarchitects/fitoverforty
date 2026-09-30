@@ -8,6 +8,7 @@ import {
 import { RouterLink } from '@angular/router';
 import type { AdminPostSummary } from '@fitoverforty/blog-ts';
 import { SeoService } from '@fitoverforty/seo-angular';
+import { SITE_IDENTITY } from '@fitoverforty/site-angular';
 import { AuthService } from '@fitoverforty/admin-angular-data-access';
 import { PostsApi } from '@fitoverforty/admin-angular-data-access';
 
@@ -140,9 +141,10 @@ export class DashboardPage {
   readonly error = signal<string | null>(null);
 
   constructor() {
+    const site = inject(SITE_IDENTITY);
     inject(SeoService).apply({
       title: 'Posts',
-      description: 'Administration for Fit Over Forty.',
+      description: `Administration for ${site.name}.`,
       path: '/admin',
       noIndex: true,
     });

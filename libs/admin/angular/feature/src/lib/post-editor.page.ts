@@ -19,6 +19,7 @@ import {
   type EditorOutput,
 } from '@fitoverforty/editorjs-angular';
 import { SeoService } from '@fitoverforty/seo-angular';
+import { SITE_IDENTITY } from '@fitoverforty/site-angular';
 import { MediaApi } from '@fitoverforty/admin-angular-data-access';
 import { PostsApi } from '@fitoverforty/admin-angular-data-access';
 import { CONTENT_SOURCE } from '@fitoverforty/blog-angular-data-access';
@@ -378,9 +379,10 @@ export class PostEditorPage {
   );
 
   constructor() {
+    const site = inject(SITE_IDENTITY);
     inject(SeoService).apply({
       title: 'Compose',
-      description: 'Administration for Fit Over Forty.',
+      description: `Administration for ${site.name}.`,
       path: '/admin/posts',
       noIndex: true,
     });

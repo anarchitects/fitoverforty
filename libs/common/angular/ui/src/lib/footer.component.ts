@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { SITE_IDENTITY } from '@fitoverforty/site-angular';
 
 /**
  * The footer, and the only route to the privacy notice.
@@ -30,7 +31,7 @@ import { RouterLink } from '@angular/router';
         <a href="/blog/feed.xml">RSS</a>
       </nav>
       <p class="anx-text anx-footer__text">
-        © {{ currentYear }} Fit Over Forty. All rights reserved.
+        © {{ currentYear }} {{ identity.name }}. All rights reserved.
       </p>
     </footer>
   `,
@@ -74,4 +75,5 @@ import { RouterLink } from '@angular/router';
 })
 export class FooterComponent {
   protected readonly currentYear = new Date().getFullYear();
+  protected readonly identity = inject(SITE_IDENTITY);
 }

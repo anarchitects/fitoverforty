@@ -1,13 +1,11 @@
 import { Controller, Get, Header, Inject, Req } from '@nestjs/common';
 import type { FastifyRequest } from 'fastify';
 import type { ContentSource } from '@fitoverforty/blog-ts';
+import { SITE_IDENTITY, type SiteIdentity } from '@fitoverforty/site-ts';
 import { CONTENT_SOURCE } from './content-source.token';
 import { escapeXml, siteOrigin } from './site-url';
 
 const FEED_ITEM_LIMIT = 20;
-const SITE_TITLE = 'Fit Over Forty';
-const SITE_DESCRIPTION =
-  'Training, recovery and nutrition for people who did not start yesterday.';
 
 /**
  * Serves the feed, sitemap and robots.txt.
@@ -19,6 +17,7 @@ const SITE_DESCRIPTION =
 export class SyndicationController {
   constructor(
     @Inject(CONTENT_SOURCE) private readonly content: ContentSource,
+    @Inject(SITE_IDENTITY) private readonly site: SiteIdentity,
   ) {}
 
   @Get('blog/feed.xml')
@@ -52,9 +51,9 @@ ${post.tags
     return `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>${escapeXml(SITE_TITLE)}</title>
+    <title>${escapeXml(this.site.name)}</title>
     <link>${escapeXml(origin)}</link>
-    <description>${escapeXml(SITE_DESCRIPTION)}</description>
+    <description>${escapeXml(this.site.description)}</description>
     <language>en-GB</language>
     <lastBuildDate>${lastBuild}</lastBuildDate>
     <atom:link href="${escapeXml(`${origin}/blog/feed.xml`)}" rel="self" type="application/rss+xml"/>

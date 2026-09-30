@@ -1,5 +1,6 @@
 import type { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { createFastifyTestApp } from '../support/create-fastify-test-app';
+import { FIT_OVER_FORTY } from '@fitoverforty/site-ts';
 
 /**
  * The test app builds AppModule directly, so there is no /api global prefix —
@@ -35,6 +36,20 @@ describe('syndication', () => {
       expect(body).toContain('<rss version="2.0"');
       expect(body).toContain(
         '<atom:link href="https://example.test/blog/feed.xml" rel="self"',
+      );
+    });
+
+    it('titles the channel from the injected site identity', async () => {
+      // The name and the description were literals in this controller until
+      // they became configuration. Asserted through a real request rather
+      // than against the constant, because what this proves is the wiring:
+      // the app provides SITE_IDENTITY globally, and a library that no longer
+      // knows the site's name gets told it. Without the provider the route
+      // does not answer at all.
+      const { body } = await get('/blog/feed.xml');
+      expect(body).toContain(`<title>${FIT_OVER_FORTY.name}</title>`);
+      expect(body).toContain(
+        `<description>${FIT_OVER_FORTY.description}</description>`,
       );
     });
 

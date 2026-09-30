@@ -3,6 +3,8 @@ import { provideRouter } from '@angular/router';
 import { TestBed } from '@angular/core/testing';
 import { SITE_ORIGIN } from '@fitoverforty/seo-angular';
 import { NotFoundPage } from './not-found.page';
+import { FIT_OVER_FORTY } from '@fitoverforty/site-ts';
+import { provideSiteIdentity } from '@fitoverforty/site-angular';
 
 /**
  * The 404 page carries two obligations beyond its copy: it must answer with a
@@ -16,6 +18,7 @@ describe('NotFoundPage', () => {
       providers: [
         provideRouter([]),
         { provide: SITE_ORIGIN, useValue: 'https://example.test' },
+        provideSiteIdentity(FIT_OVER_FORTY),
         ...(responseInit
           ? [{ provide: RESPONSE_INIT, useValue: responseInit }]
           : []),

@@ -2,6 +2,8 @@ import { provideRouter } from '@angular/router';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { PILLAR_SLUGS } from '@fitoverforty/blog-ts';
 import { AboutPage } from './about.page';
+import { FIT_OVER_FORTY } from '@fitoverforty/site-ts';
+import { provideSiteIdentity } from '@fitoverforty/site-angular';
 
 /**
  * The copy on this page is the point of it, so these tests guard the claims
@@ -28,7 +30,7 @@ describe('AboutPage', () => {
   beforeEach(async () => {
     TestBed.configureTestingModule({
       imports: [AboutPage],
-      providers: [provideRouter([])],
+      providers: [provideRouter([]), provideSiteIdentity(FIT_OVER_FORTY)],
     });
     fixture = TestBed.createComponent(AboutPage);
     await fixture.whenStable();

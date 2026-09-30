@@ -6,6 +6,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SeoService } from '@fitoverforty/seo-angular';
+import { SITE_IDENTITY } from '@fitoverforty/site-angular';
 import { AuthService } from '@fitoverforty/admin-angular-data-access';
 
 @Component({
@@ -102,9 +103,10 @@ export class SignInPage {
   readonly error = signal<string | null>(null);
 
   constructor() {
+    const site = inject(SITE_IDENTITY);
     inject(SeoService).apply({
       title: 'Sign in',
-      description: 'Administration for Fit Over Forty.',
+      description: `Administration for ${site.name}.`,
       path: '/admin/sign-in',
       // robots.txt already disallows /admin; this covers a crawler that
       // reaches the URL without reading robots.txt first.

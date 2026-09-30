@@ -1,6 +1,7 @@
 import { DOCUMENT, inject, Injectable } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 import { SITE_ORIGIN } from './site-origin.token';
+import { SITE_IDENTITY } from '@fitoverforty/site-angular';
 
 export interface SeoInput {
   title: string;
@@ -17,7 +18,6 @@ export interface SeoInput {
   noIndex?: boolean;
 }
 
-const SITE_NAME = 'Fit Over Forty';
 const JSON_LD_ID = 'blog-json-ld';
 
 /**
@@ -43,11 +43,20 @@ export class SeoService {
   private readonly titleService = inject(Title);
   private readonly document = inject(DOCUMENT);
   private readonly origin = inject(SITE_ORIGIN);
+  /**
+   * The site's name, for the title suffix, `og:site_name` and the JSON-LD
+   * publisher. It was a literal in this file, which made every one of those
+   * four claims about a specific blog — in the library that exists to make
+   * them for whatever application it is in.
+   */
+  private readonly siteName = inject(SITE_IDENTITY).name;
 
   apply(input: SeoInput): void {
     const url = `${this.origin}${input.path}`;
     const fullTitle =
-      input.title === SITE_NAME ? SITE_NAME : `${input.title} — ${SITE_NAME}`;
+      input.title === this.siteName
+        ? this.siteName
+        : `${input.title} — ${this.siteName}`;
 
     this.titleService.setTitle(fullTitle);
     this.setName('description', input.description);
@@ -65,7 +74,7 @@ export class SeoService {
     }
 
     this.setProperty('og:type', input.type ?? 'website');
-    this.setProperty('og:site_name', SITE_NAME);
+    this.setProperty('og:site_name', this.siteName);
     this.setProperty('og:title', fullTitle);
     this.setProperty('og:description', input.description);
     this.setProperty('og:url', url);
@@ -112,7 +121,7 @@ export class SeoService {
       return {
         '@context': 'https://schema.org',
         '@type': 'WebSite',
-        name: SITE_NAME,
+        name: this.siteName,
         url: this.origin,
       };
     }
@@ -133,7 +142,7 @@ export class SeoService {
           }
         : {}),
       ...(input.tags?.length ? { keywords: input.tags.join(', ') } : {}),
-      publisher: { '@type': 'Organization', name: SITE_NAME },
+      publisher: { '@type': 'Organization', name: this.siteName },
     };
   }
 

@@ -2,6 +2,7 @@ import type { ContentSource, Post } from '@fitoverforty/blog-ts';
 import { OgService } from './og.service';
 import type { OgRenderer } from './og-renderer';
 import type { CardInput } from './og-card';
+import { FIT_OVER_FORTY } from '@fitoverforty/site-ts';
 
 function post(overrides: Partial<Post> = {}): Post {
   return {
@@ -26,7 +27,7 @@ describe('OgService', () => {
   let loadPost: jest.Mock;
 
   function serviceFor(source: Partial<ContentSource>): OgService {
-    return new OgService(renderer, source as ContentSource);
+    return new OgService(renderer, source as ContentSource, FIT_OVER_FORTY);
   }
 
   beforeEach(() => {

@@ -23,6 +23,12 @@ export const CARD_HEIGHT = 630;
 export interface CardInput {
   title: string;
   description?: string;
+  /**
+   * The site's name, drawn as the wordmark beside the mark. Upper-cased here
+   * rather than by the caller, so `SiteIdentity.name` stays in normal case for
+   * everywhere else that renders it.
+   */
+  siteName: string;
   /** Display name, e.g. 'Physical fitness'. Upper-cased for the footer. */
   pillar?: string;
   /** Bottom-right, e.g. the bare hostname. */
@@ -107,7 +113,7 @@ export function card(input: CardInput): Node {
             letterSpacing: '0.15em',
             color: INK,
           },
-          'FIT OVER FORTY',
+          input.siteName.toUpperCase(),
         ),
       ]),
       el(

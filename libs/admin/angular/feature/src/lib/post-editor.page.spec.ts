@@ -8,6 +8,8 @@ import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import type { AdminPost, PillarSummary } from '@fitoverforty/blog-ts';
 import { CONTENT_SOURCE } from '@fitoverforty/blog-angular-data-access';
 import { PostEditorPage } from './post-editor.page';
+import { FIT_OVER_FORTY } from '@fitoverforty/site-ts';
+import { provideSiteIdentity } from '@fitoverforty/site-angular';
 
 /**
  * Mostly the class, not the template.
@@ -90,6 +92,7 @@ describe('PostEditorPage', () => {
         provideHttpClientTesting(),
         { provide: Router, useValue: { navigate } },
         { provide: CONTENT_SOURCE, useValue: stubContentSource() },
+        provideSiteIdentity(FIT_OVER_FORTY),
         {
           provide: ActivatedRoute,
           useValue: {
@@ -308,6 +311,7 @@ describe('PostEditorPage', () => {
           provideHttpClientTesting(),
           { provide: Router, useValue: { navigate: vi.fn() } },
           { provide: CONTENT_SOURCE, useValue: stubContentSource() },
+          provideSiteIdentity(FIT_OVER_FORTY),
           {
             provide: ActivatedRoute,
             useValue: { snapshot: { paramMap: convertToParamMap({}) } },

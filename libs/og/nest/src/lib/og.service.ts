@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { ContentSource } from '@fitoverforty/blog-ts';
 import { CONTENT_SOURCE } from '@fitoverforty/blog-nest';
+import { SITE_IDENTITY, type SiteIdentity } from '@fitoverforty/site-ts';
 import { OgRenderer } from './og-renderer';
 import type { CardInput } from './og-card';
 
@@ -15,11 +16,6 @@ import type { CardInput } from './og-card';
  */
 const MAX_ENTRIES = 64;
 
-export const SITE_CARD: CardInput = {
-  title: 'Fit Over Forty',
-  description:
-    'Training, recovery and nutrition for people who did not start yesterday.',
-};
 
 @Injectable()
 export class OgService {
@@ -28,6 +24,7 @@ export class OgService {
   constructor(
     private readonly renderer: OgRenderer,
     @Inject(CONTENT_SOURCE) private readonly content: ContentSource,
+    @Inject(SITE_IDENTITY) private readonly site: SiteIdentity,
   ) {}
 
   /**
@@ -50,13 +47,19 @@ export class OgService {
       title: post.title,
       description: post.description,
       pillar: post.pillar?.name,
+      siteName: this.site.name,
       kicker,
     });
   }
 
   /** The card for anything that is not a single post. */
   async forSite(kicker: string): Promise<Buffer> {
-    return this.render('site', { ...SITE_CARD, kicker });
+    return this.render('site', {
+      title: this.site.name,
+      description: this.site.description,
+      siteName: this.site.name,
+      kicker,
+    });
   }
 
   private async render(key: string, input: CardInput): Promise<Buffer> {

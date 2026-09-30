@@ -62,6 +62,7 @@ describe('OgRenderer', () => {
       title: 'What a month of Zone 2 running did to my resting heart rate',
       description: 'Eight weeks and one chest strap.',
       pillar: 'Physical fitness',
+      siteName: 'Fit Over Forty',
       kicker: 'fitoverforty.test',
     });
 
@@ -73,7 +74,7 @@ describe('OgRenderer', () => {
    * is the case that would break — and it is every request after the first.
    */
   it('renders again in the same process', async () => {
-    const png = await renderer.render({ title: 'Sleep' });
+    const png = await renderer.render({ title: 'Sleep', siteName: 'Fit Over Forty' });
     expect(readPng(png).signature).toBe(true);
   }, 30_000);
 
@@ -84,8 +85,8 @@ describe('OgRenderer', () => {
    */
   it('draws more than the background', async () => {
     const [blank, titled] = await Promise.all([
-      renderer.render({ title: '' }),
-      renderer.render({ title: 'Sleep' }),
+      renderer.render({ title: '', siteName: 'Fit Over Forty' }),
+      renderer.render({ title: 'Sleep', siteName: 'Fit Over Forty' }),
     ]);
     expect(titled.length).toBeGreaterThan(blank.length);
   }, 30_000);
