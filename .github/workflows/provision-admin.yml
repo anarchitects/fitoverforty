@@ -12,12 +12,21 @@ name: Provision staging admin
 on:
   workflow_dispatch:
     inputs:
+      mode:
+        description: 'What to do'
+        required: true
+        type: choice
+        default: create
+        options:
+          - create
+          - reset-password
       email:
-        description: 'Email address for the new admin'
+        description: 'Email address of the account'
         required: true
       name:
-        description: 'Display name (used if no author row is linked)'
-        required: true
+        description: 'Display name. Required to create; ignored by a reset.'
+        required: false
+        default: ''
       link_author:
         description: >-
           Slug of an existing author row to write as, e.g. "paul". Leave blank
@@ -83,6 +92,7 @@ jobs:
           ADMIN_EMAIL: ${{ inputs.email }}
           ADMIN_NAME: ${{ inputs.name }}
           LINK_AUTHOR: ${{ inputs.link_author }}
+          MODE: ${{ inputs.mode }}
         run: |
           set -euo pipefail
 
@@ -109,15 +119,24 @@ jobs:
           #
           # `printf %s` rather than echo: no trailing newline is added, and the
           # script strips at most one if a shell adds it anyway.
-          link=""
-          if [ -n "${LINK_AUTHOR:-}" ]; then
-            link="--link-author '$LINK_AUTHOR'"
+          if [ "$MODE" = "reset-password" ]; then
+            # No --name and no --link-author: the account and its author row
+            # both already exist, and a reset must not disturb either.
+            args="--reset-password --email '$ADMIN_EMAIL'"
+          else
+            if [ -z "${ADMIN_NAME:-}" ]; then
+              echo "A display name is required when creating an account."
+              exit 1
+            fi
+            args="--email '$ADMIN_EMAIL' --name '$ADMIN_NAME'"
+            if [ -n "${LINK_AUTHOR:-}" ]; then
+              args="$args --link-author '$LINK_AUTHOR'"
+            fi
           fi
 
           printf '%s' "$ADMIN_PASSWORD" | ssh "$SSH_USER@$SSH_HOST" \
             "cd '$DEPLOY_ROOT/backend' && node create-admin.js \
-               --email '$ADMIN_EMAIL' --name '$ADMIN_NAME' $link \
-               --password-stdin"
+               $args --password-stdin"
 
       - name: Close the SSH connection
         if: always()

@@ -50,6 +50,7 @@ interface Args {
   readonly email?: string;
   readonly name?: string;
   readonly linkAuthor?: string;
+  readonly resetPassword: boolean;
   readonly passwordFromStdin: boolean;
 }
 
@@ -57,11 +58,13 @@ function parseArgs(argv: readonly string[]): Args {
   let email: string | undefined;
   let name: string | undefined;
   let linkAuthor: string | undefined;
+  let resetPassword = false;
   let passwordFromStdin = false;
 
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     if (arg === '--password-stdin') passwordFromStdin = true;
+    else if (arg === '--reset-password') resetPassword = true;
     else if (arg === '--email') email = argv[(i += 1)];
     else if (arg === '--name') name = argv[(i += 1)];
     else if (arg.startsWith('--email=')) email = arg.slice('--email='.length);
@@ -72,7 +75,7 @@ function parseArgs(argv: readonly string[]): Args {
     else throw new Error(`Unrecognised argument: ${arg}`);
   }
 
-  return { email, name, linkAuthor, passwordFromStdin };
+  return { email, name, linkAuthor, resetPassword, passwordFromStdin };
 }
 
 async function ask(question: string): Promise<string> {
@@ -213,15 +216,84 @@ async function linkAuthor(
   );
 }
 
+/**
+ * Replaces the password on an account that already exists.
+ *
+ * Without this an account whose password does not match whatever was intended
+ * is simply lost: `signUpEmail` refuses an address it already holds, there is
+ * no public reset route, and nothing in `/admin` changes a password. The only
+ * remedy was a hand-written UPDATE against the database, which on a deployed
+ * instance means the shell access this whole script exists to avoid needing.
+ *
+ * Hashed by Better Auth's own hasher through its context, for the same reason
+ * sign-up is what creates an account in the first place: a hash produced any
+ * other way is a hash its sign-in cannot verify.
+ *
+ * The new hash is verified before the function returns. It cannot prove the
+ * password is the one somebody meant to set — nothing can, from in here — but
+ * it does prove that what was stored is what arrived, which is the half that
+ * is checkable.
+ */
+async function resetPassword(
+  dataSource: DataSource,
+  email: string,
+  password: string,
+): Promise<void> {
+  const auth = createAuth(dataSource);
+  const ctx = await auth.$context;
+
+  const user = await ctx.internalAdapter.findUserByEmail(email);
+  if (!user) throw new Error(`No account for ${email}.`);
+
+  const hash = await ctx.password.hash(password);
+  await ctx.internalAdapter.updatePassword(user.user.id, hash);
+
+  if (!(await ctx.password.verify({ hash, password }))) {
+    throw new Error(
+      'The stored password did not verify. Nothing about this account can ' +
+        'be trusted; do not rely on it.',
+    );
+  }
+}
+
+/**
+ * Reports the length of the password that was actually used, and whether it
+ * has whitespace at either end.
+ *
+ * Neither is a secret worth protecting, and between them they identify the
+ * failure this script cannot otherwise distinguish from a typo: a value that
+ * arrived with a stray space, or truncated, hashes perfectly happily and then
+ * does not match what a person types at the sign-in form. Without this the
+ * only symptom is "email address and password do not match an account", which
+ * says nothing about which of the two is wrong or why.
+ */
+function reportLength(password: string): void {
+  const edged = password !== password.trim();
+  process.stdout.write(`Password used: ${password.length} characters.\n`);
+  if (edged) {
+    process.stdout.write(
+      'Note: it begins or ends with whitespace, which was kept. If that was ' +
+        'not deliberate, the password will not be what you expect.\n',
+    );
+  }
+}
+
 async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
 
-  if (args.passwordFromStdin && !(args.email && args.name)) {
-    throw new Error('--password-stdin requires --email and --name.');
+  if (args.resetPassword && args.linkAuthor) {
+    throw new Error('--reset-password does not take --link-author.');
+  }
+  // A reset needs no display name: the account and its author row both exist.
+  if (args.passwordFromStdin && !args.email) {
+    throw new Error('--password-stdin requires --email.');
+  }
+  if (args.passwordFromStdin && !args.resetPassword && !args.name) {
+    throw new Error('--password-stdin requires --name when creating.');
   }
 
   const email = args.email ?? (await ask('Email: '));
-  const name = args.name ?? (await ask('Name: '));
+  const name = args.resetPassword ? '' : (args.name ?? (await ask('Name: ')));
 
   let password: string;
   if (args.passwordFromStdin) {
@@ -235,12 +307,28 @@ async function main(): Promise<void> {
     }
   }
 
-  validate(email, name, password);
+  if (args.resetPassword) {
+    if (!email.includes('@')) throw new Error(`Not an email address: ${email}`);
+    if (password.length < MIN_PASSWORD_LENGTH) {
+      throw new Error(
+        `Password must be at least ${MIN_PASSWORD_LENGTH} characters.`,
+      );
+    }
+  } else {
+    validate(email, name, password);
+  }
 
   const dataSource = makeRuntimeDataSource();
   await dataSource.initialize();
 
   try {
+    if (args.resetPassword) {
+      await resetPassword(dataSource, email, password);
+      process.stdout.write(`Reset the password for ${email}.\n`);
+      reportLength(password);
+      return;
+    }
+
     if (args.linkAuthor) {
       await assertAuthorLinkable(dataSource, args.linkAuthor);
     }
@@ -250,6 +338,8 @@ async function main(): Promise<void> {
       body: { email, name, password },
     });
     process.stdout.write(`Created admin account for ${email}.\n`);
+
+    reportLength(password);
 
     if (args.linkAuthor) {
       await linkAuthor(dataSource, args.linkAuthor, created.user.id);
