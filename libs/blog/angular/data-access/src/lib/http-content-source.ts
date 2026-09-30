@@ -65,6 +65,26 @@ export class HttpContentSource implements ContentSource {
     return firstValueFrom(this.http.get<PostRef[]>(`${API}/posts/refs`));
   }
 
+  /**
+   * Rejects, rather than calling an endpoint, because there is no endpoint to
+   * call and there should not be.
+   *
+   * The sitemap is the only caller and it is generated inside the backend,
+   * against `TypeOrmContentSource`. Serving an authors collection over HTTP
+   * purely so this method could be implemented would build the API an authors
+   * index page needs — and that page is a decision against, not something
+   * nobody got round to. `listPublishedRefs` above has an endpoint only
+   * because `/posts/refs` was already there.
+   */
+  listAuthorRefs(): Promise<never> {
+    return Promise.reject(
+      new Error(
+        'listAuthorRefs is server-side only: it feeds the sitemap, and the ' +
+          'browser has no authors endpoint to ask.',
+      ),
+    );
+  }
+
   listTags(): Promise<TagSummary[]> {
     return firstValueFrom(this.http.get<TagSummary[]>(`${API}/tags`));
   }

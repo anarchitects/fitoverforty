@@ -13,6 +13,7 @@ import {
   TagEntity,
 } from './entities';
 import { TypeOrmContentSource } from './typeorm-content-source';
+import { NoIndexHeader } from './indexing';
 
 @Module({
   imports: [
@@ -30,6 +31,10 @@ import { TypeOrmContentSource } from './typeorm-content-source';
   providers: [
     TypeOrmContentSource,
     PostAdminService,
+    // Registers a Fastify hook on init; nothing injects it. Provided here
+    // rather than in main.ts so the e2e suite, which builds AppModule
+    // directly, can reach it — see the note on the class.
+    NoIndexHeader,
     { provide: CONTENT_SOURCE, useExisting: TypeOrmContentSource },
   ],
   exports: [CONTENT_SOURCE],

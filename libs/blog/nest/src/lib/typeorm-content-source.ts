@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { In, LessThanOrEqual, Not, Repository } from 'typeorm';
 import type {
   AuthorProfile,
+  AuthorRef,
   ContentSource,
   Paged,
   PillarSummary,
@@ -245,6 +246,32 @@ export class TypeOrmContentSource implements ContentSource {
       slug: row.slug,
       publishedAt: (row.publishedAt as Date).toISOString(),
       updatedAt: row.updatedAt?.toISOString(),
+    }));
+  }
+
+  async listAuthorRefs(): Promise<AuthorRef[]> {
+    // Grouped over posts rather than selected from authors, so an author with
+    // nothing published is left out — see the note on the port. Mirrors
+    // listTags; unlike listPillars, which LEFT joins because the four pillars
+    // are navigation and have to exist before anyone writes for them.
+    const rows = await this.posts
+      .createQueryBuilder('post')
+      .select('author.id', 'id')
+      .addSelect('author.slug', 'slug')
+      .addSelect('author.name', 'name')
+      .innerJoin('post.authors', 'author')
+      .where('post.status = :status', { status: 'published' })
+      .andWhere('post.published_at <= now()')
+      .groupBy('author.id')
+      .addGroupBy('author.slug')
+      .addGroupBy('author.name')
+      .orderBy('author.name', 'ASC')
+      .getRawMany<{ id: string; slug: string; name: string }>();
+
+    return rows.map((row) => ({
+      id: row.id,
+      slug: row.slug,
+      name: row.name,
     }));
   }
 

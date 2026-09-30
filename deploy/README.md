@@ -67,7 +67,8 @@ separate install root inherits nothing.
 `.env` sits beside `main.js`. Nest's `ConfigModule` loads it during bootstrap,
 which is before `main.ts` reads `PORT` and before the SSR paths are checked, so
 nothing needs exporting from pm2 as well. `apps/fitoverforty/backend/env.example`
-documents every variable; four of them decide whether the site works at all.
+documents every variable; four of them decide whether the site works at all,
+and a fifth decides whether anyone can find it.
 
 |                      |                                                                                                                                                                             |
 | -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -75,6 +76,7 @@ documents every variable; four of them decide whether the site works at all.
 | `SITE_URL`           | The public origin. No default; the backend refuses to start without it. It is Better Auth's only trusted origin.                                                            |
 | `BETTER_AUTH_SECRET` | No default either. `openssl rand -base64 32`.                                                                                                                               |
 | `API_ORIGIN`         | Optional, and only needed if the API is a different process. Leave it unset here: the renderer talks to itself on loopback.                                                 |
+| `ALLOW_INDEXING`     | `true` on the public site, unset everywhere else. Unset, every response carries `X-Robots-Tag: noindex` — the site works and cannot appear in search. The boot log states which.  |
 
 `WEB_SERVER_ENTRY` and `WEB_BROWSER_ASSETS_DIR` may be relative
 (`../frontend/server/server.mjs`, `../frontend/browser`) because pm2 pins the
