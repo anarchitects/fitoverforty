@@ -3,6 +3,7 @@ import type { FastifyRequest } from 'fastify';
 import type { ContentSource } from '@fitoverforty/blog-ts';
 import { CONTENT_SOURCE } from './content-source.token';
 import { escapeXml, siteOrigin } from './site-url';
+import { indexingAllowed } from './indexing';
 
 const FEED_ITEM_LIMIT = 20;
 const SITE_TITLE = 'Fit Over Forty';
@@ -68,10 +69,11 @@ ${entries}
   @Header('Content-Type', 'application/xml; charset=utf-8')
   async sitemap(@Req() request: FastifyRequest): Promise<string> {
     const origin = siteOrigin(request);
-    const [posts, tags, pillars] = await Promise.all([
+    const [posts, tags, pillars, authors] = await Promise.all([
       this.content.listPublishedRefs(),
       this.content.listTags(),
       this.content.listPillars(),
+      this.content.listAuthorRefs(),
     ]);
 
     const url = (path: string, lastmod?: string) =>
@@ -84,11 +86,17 @@ ${entries}
       url('/blog'),
       url('/blog/tags'),
       url('/blog/pillars'),
+      url('/about'),
       url('/contact'),
+      url('/privacy'),
       // Every pillar, including any with no posts yet — unlike tags, which
       // only exist once something carries them. The four are permanent URLs.
       ...pillars.map((pillar) => url(`/blog/pillar/${pillar.slug}`)),
       ...tags.map((tag) => url(`/blog/tag/${tag.slug}`)),
+      // There is deliberately no /blog/authors index — an author page is
+      // reached from a byline — but the pages themselves are public URLs with
+      // prose on them, and a crawler has no byline to follow.
+      ...authors.map((author) => url(`/blog/author/${author.slug}`)),
       ...posts.map((post) =>
         url(`/blog/${post.slug}`, post.updatedAt ?? post.publishedAt),
       ),
@@ -101,16 +109,37 @@ ${entries}
 `;
   }
 
+  /**
+   * Note what this does *not* do on an instance that is not to be indexed: it
+   * does not answer `Disallow: /`. Blocking the crawl would stop it reading
+   * the `X-Robots-Tag: noindex` that `NoIndexHeader` puts on every response,
+   * and a URL it cannot fetch is one it can still list from someone else's
+   * link. Letting it in to be told no is the only combination that works; see
+   * the note on `NoIndexHeader`.
+   */
   @Get('robots.txt')
   @Header('Content-Type', 'text/plain; charset=utf-8')
   robots(@Req() request: FastifyRequest): string {
     const origin = siteOrigin(request);
     // /admin is disallowed ahead of Phase B, so the authoring area is never
     // crawled even briefly after it lands.
-    return `User-agent: *
+    const rules = `User-agent: *
 Disallow: /admin
 Allow: /
+`;
 
+    if (!indexingAllowed()) {
+      // No sitemap line: this instance has nothing it wants found, and the
+      // sitemap is the one file whose whole purpose is to hand a crawler URLs
+      // it had not discovered yet. The comment is for whoever reads this
+      // wondering why the site is missing from search.
+      return `# ALLOW_INDEXING is not set, so every response from this
+# instance carries X-Robots-Tag: noindex, nofollow. Crawling is
+# permitted precisely so that header can be read.
+${rules}`;
+    }
+
+    return `${rules}
 Sitemap: ${origin}/sitemap.xml
 `;
   }

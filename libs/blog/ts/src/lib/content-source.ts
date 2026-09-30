@@ -1,6 +1,11 @@
 import type { Paged } from './paged';
 import type { Post, PostRef, PostSummary } from './post';
-import type { AuthorProfile, PillarSummary, TagSummary } from './refs';
+import type {
+  AuthorProfile,
+  AuthorRef,
+  PillarSummary,
+  TagSummary,
+} from './refs';
 
 /**
  * The narrow contract between stored content and everything that renders it.
@@ -56,4 +61,18 @@ export interface ContentSource {
 
   /** Every published post, unpaginated. For the sitemap. */
   listPublishedRefs(): Promise<PostRef[]>;
+
+  /**
+   * Every author who has a published post. For the sitemap.
+   *
+   * Narrower than `loadAuthor`, which answers for an author with nothing
+   * published because a byline links to them regardless. A sitemap is the
+   * opposite case: it exists to offer a crawler pages worth fetching, and an
+   * author page with no posts on it is not one.
+   *
+   * There is no HTTP endpoint behind this, and deliberately so — the sitemap
+   * is generated server-side, and an authors collection is the API an authors
+   * index page would need. That page is a decision against, not an omission.
+   */
+  listAuthorRefs(): Promise<AuthorRef[]>;
 }

@@ -13,17 +13,23 @@ describe('syndication', () => {
     return {
       status: response.statusCode,
       contentType: response.headers['content-type'] as string,
+      robotsTag: response.headers['x-robots-tag'] as string | undefined,
       body: response.payload,
     };
   };
 
   beforeAll(async () => {
     process.env['SITE_URL'] = 'https://example.test';
+    // The feed and sitemap describe a site that wants to be found, so this
+    // suite runs as the public site does. The refusing branch is exercised in
+    // its own describe below, which sets this back and restores it.
+    process.env['ALLOW_INDEXING'] = 'true';
     app = await createFastifyTestApp();
   });
 
   afterAll(async () => {
     delete process.env['SITE_URL'];
+    delete process.env['ALLOW_INDEXING'];
     await app.close();
   });
 
@@ -71,8 +77,25 @@ describe('syndication', () => {
         '/contact',
         '/blog/tag/strength',
         '/blog/why-lifting-after-forty-is-different',
+        // Both static pages shipped after this sitemap was written and neither
+        // was added to it, which is the failure this list now catches: a route
+        // exists, renders, and is not offered to anything that reads sitemaps.
+        '/about',
+        '/privacy',
       ]) {
         expect(body).toContain(`<loc>https://example.test${path}</loc>`);
+      }
+    });
+
+    it('lists an author page for every author with a published post', async () => {
+      const { body } = await get('/sitemap.xml');
+      // There is no /blog/authors index to crawl from — that is a decision,
+      // not an omission — so the sitemap is the only route by which these
+      // pages are discoverable without following a byline.
+      for (const slug of ['paul', 'johan']) {
+        expect(body).toContain(
+          `<loc>https://example.test/blog/author/${slug}</loc>`,
+        );
       }
     });
 
@@ -89,6 +112,51 @@ describe('syndication', () => {
       expect(contentType).toContain('text/plain');
       expect(body).toContain('Disallow: /admin');
       expect(body).toContain('Sitemap: https://example.test/sitemap.xml');
+    });
+
+    it('sends no X-Robots-Tag when indexing is allowed', async () => {
+      expect((await get('/robots.txt')).robotsTag).toBeUndefined();
+    });
+  });
+
+  /**
+   * An instance that does not want to be indexed. ALLOW_INDEXING is read per
+   * response rather than captured when the hook is registered, so both
+   * branches can be exercised against the one app.
+   */
+  describe('when ALLOW_INDEXING is not set', () => {
+    beforeAll(() => {
+      delete process.env['ALLOW_INDEXING'];
+    });
+
+    afterAll(() => {
+      process.env['ALLOW_INDEXING'] = 'true';
+    });
+
+    it('sends noindex on every response, not only on documents', async () => {
+      // The header is what keeps the site out of an index, so it has to be on
+      // whatever a crawler actually fetched. Asserted on two unrelated routes
+      // because a hook scoped to one of them would pass a narrower test and
+      // leave the rendered pages — the ones that matter — uncovered.
+      for (const path of ['/robots.txt', '/sitemap.xml', '/blog/feed.xml']) {
+        expect((await get(path)).robotsTag).toBe('noindex, nofollow');
+      }
+    });
+
+    it('stops advertising the sitemap', async () => {
+      const { body } = await get('/robots.txt');
+      expect(body).not.toContain('Sitemap:');
+    });
+
+    it('still lets a crawler in, so it can read the noindex', async () => {
+      // Deliberately NOT `Disallow: /`. A crawler told not to fetch a page
+      // never sees the header telling it not to index it, and can still list
+      // the URL from a link elsewhere — so blocking the crawl is the one
+      // change here that would defeat the whole purpose.
+      const { body } = await get('/robots.txt');
+      expect(body).toContain('Allow: /');
+      expect(body).not.toContain('Disallow: /\n');
+      expect(body).toContain('Disallow: /admin');
     });
   });
 

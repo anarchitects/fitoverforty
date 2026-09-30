@@ -39,3 +39,12 @@ export {
  * feed and sitemap use to label a social card with the site's hostname.
  */
 export { siteOrigin } from './lib/site-url';
+
+/**
+ * Exported for `main.ts`, which states the indexing mode in its boot log. That
+ * line is the only place the setting is visible without fetching a page: a
+ * production instance left without `ALLOW_INDEXING` would otherwise be a site
+ * that works perfectly and is invisible to search, with nothing anywhere
+ * saying so.
+ */
+export { indexingAllowed } from './lib/indexing';

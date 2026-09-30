@@ -17,6 +17,7 @@ import multipart from '@fastify/multipart';
 import { AppModule } from './app/app.module';
 import { MAX_UPLOAD_BYTES } from '@fitoverforty/media-nest';
 import { loadAngularAppEngine } from './ssr/angular-ssr.registration';
+import { indexingAllowed } from '@fitoverforty/blog-nest';
 
 /**
  * SSR is wired here rather than in AppModule on purpose.
@@ -125,6 +126,16 @@ async function bootstrap() {
     ssrEnabled
       ? '🅰️  Angular SSR enabled'
       : '🅰️  Angular SSR disabled (WEB_SERVER_ENTRY / WEB_BROWSER_ASSETS_DIR unset)',
+  );
+  // Said out loud at boot because neither state is visible from the outside
+  // without fetching a page, and the wrong one is silent in both directions:
+  // a production instance missing ALLOW_INDEXING serves the whole site
+  // perfectly while asking every crawler to ignore it.
+  Logger.log(
+    indexingAllowed()
+      ? '🔎 Search engine indexing allowed (ALLOW_INDEXING=true)'
+      : '🙈 Search engine indexing refused — every response carries ' +
+          'X-Robots-Tag: noindex. Set ALLOW_INDEXING=true on the public site.',
   );
 }
 
