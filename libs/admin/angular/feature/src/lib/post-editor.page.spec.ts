@@ -170,6 +170,52 @@ describe('PostEditorPage', () => {
     expect(page.post()?.status).toBe('published');
   });
 
+  it('leaves the editor once a post is published', async () => {
+    // The status line sits at the top of the page and the publish button a
+    // screen and a half below it, so "Published." was routinely never seen
+    // and a successful publish looked like nothing happening.
+    const page = build('post-1');
+    http.expectOne('/api/admin/posts/post-1').flush(makePost());
+    await settle();
+
+    const pending = page.publishNow();
+    http
+      .expectOne({ method: 'PATCH', url: '/api/admin/posts/post-1' })
+      .flush(makePost());
+    await settle();
+    http
+      .expectOne({ method: 'POST', url: '/api/admin/posts/post-1/publish' })
+      .flush(makePost({ status: 'published' }));
+    await pending;
+
+    expect(navigate).toHaveBeenCalledWith(['/admin']);
+  });
+
+  it('stays put when publishing fails', async () => {
+    // Navigating away from a failure would hide the reason for it, and the
+    // author would have no way back to the words they just lost.
+    const page = build('post-1');
+    http.expectOne('/api/admin/posts/post-1').flush(makePost());
+    await settle();
+
+    navigate.mockClear();
+    const pending = page.publishNow();
+    http
+      .expectOne({ method: 'PATCH', url: '/api/admin/posts/post-1' })
+      .flush(makePost());
+    await settle();
+    http
+      .expectOne({ method: 'POST', url: '/api/admin/posts/post-1/publish' })
+      .flush(
+        { message: 'Alt text is required.' },
+        { status: 422, statusText: 'Unprocessable Entity' },
+      );
+    await pending;
+
+    expect(navigate).not.toHaveBeenCalled();
+    expect(page.status()?.kind).toBe('error');
+  });
+
   it('sends a scheduled time as an absolute instant', async () => {
     const page = build('post-1');
     http.expectOne('/api/admin/posts/post-1').flush(makePost());

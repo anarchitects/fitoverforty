@@ -222,6 +222,29 @@ ul.blog-list ul.blog-list {
 
 /* --- Post header and listing -------------------------------------------- */
 
+/*
+ * The hero, above the title.
+ *
+ * `max-inline-size: 100%` with `block-size: auto` and no width of its own
+ * means a large image fills the measure and a small one renders at its
+ * intrinsic size rather than being stretched to fit — a 150px avatar blown
+ * up to 700px is worse than no image at all, and the editor does not stop
+ * anybody uploading one. `margin-inline: auto` then centres the small case
+ * instead of leaving it stranded against the left edge.
+ *
+ * The `width`/`height` attributes on the element give the browser an aspect
+ * ratio to reserve before the bytes arrive; without them the title jumps
+ * down the page mid-load.
+ */
+.anx-root .blog-post-hero {
+  display: block;
+  max-inline-size: 100%;
+  block-size: auto;
+  margin-block: 0 2rem;
+  margin-inline: auto;
+  border-radius: 4px;
+}
+
 .anx-root .blog-post-header {
   /* The title above it is now roughly twice the size it was; 2rem under it
      read as cramped once the type grew. */
